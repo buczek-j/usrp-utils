@@ -8,7 +8,7 @@ from Network_Layer import Network_Layer
 from threading import Thread, Event, Timer
 import socket, time, struct
 
-class layer_2(network_layer):
+class Layer2(Network_Layer):
     def __init__(self,
                 my_config,
                 src_config,
