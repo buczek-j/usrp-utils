@@ -1,7 +1,6 @@
 options:
   parameters:
     author: ''
-    catch_exceptions: 'True'
     category: Custom
     cmake_opt: ''
     comment: ''
@@ -23,6 +22,7 @@ options:
     sizing_mode: fixed
     thread_safe_setters: ''
     title: OFDM Rx
+    window_size: ''
   states:
     bus_sink: false
     bus_source: false
@@ -376,7 +376,7 @@ blocks:
     coordinate: [176, 228.0]
     rotation: 0
     state: disabled
-- name: blocks_tag_debug_0
+- name: blocks_tag_debug_1
   id: blocks_tag_debug
   parameters:
     affinity: ''
@@ -384,7 +384,7 @@ blocks:
     comment: ''
     display: 'True'
     filter: '""'
-    name: ''
+    name: Rx Bytes
     num_inputs: '1'
     type: byte
     vlen: '1'
@@ -392,9 +392,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [928, 932.0]
+    coordinate: [949, 925]
     rotation: 0
-    state: true
+    state: enabled
 - name: blocks_throttle_0
   id: blocks_throttle
   parameters:
@@ -681,31 +681,6 @@ blocks:
     coordinate: [832, 580.0]
     rotation: 180
     state: enabled
-- name: epy_block_0
-  id: epy_block
-  parameters:
-    _source_code: "\"\"\"\nEmbedded Python Block demo\n\"\"\"\n\n#  output_block.py\n\
-      #  created 10/17/2019\n\nimport numpy as np\nfrom gnuradio import gr\n\nclass\
-      \ my_sync_block(gr.sync_block):\n    \"\"\"\n    reads input from a message\
-      \ port\n    outputs text\n    \"\"\"\n    def __init__(self):\n        gr.sync_block.__init__(self,\
-      \ name = \"Output_Message_Block\", in_sig = [np.byte], out_sig = None)\n   \
-      \     #self.callback = callback\n    \n    def work(self, input_items, output_items):\n\
-      \        print(\"JOHN MESSAGE\")\n        print(input_items[0])\n        return\
-      \ (0)\n"
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-  states:
-    _io_cache: ('Output_Message_Block', 'my_sync_block', [], [('0', 'byte', 1)], [],
-      '\n    reads input from a message port\n    outputs text\n    ', [])
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [920, 896.0]
-    rotation: 0
-    state: true
 - name: fft_vxx_0
   id: fft_vxx
   parameters:
@@ -904,7 +879,7 @@ blocks:
     dc_offs_enb7: '""'
     dc_offs_enb8: '""'
     dc_offs_enb9: '""'
-    dev_addr: '"serial=314D842"'
+    dev_addr: '"serial=314F800"'
     dev_args: '""'
     gain0: gain
     gain1: '0'
@@ -938,38 +913,6 @@ blocks:
     gain7: '0'
     gain8: '0'
     gain9: '0'
-    gain_type0: default
-    gain_type1: default
-    gain_type10: default
-    gain_type11: default
-    gain_type12: default
-    gain_type13: default
-    gain_type14: default
-    gain_type15: default
-    gain_type16: default
-    gain_type17: default
-    gain_type18: default
-    gain_type19: default
-    gain_type2: default
-    gain_type20: default
-    gain_type21: default
-    gain_type22: default
-    gain_type23: default
-    gain_type24: default
-    gain_type25: default
-    gain_type26: default
-    gain_type27: default
-    gain_type28: default
-    gain_type29: default
-    gain_type3: default
-    gain_type30: default
-    gain_type31: default
-    gain_type4: default
-    gain_type5: default
-    gain_type6: default
-    gain_type7: default
-    gain_type8: default
-    gain_type9: default
     iq_imbal_enb0: '""'
     iq_imbal_enb1: '""'
     iq_imbal_enb10: '""'
@@ -1069,6 +1012,38 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     nchan: '1'
+    norm_gain0: 'False'
+    norm_gain1: 'False'
+    norm_gain10: 'False'
+    norm_gain11: 'False'
+    norm_gain12: 'False'
+    norm_gain13: 'False'
+    norm_gain14: 'False'
+    norm_gain15: 'False'
+    norm_gain16: 'False'
+    norm_gain17: 'False'
+    norm_gain18: 'False'
+    norm_gain19: 'False'
+    norm_gain2: 'False'
+    norm_gain20: 'False'
+    norm_gain21: 'False'
+    norm_gain22: 'False'
+    norm_gain23: 'False'
+    norm_gain24: 'False'
+    norm_gain25: 'False'
+    norm_gain26: 'False'
+    norm_gain27: 'False'
+    norm_gain28: 'False'
+    norm_gain29: 'False'
+    norm_gain3: 'False'
+    norm_gain30: 'False'
+    norm_gain31: 'False'
+    norm_gain4: 'False'
+    norm_gain5: 'False'
+    norm_gain6: 'False'
+    norm_gain7: 'False'
+    norm_gain8: 'False'
+    norm_gain9: 'False'
     num_mboards: '1'
     otw: ''
     rx_agc0: Default
@@ -1113,7 +1088,6 @@ blocks:
     sd_spec6: ''
     sd_spec7: ''
     show_lo_controls: 'False'
-    start_time: '-1.0'
     stream_args: ''
     stream_chans: '[]'
     sync: pc_clock
@@ -1224,8 +1198,7 @@ connections:
 - [channels_channel_model_0, '0', blocks_throttle_0, '0']
 - [digital_constellation_decoder_cb_0, '0', digital_packet_headerparser_b_0, '0']
 - [digital_constellation_decoder_cb_1, '0', blocks_repack_bits_bb_0, '0']
-- [digital_crc32_bb_0, '0', blocks_tag_debug_0, '0']
-- [digital_crc32_bb_0, '0', epy_block_0, '0']
+- [digital_crc32_bb_0, '0', blocks_tag_debug_1, '0']
 - [digital_header_payload_demux_0, '0', virtual_sink_0, '0']
 - [digital_header_payload_demux_0, '1', virtual_sink_1, '0']
 - [digital_ofdm_chanest_vcvc_0, '0', digital_ofdm_frame_equalizer_vcvc_0, '0']
