@@ -16,7 +16,38 @@ You can test your installation by connecting your usrp and running the program f
 python3 ~/prefix-3.8/lib/uhd/examples/python/curses_fft.py -f 2.4e9
 ```
 
+Note that you will need to source the setup_env.sh everytime you open a terminal. So it is recommended to copy the command `source ~/prefix-3.8/setup_env.sh` into your ~/.bashrc with the command:
+```
+echo "source ~/prefix-3.8/setup_env.sh" >> ~/.bashrc
+```
+
 ## Useful commands:
 To see all locally connected usrp devices: `uhd_find_devices`
 
 To get more information on connected usrps: `uhd_usrp_probe`
+
+## Troubleshooting
+
+### gnu-radio building
+If you get the error:
+```
+error: ‘get_system_time’ is not a member of ‘uhd::time_spec_t’
+       result = uhd::time_spec_t::get_system_time();
+```
+When trying to run the command `pybombs prefix init ~/prefix-3.8 -R gnuradio-default`
+
+### uhd_find_devices
+If you get the error
+```
+[ERROR] [USB] USB open failed: insufficient permissions.
+
+```
+When trying to run `uhd_find_devices`, then run the commands:
+```
+sudo cp ~/prefix-3.8/src/uhd/host/utils/uhd-usrp.rules /etc/udev/rules.d/
+
+sudo udevadm control --reload-rules
+
+sudo udevadm trigger
+```
+
