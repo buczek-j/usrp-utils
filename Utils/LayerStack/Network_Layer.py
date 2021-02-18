@@ -16,51 +16,22 @@ class Network_Layer(object):
 		self.down_queue = queue.Queue(1024*1000)
 		self.window = window
 
-	def init_upper_queue(self, upper_layer):
-		self.upper_queue = upper_layer.up_queue
-
-	def init_lower_queue(self, lower_layer):
-		self.lower_queue = lower_layer.down_queue						
-
-	def up_fuction(self, stop):
+	def init_layers(self, upper=None, lower=None):
 		'''
-		Method that continuously runs. receives up_packet from pass_up and decides based on the 
-		return of pass_up whether to put the packet in upper_queue(upper layer) or down_queue (current layer)
-		:param stop: function returning True/False to terminate the thread
+		Method to initialize the queues between layers
+		:param upper: Network_Layer object for the next upper layer
+		:param lower: Network_Layer object for the next lower layer
 		'''
-		while not stop() :
-			#function that assemble the packet to be sent up/to down_queue. this function will pull packets from the queue
-			up_packet,passing_decision = self.pass_up(stop)  #previous_hop_socket check
-			if passing_decision == 1:
-				self.upper_queue.put(up_packet, True)
-			elif  passing_decision == 0:
-				self.down_queue.put(up_packet,True)	
-			else:
-				pass #this is for mac layers not having a upper queue 	
-		print("\n" + self.__class__.__name__ +  " up_fuction TERMINATE\n")
+		if upper:
+			self.prev_down_queue = upper.down_queue
+		else:
+			self.prev_down_queue = None
+		
+		if lower:
+			self.prev_up_queue = lower.up_queue
+		else:
+			self.prev_up_queue = queue.Queue(1024*1000)	# needed for l4 layer relay
 
-	def down_function_pool(self, stop):
-		'''
-		Method that continuously runs and gets the down_packet from down_queue and passes it to pass_down 
-		:param stop: function returning True/False to terminate the thread
-		'''
-		self.thread_pool = []
-		self.dict_thread_signal = {}
-		self.dict_pktno_thread = {}		
-		for i in range(self.window):			
-			self.thread_pool.append(Thread(target = self.running_down_function, args = (i, lambda : stop, ))) #call a thread running 
-			self.dict_thread_signal[self.thread_pool[i].ident] = Event()  #put a signal			
-			self.thread_pool[-1].start()	
-
-	def running_down_function(self,index, stop):	
-		while not stop():
-			self.down_function(index, stop)
-		print("\n" + self.__class__.__name__ + " running_down_function TERMINATE\n")
-			
-	def down_function(self, index, stop):
-		#fucntions that fragments the packet and put each of them down. the function is in charge of putting all the fragments in the queue
-		down_packet = self.down_queue.get(True)
-		self.pass_down(down_packet,index, stop) 
 		
 	def pass_up(self, stop):
 		'''
@@ -68,7 +39,7 @@ class Network_Layer(object):
 		'''
 		return None, None
 
-	def pass_down(self, down_pkt, index, stop):
+	def pass_down(self, stop):
 		'''
 		pass down to be overritten by child class
 		'''
