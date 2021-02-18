@@ -74,7 +74,6 @@ class Layer1(Network_Layer):
         :param stop: function returning true/false to stop the thread
         '''
         while not stop():
-            if not self.upper_queue.empty():
-                msg = self.prev_down_queue.get(True)    #  get message from previous layer down queue
-                self.send_socket.send(msg)
+            msg = self.prev_down_queue.get(True)    #  get message from previous layer down queue
+            self.send_socket.send(msg)
 
