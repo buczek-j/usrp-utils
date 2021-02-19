@@ -66,7 +66,7 @@ class Layer1(Network_Layer):
             if self.recv_socket.poll(10) != 0:      # check if msg in socket
                 msg = self.recv_socket.recv()
                 received_pkt = frombuffer(msg, dtype=byte, count=-1)
-                self.up_queue.put(received_pkt, True)
+                self.up_queue.put(received_pkt.tobytes(), True)
 
     def pass_down(self, stop):
         '''

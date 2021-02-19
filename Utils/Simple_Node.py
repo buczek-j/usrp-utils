@@ -81,7 +81,7 @@ class Simple_Node(Network_Layer.Network_Layer):
     def rx_test(self):
         while not self.stop_threads:
             msg = self.prev_up_queue.get(True)
-            print(msg)
+            print(msg.decode("utf-8"))
 
 
     def start_threads(self):
@@ -196,10 +196,10 @@ def main():
             tx_gain=tx_gain[ii],
             serial=serial_list[ii]
         ))
-    nodes[0].configure_hops(nodes[0], nodes[1], nodes[1], None)
-    nodes[1].configure_hops(nodes[0], nodes[1], None, nodes[1])
+    nodes[0].configure_hops(nodes[0], nodes[1], None, nodes[1])
+    nodes[1].configure_hops(nodes[0], nodes[1], nodes[1], None)
     
-    simple_node = Simple_Node(nodes[1])
+    simple_node = Simple_Node(nodes[0])
     try:
         simple_node.run()
     except:

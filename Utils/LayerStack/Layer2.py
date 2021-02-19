@@ -7,7 +7,7 @@ Layer 2 object: Mac address layer (Datalink)
 from LayerStack.Network_Layer import Network_Layer
 from enum import Enum 
 from threading import  Event
-import socket, time, struct, socket
+import socket, time, struct, socket, numpy
 
 l2_ack = Event()
 l2_control = Event()
@@ -78,11 +78,12 @@ class Layer2(Network_Layer):
         '''
         while not stop():
             mac_packet = self.prev_up_queue.get(True)
+
             (pktno_mac,) = struct.unpack('h', mac_packet[0:2])	
-            mac_destination_ip =   mac_packet[15:28] 
+            mac_destination_ip =   mac_packet[15:28]  #.decode("utf-8")
             mac_source_ip =   mac_packet[2:15]
 
-            if not mac_source_ip in self.mac_pkt_dict:
+            if not (mac_source_ip in self.mac_pkt_dict.keys()):
                 self.mac_pkt_dict[mac_source_ip] = L2_ENUMS.MSG.value
                 self.up_pkt[mac_source_ip] = ''
 
@@ -109,6 +110,7 @@ class Layer2(Network_Layer):
                     continue
             else:
                 pass
+        
         self.up_queue.put(self.up_pkt[mac_source_ip], True)
         self.up_pkt[mac_source_ip] = ''
         self.mac_pkt_dict[mac_source_ip] = L2_ENUMS.MSG.value
@@ -120,7 +122,7 @@ class Layer2(Network_Layer):
         '''
         while not stop():
             down_packet = self.prev_down_queue.get(True)
-            
+
             if self.debug:
                 print("from l3", down_packet)
 

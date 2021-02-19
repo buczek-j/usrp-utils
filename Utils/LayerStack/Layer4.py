@@ -61,6 +61,9 @@ class Layer4(Network_Layer):
         '''
         while not stop():
             l4_packet = self.prev_up_queue.get(True)
+            if self.debug:
+                print('from l3',l4_packet)
+                
             packet_source = l4_packet[8:21] 
             packet_destination = l4_packet[21:34]
             (timestamp,) = struct.unpack('d', l4_packet[34:42])
