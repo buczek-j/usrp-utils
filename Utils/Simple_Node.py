@@ -42,6 +42,7 @@ class Simple_Node(Network_Layer.Network_Layer):
         self.layer2.init_layers(upper=self.layer3, lower=self.layer1)
         self.layer3.init_layers(upper=self.layer4, lower=self.layer2)
         self.layer4.init_layers(upper=self, lower=self.layer3)  # link l4 to this class object
+        self.init_layers(upper=None, lower=self.layer4)
 
         
 
@@ -168,7 +169,7 @@ def main():
     role_list = ['tx', 'rx']
     udp_port_list = [9000, 9000]
     usrp_ports = [['55555','55556'], ['55555','55556']]
-    wifi_ip_list = ['10.110.149.19', '10.110.149.20']#['192.168.10.', '192.168.10.']
+    wifi_ip_list = ['10.110.149.19', '10.110.144.55']#['192.168.10.', '192.168.10.']
     usrp_ip_list = ['192.170.10.19', '192.170.10.20']
     tx_gain = [0.8, 0.8]
     rx_gain = [0.8, 0.8]
@@ -198,7 +199,7 @@ def main():
     nodes[0].configure_hops(nodes[0], nodes[1], nodes[1], None)
     nodes[1].configure_hops(nodes[0], nodes[1], None, nodes[1])
     
-    simple_node = Simple_Node(nodes[0])
+    simple_node = Simple_Node(nodes[1])
     try:
         simple_node.run()
     except:
