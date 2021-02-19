@@ -165,8 +165,8 @@ def main():
     '''
     Main method
     '''
-    id_list = ['src1', 'dst1']
-    role_list = ['tx', 'rx']
+    id_list = ['dest1', 'src1']
+    role_list = ['rx', 'tx']
     udp_port_list = [9000, 9000]
     usrp_ports = [['55555','55556'], ['55555','55556']]
     wifi_ip_list = ['10.110.149.19', '10.110.144.55']#['192.168.10.', '192.168.10.']
