@@ -370,20 +370,27 @@ class TRX_ODFM_USRP(gr.top_block):
         self.hdr_format = hdr_format
 
 
-
 def argument_parser():
     parser = ArgumentParser()
+    parser.add_argument('--serial', type=str, default='', help='USRP Serial number')
+    parser.add_argument('--rx_bw', type=int, default=int(500e3), help='receiver bandwidth Hz')
+    parser.add_argument('--rx_freq', type=int, default=int(2e9), help='receiver center frequency Hz')
+    parser.add_argument('--rx_gain', type=float, default=0.5, help='receiver gain realative (0.0-1.0)')
+    
+    parser.add_argument('--tx_bw', type=int, default=int(500e3), help='transmitter bandwidth Hz')
+    parser.add_argument('--tx_freq', type=int, default=int(2e9), help='transmitter center frequency Hz')
+    parser.add_argument('--tx_gain', type=float, default=0.5, help='transmitter gain realative (0.0-1.0)')
+
+    parser.add_argument('--input_port', type=str, default='55555', help='tranceiver tcp input port')
+    parser.add_argument('--output_port', type=str, default='55556', help='tranceiver tcp output port')
+
     return parser
 
-
-
-
-    
 
 def main(top_block_cls=TRX_ODFM_USRP, options=None):
     if options is None:
         options = argument_parser().parse_args()
-    tb = top_block_cls()
+    tb = top_block_cls(options.input_port, options.output_port, options.rx_bw, options.rx_freq, options.rx_gain, options.serial, options.tx_bw, options.tx_freq, options.tx_gain)
 
     def sig_handler(sig=None, frame=None):
         tb.stop()

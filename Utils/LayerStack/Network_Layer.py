@@ -6,8 +6,8 @@ Network layer parent class. Defines the basic structure of the stack
 
 from threading import Thread, Event
 import queue
-class Network_Layer(object):
-	def __init__(self, layer_name, window=None):
+class Network_Layer():
+	def __init__(self, layer_name, window=None, debug=False):
 		'''
 		Class to define the the basic structure of a network layer
 		'''
@@ -15,6 +15,7 @@ class Network_Layer(object):
 		self.up_queue = queue.Queue(1024*1000)
 		self.down_queue = queue.Queue(1024*1000)
 		self.window = window
+		self.debug = debug
 
 	def init_layers(self, upper=None, lower=None):
 		'''

@@ -4,7 +4,7 @@
 Layer 2 object: Mac address layer (Datalink)
 '''
 
-from Network_Layer import Network_Layer
+from LayerStack.Network_Layer import Network_Layer
 from enum import Enum 
 from threading import  Event
 import socket, time, struct, socket
@@ -22,7 +22,7 @@ class L2_ENUMS(Enum):
 class Layer2(Network_Layer):
     def __init__(self, mac_ip,
                 send_ack=None, udp_acks=True,
-                window='', num_frames=5, timeout=0.01, n_retrans=5):
+                window='', num_frames=5, timeout=0.01, n_retrans=5, debug=False):
         '''
         Layer 2 network layer object
         :param mac_ip: string for the usrp mac address fo the current node
@@ -36,7 +36,7 @@ class Layer2(Network_Layer):
         :param ack_send_port: int for the layer 2 ack send port number 
         
         '''  
-        Network_Layer.__init__(self, "layer_2", window)
+        Network_Layer.__init__(self, "layer_2", window, debug=debug)
 
         self.mac_ip = mac_ip
         self.num_frames = num_frames
@@ -120,6 +120,10 @@ class Layer2(Network_Layer):
         '''
         while not stop():
             down_packet = self.prev_down_queue.get(True)
+            
+            if self.debug:
+                print("from l3", down_packet)
+
             act_rt = 0  # retransmission counter
 
             (pktno_mac,) = struct.unpack('h', down_packet[0:2]) 
