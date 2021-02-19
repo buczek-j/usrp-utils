@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 '''
-Control Plane object: Runs alongside layer stack 
+Control Plane object: Runs alongside layer stack to receive l2 and l4 acks and cc commands
 '''
 
 from socket import socket, AF_INET, SOCK_DGRAM
@@ -18,6 +18,7 @@ class CP_Codes(Enum):
     ROUTE=-7        # signal the next hop of the session
     GEN = -3        # generic signalling message
     
+
 def get_post_ip(ip):
     '''
     Method to get the final part of the ip
@@ -41,10 +42,11 @@ class Control_Plane():
         '''
         self.send_sock = socket(AF_INET, SOCK_DGRAM)
         self.recv_sock = socket(AF_INET, SOCK_DGRAM)
-        self.recv_sock.bind(ip, port_recv)
+        self.recv_sock.bind((ip, port_recv))
         self.ip = ip
         self.port = port_recv
         self.wifi_ip_pre = wifi_ip_pre
+
 
     def listening_socket(self, l2_recv_ack, l4_recv_ack, stop):
         '''
@@ -73,6 +75,7 @@ class Control_Plane():
         '''
         pc_ip = self.wifi_ip_pre + get_post_ip(mac_ip)
         self.send_sock.sendto(struct.pack('h', CP_Codes.L2_ACK.value)+ pktno, (pc_ip.decode('utf-8'), self.port))
+
 
     def send_l4_ack(self, pktno, pc_ip):
         '''

@@ -4,7 +4,7 @@
 Layer 4 object: Transport layer
 '''
 
-from Network_Layer import Network_Layer
+from LayerStack.Network_Layer import Network_Layer
 from threading import  Event, Lock
 import struct
 
@@ -19,12 +19,14 @@ class Layer4(Network_Layer):
                 l2_header=28,
                 l2_block_size=128,
                 timeout=1,
-                n_retrans=3
+                n_retrans=3,
+                debug=False
                 ):
         '''
         Layer 4 Transport layer object
         :param : TODO
         '''
+        Network_Layer.__init__(self, "layer_4", debug=debug)
         self.my_pc = bytes(my_config.pc_ip, "utf-8")
   
         self.send_ack_wifi = send_ack
@@ -79,15 +81,19 @@ class Layer4(Network_Layer):
         '''
         while not stop():
             act_rt=0 # retransmission counter
-            l4_packet = self.prev_up_queue.get(True)
+            l4_packet = self.prev_down_queue.get(True)
             packet_source = l4_packet[8:21]
             packet_destination = l4_packet[21:34]
+            try:
+                self.unacked_packet = struct.unpack('h', l4_packet[0:8])
+            except:
+                pass
 
             pkt_no_mac = 1  # mac (l2) packet number counter
             l4_down_access.acquire()
             # pass l2 packets down to l3
             while pkt_no_mac <= self.num_frames:
-                chunk = l4_packet[(pkt_no_mac-1)*self.chunk_size : min((pkt_no_mac)*self.chunk_size,l4_packet) ]
+                chunk = l4_packet[(pkt_no_mac-1)*self.chunk_size : min((pkt_no_mac)*self.chunk_size,len(l4_packet)) ]
                 l2_packet = struct.pack('h', pkt_no_mac & 0xffff) + packet_source + packet_destination + chunk  # packet source not needed, it gets replaced in l3, similarly, in l3 the dest is replaced by the mac address
                 self.down_queue.put(l2_packet, True)    # TODO check that a full l2 packet is made and pad otherwise
 
@@ -95,7 +101,7 @@ class Layer4(Network_Layer):
                 l2_packet=''
             l4_down_access.release()
             
-            self.unacked_packet += 1
+            
 
             # if l4 packet originated from this node, then wait for ack
             if packet_source == self.my_pc:
@@ -113,7 +119,7 @@ class Layer4(Network_Layer):
                         l4_down_access.acquire()
                         # repeated transmission block 
                         while pkt_no_mac <= self.num_frames:
-                            chunk = l4_packet[(pkt_no_mac-1)*self.chunk_size : min((pkt_no_mac)*self.chunk_size,l4_packet) ]
+                            chunk = l4_packet[(pkt_no_mac-1)*self.chunk_size : min((pkt_no_mac)*self.chunk_size,len(l4_packet)) ]
                             l2_packet = struct.pack('h', pkt_no_mac & 0xffff) + packet_source + packet_destination + chunk  
                             self.down_queue.put(l2_packet, True)    
 
