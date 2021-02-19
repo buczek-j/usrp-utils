@@ -29,7 +29,7 @@ from gnuradio.digital.utils import tagged_streams
 
 class TRX_ODFM_USRP(gr.top_block):
 
-    def __init__(self, input_port_num="55555", output_port_num="55556", rx_bw=0.5e6, rx_freq=2e9, rx_gain=0.8, serial_num="31C9237", tx_bw=0.5e6, tx_freq=1e9, tx_gain=0.8):
+    def __init__(self, input_port_num="55555", output_port_num="55556", rx_bw=0.5e6, rx_freq=2e9, rx_gain=0.8, serial_num="31C9237", tx_bw=0.5e6, tx_freq=1e9, tx_gain=0.8, l2_packet_size=256):
         gr.top_block.__init__(self, "tranceiver_ofdm_usrp")
 
         ##################################################
@@ -44,6 +44,7 @@ class TRX_ODFM_USRP(gr.top_block):
         self.tx_bw = tx_bw
         self.tx_freq = tx_freq
         self.tx_gain = tx_gain
+        self.packet_len = l2_packet_size
 
         ##################################################
         # Variables
@@ -61,7 +62,7 @@ class TRX_ODFM_USRP(gr.top_block):
         self.samp_rate = samp_rate = 10000
         self.rolloff = rolloff = 0
         self.payload_equalizer = payload_equalizer = digital.ofdm_equalizer_simpledfe(fft_len, payload_mod.base(), occupied_carriers, pilot_carriers, pilot_symbols, 1)
-        self.packet_len = packet_len = 100
+        
         self.header_formatter = header_formatter = digital.packet_header_ofdm(occupied_carriers, n_syms=1, len_tag_key=packet_length_tag_key, frame_len_tag_key=length_tag_key, bits_per_header_sym=header_mod.bits_per_symbol(), bits_per_payload_sym=payload_mod.bits_per_symbol(), scramble_header=False)
         self.header_equalizer = header_equalizer = digital.ofdm_equalizer_simpledfe(fft_len, header_mod.base(), occupied_carriers, pilot_carriers, pilot_symbols)
         self.hdr_format = hdr_format = digital.header_format_ofdm(occupied_carriers, 1, length_tag_key,)
