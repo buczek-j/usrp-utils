@@ -44,7 +44,7 @@ class TRX_ODFM_USRP(gr.top_block):
         self.tx_bw = tx_bw
         self.tx_freq = tx_freq
         self.tx_gain = tx_gain
-        self.packet_len = l2_packet_size
+        self.packet_len= packet_len = l2_packet_size
 
         ##################################################
         # Variables
