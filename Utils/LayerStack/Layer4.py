@@ -35,7 +35,7 @@ class Layer4(Network_Layer):
         self.chunk_size = l2_block_size*num_blocks - l2_header
         self.timeout=timeout
         self.n_retrans = n_retrans
-        self.unacked_packet = 1
+        self.unacked_packet = 0
 
     def send_ack(self, pktno, dest):
         '''
@@ -52,7 +52,6 @@ class Layer4(Network_Layer):
         :param pktno: int for the packet number that has been acked
         '''
         if pktno == self.unacked_packet:
-            print('L4 RECV ACK', pktno)
             globals()["l4_ack"].set()
 
 
