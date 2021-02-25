@@ -16,7 +16,7 @@ class Layer4(Network_Layer):
                 send_ack,
                 num_frames=5,
                 num_blocks=2,
-                l2_header=28,
+                l2_header=42,
                 l2_block_size=128,
                 timeout=1,
                 n_retrans=3,
@@ -64,13 +64,13 @@ class Layer4(Network_Layer):
             if self.debug:
                 print('from l3',l4_packet)
                 
-            packet_source = l4_packet[8:21] 
-            packet_destination = l4_packet[21:34]
-            (timestamp,) = struct.unpack('d', l4_packet[34:42])
+            packet_source = self.unpad(l4_packet[8:28])
+            packet_destination = self.unpad(l4_packet[28:48])
+            (timestamp,) = struct.unpack('d', l4_packet[48:56])
             (pktno_l4,) = struct.unpack('l', l4_packet[:8])	
 
             if packet_destination == self.my_pc:    # if this is the destination, then pass payload to the application layer
-                self.up_queue.put(l4_packet[42:])
+                self.up_queue.put(l4_packet[56:])
                 self.send_ack(pktno_l4, packet_source)  # send l4 ack
 
             else:   # relay/forward message
@@ -85,8 +85,8 @@ class Layer4(Network_Layer):
         while not stop():
             act_rt=0 # retransmission counter
             l4_packet = self.prev_down_queue.get(True)
-            packet_source = l4_packet[8:21]
-            packet_destination = l4_packet[21:34]
+            packet_source = self.unpad(l4_packet[8:28])
+            packet_destination = self.unpad(l4_packet[28:48])
             try:
                 self.unacked_packet = struct.unpack('h', l4_packet[0:8])
             except:
@@ -97,11 +97,11 @@ class Layer4(Network_Layer):
             # pass l2 packets down to l3
             while pkt_no_mac <= self.num_frames:
                 chunk = l4_packet[(pkt_no_mac-1)*self.chunk_size : min((pkt_no_mac)*self.chunk_size,len(l4_packet)) ]
-                l2_packet = struct.pack('h', pkt_no_mac & 0xffff) + packet_source + packet_destination + chunk  # packet source not needed, it gets replaced in l3, similarly, in l3 the dest is replaced by the mac address
+                l2_packet = struct.pack('h', pkt_no_mac & 0xffff) + l4_packet[8:28] + l4_packet[28:48] + chunk  # packet source not needed, it gets replaced in l3, similarly, in l3 the dest is replaced by the mac address
                 self.down_queue.put(l2_packet, True)    # TODO check that a full l2 packet is made and pad otherwise
 
                 pkt_no_mac +=1
-                l2_packet=''
+                l2_packet=b''
             l4_down_access.release()
             
             
@@ -123,11 +123,11 @@ class Layer4(Network_Layer):
                         # repeated transmission block 
                         while pkt_no_mac <= self.num_frames:
                             chunk = l4_packet[(pkt_no_mac-1)*self.chunk_size : min((pkt_no_mac)*self.chunk_size,len(l4_packet)) ]
-                            l2_packet = struct.pack('h', pkt_no_mac & 0xffff) + packet_source + packet_destination + chunk  
-                            self.down_queue.put(l2_packet, True)    
+                            l2_packet = struct.pack('h', pkt_no_mac & 0xffff) + l4_packet[8:28] + l4_packet[28:48] + chunk  # packet source not needed, it gets replaced in l3, similarly, in l3 the dest is replaced by the mac address
+                            self.down_queue.put(l2_packet, True)    # TODO check that a full l2 packet is made and pad otherwise
 
                             pkt_no_mac +=1
-                            l2_packet=''
+                            l2_packet=b''
                         l4_down_access.release()
 
                     else:

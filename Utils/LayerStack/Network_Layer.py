@@ -3,9 +3,10 @@
 '''
 Network layer parent class. Defines the basic structure of the stack
 '''
+IP_LEN = 20
 
 from threading import Thread, Event
-import queue
+import queue, struct
 class Network_Layer():
 	def __init__(self, layer_name, window=None, debug=False):
 		'''
@@ -44,3 +45,24 @@ class Network_Layer():
 		'''
 		pass down to be overritten by child class
 		'''
+
+	def pad(self, ip, length=20):
+		'''
+		Method to pad an IP in bytes to a length 
+		:param ip: bytes for the ip address to pad
+		:param length: int for the desired length
+		:return: bytes for the padded ip
+		'''
+		padded_ip = ip
+		for ii in range(length-len(ip)):
+			padded_ip = padded_ip + struct.pack('x')	# add struct pad byte
+		return padded_ip
+
+	def unpad(self, padded_ip):
+		'''
+		Method to uppad an IP in bytes from a length of 20 to its actual values
+		:param padded_ip: bytes of ip address with pad bytes
+		:return: bytes of ip address without pad bytes
+		'''
+		num = padded_ip.count(struct.pack('x'))	# count the number of pad bytes
+		return padded_ip[:-num]

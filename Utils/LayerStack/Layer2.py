@@ -80,8 +80,8 @@ class Layer2(Network_Layer):
             mac_packet = self.prev_up_queue.get(True)
 
             (pktno_mac,) = struct.unpack('h', mac_packet[0:2])	
-            mac_destination_ip =   mac_packet[15:28]  #.decode("utf-8")
-            mac_source_ip =   mac_packet[2:15]
+            mac_destination_ip =   self.unpad(mac_packet[22:42]) 
+            mac_source_ip =   self.unpad(mac_packet[2:22])
 
             if not (mac_source_ip in self.mac_pkt_dict.keys()):
                 self.mac_pkt_dict[mac_source_ip] = L2_ENUMS.MSG.value
@@ -92,7 +92,7 @@ class Layer2(Network_Layer):
                 if (self.mac_pkt_dict[mac_source_ip]+1)%(self.num_frames + 1):  # next sequential message 
                     self.mac_pkt_dict[mac_source_ip] = pktno_mac        # update last received pkt number 
                     self.send_ack(mac_packet[0:2], mac_source_ip)  # send ack
-                    self.up_pkt[mac_source_ip] += mac_packet[28:]
+                    self.up_pkt[mac_source_ip] += mac_packet[42:]
                     mac_packet = ''
 
                     if pktno_mac == self.num_frames:    # if last packet in l4 frame
@@ -101,7 +101,7 @@ class Layer2(Network_Layer):
                         continue
 
                 elif pktno_mac == L2_ENUMS.ACK.value:
-                    (mac_ack_pktno,) = struct.unpack('h', mac_packet[28:30])
+                    (mac_ack_pktno,) = struct.unpack('h', mac_packet[42:44])
                     self.recv_ack(mac_ack_pktno)
                     continue
 

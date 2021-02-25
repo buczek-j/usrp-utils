@@ -60,5 +60,5 @@ class Layer3(Network_Layer):
             if self.debug:
                 print('from l4', l3_packet)
 
-            mac_addr = self.determine_mac(l3_packet[15:28]) # determine and replace pc address with mac address then pass to l2
-            self.down_queue.put(l3_packet[0:2]+self.my_usrp+mac_addr+l3_packet[28:], True)
+            mac_addr = self.determine_mac(self.unpad(l3_packet[22:42])) # determine and replace pc address with mac address then pass to l2
+            self.down_queue.put(l3_packet[0:2]+self.pad(self.my_usrp)+self.pad(mac_addr)+l3_packet[42:], True)
