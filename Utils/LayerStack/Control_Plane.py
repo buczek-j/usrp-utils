@@ -42,6 +42,7 @@ class Control_Plane():
         '''
         self.send_sock = socket(AF_INET, SOCK_DGRAM)
         self.recv_sock = socket(AF_INET, SOCK_DGRAM)
+        print(ip, port_recv)
         self.recv_sock.bind((ip, port_recv))
         self.ip = ip
         self.port = port_recv
