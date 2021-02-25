@@ -6,7 +6,7 @@ Network layer parent class. Defines the basic structure of the stack
 IP_LEN = 20
 
 import  struct
-from multiprocessing import Queue
+from queue import Queue
 class Network_Layer():
 	def __init__(self, layer_name, window=None, debug=False):
 		'''
