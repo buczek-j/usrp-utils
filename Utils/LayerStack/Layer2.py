@@ -58,7 +58,7 @@ class Layer2(Network_Layer):
         :param dest: bytes for the destination mac address
         '''
         if not self.udp_acks:   # use usrp for l2 acks
-            pkt = struct.pack('h', L2_ENUMS.ACK.value) + bytes(self.mac_ip, 'utf-8') + dest + pktno
+            pkt = struct.pack('h', L2_ENUMS.ACK.value) + self.pad(bytes(self.mac_ip, 'utf-8')) + self.pad(dest) + pktno
             self.down_queue.put(pkt, True)
         else:                   # use wifi to send acks
             self.send_ack_wifi(pktno, dest, bytes(self.mac_ip, 'utf-8'))

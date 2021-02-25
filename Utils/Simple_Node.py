@@ -51,7 +51,7 @@ class Simple_Node(Network_Layer.Network_Layer):
     def tx_test(self):
         tspt_rate = 20000			# Initial tansport layer rate in bps
         size = 5*128*2
-        header = 42
+        header = 56
         payload = bytes((size - header) * random.choice(string.digits), "utf-8")
         pktno_l4 = 0
         l4_pkts_to_send = 10000
@@ -70,7 +70,7 @@ class Simple_Node(Network_Layer.Network_Layer):
 
                 for counter_packet in range(int(max_pkt_per_sec)):
                     time_stamp = time()
-                    packet = struct.pack('l', pktno_l4)  + bytes(self.my_config.pc_ip, "utf-8") + bytes(self.my_config.dest.pc_ip, "utf-8") +  struct.pack('d', time_stamp) + payload # 42 bytes added
+                    packet = struct.pack('l', pktno_l4)  + self.pad(bytes(self.my_config.pc_ip, "utf-8")) + self.pad(bytes(self.my_config.dest.pc_ip, "utf-8")) +  struct.pack('d', time_stamp) + payload # 56 bytes added + payload
                     
                     self.down_queue.put(packet, True)
                 
@@ -169,8 +169,8 @@ def main():
     role_list = ['rx', 'tx']
     udp_port_list = [9000, 9000]
     usrp_ports = [['55555','55556'], ['55555','55556']]
-    wifi_ip_list = ['10.110.149.19', '10.110.144.55']#['192.168.10.', '192.168.10.']
-    usrp_ip_list = ['192.170.10.19', '192.170.10.20']
+    wifi_ip_list = ['192.168.10.2', '192.168.10.152']#['192.168.10.', '192.168.10.']
+    usrp_ip_list = ['192.170.10.2', '192.170.10.152']
     tx_gain = [0.8, 0.8]
     rx_gain = [0.8, 0.8]
     tx_freq = [2e9, 2.4e9]

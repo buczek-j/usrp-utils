@@ -86,7 +86,6 @@ class Layer4(Network_Layer):
             act_rt=0 # retransmission counter
             l4_packet = self.prev_down_queue.get(True)
             packet_source = self.unpad(l4_packet[8:28])
-            packet_destination = self.unpad(l4_packet[28:48])
             try:
                 self.unacked_packet = struct.unpack('h', l4_packet[0:8])
             except:
