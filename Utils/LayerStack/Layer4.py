@@ -133,7 +133,8 @@ class Layer4(Network_Layer):
                         # l4_down_access.release()
 
                     else:
-                        print("FATAL ERROR: L4 retransmit limit reached for pktno ", self.unacked_packet)
+                        if self.debug:
+                            print("FATAL ERROR: L4 retransmit limit reached for pktno ", self.unacked_packet)
                         try:
                             globals()["l4_ack"].set()
                         except:
