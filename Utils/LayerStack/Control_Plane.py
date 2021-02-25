@@ -9,8 +9,8 @@ from enum import Enum
 import struct
 
 class CP_Codes(Enum):
-    L2_ACK=-2        # layer 2 ack message
-    L4_ACK=-4        # layer 4 ack message
+    L2_ACK=struct.pack('ss', b'-', b'2')        # layer 2 ack message
+    L4_ACK=struct.pack('ss', b'-', b'4')        # layer 4 ack message
     CC_ACK=-3       # layer 2 code rate signalling ack
     CC_MESS=-2      # layer 2 code rate signalling message 
     GPS=-5          # gps signal received
@@ -58,9 +58,9 @@ class Control_Plane():
         '''
         while not stop():
             packet, addr = self.recv_sock.recvfrom(1024)
-            (control_code,) = struct.unpack('h', packet[0:2]) 
+            (control_code,) = packet[0:2] 
+            print(packet, control_code == CP_Codes.L2_ACK.value, control_code == CP_Codes.L4_ACK.value)
             packet = packet[2:]
-            print(packet)
             if control_code == CP_Codes.L2_ACK.value:
                 l2_recv_ack(struct.unpack('h', packet[0:2]))
 
@@ -75,8 +75,9 @@ class Control_Plane():
         :param mac_ip: bytes for the destination mac ip
         '''
         pc_ip = self.wifi_ip_pre + get_post_ip(mac_ip)
-        self.send_sock.sendto(struct.pack('h', CP_Codes.L2_ACK.value)+ pktno, (pc_ip.decode('utf-8'), self.port))
-        print('L2 ACK', pc_ip.decode('utf-8'), self.port)
+        ack_msg = CP_Codes.L2_ACK.value + pktno
+        self.send_sock.sendto(ack_msg, (pc_ip.decode('utf-8'), self.port))
+        print('L2 ACK', pc_ip.decode('utf-8'), self.port, ack_msg)
 
 
     def send_l4_ack(self, pktno, pc_ip):
@@ -85,7 +86,8 @@ class Control_Plane():
         :param pktno: bytes for the packet number
         :param pc_ip: bytes for the destination wifi ip
         '''
-        self.send_sock.sendto(struct.pack('h', CP_Codes.L4_ACK.value)+ pktno, (pc_ip.decode('utf-8'), self.port))
-        print('L4 ACK', pc_ip.decode('utf-8'), self.port)
+        ack_msg = CP_Codes.L4_ACK.value + pktno
+        self.send_sock.sendto(ack_msg, (pc_ip.decode('utf-8'), self.port))
+        print('L4 ACK', pc_ip.decode('utf-8'), self.port, ack_msg)
 
 

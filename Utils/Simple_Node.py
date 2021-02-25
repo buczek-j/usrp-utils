@@ -7,7 +7,7 @@ from time import sleep, time
 from math import ceil
 from subprocess import Popen, PIPE
 from signal import SIGTERM
-from os import killpg, _exit
+from os import killpg, _exit, getpgid
 
 import random, string, struct
 
@@ -123,7 +123,6 @@ class Simple_Node(Network_Layer.Network_Layer):
         print("~ ~ Closing Threads ~ ~")
         for thread in self.threads:
             try:
-                # print('Closing', thread)
                 self.threads[thread].join(0.1)
             except Exception as e:
                 print(e)
@@ -131,14 +130,11 @@ class Simple_Node(Network_Layer.Network_Layer):
 
         for proc in self.subproccesses:
             try:
-                # print(self.subproccesses[proc])
-                killpg(self.subproccesses[proc].pid, SIGTERM)
+                killpg(getpgid(self.subproccesses[proc].pid), SIGTERM)
             except Exception as e:
                 print(e)
                 pass
-        
-        print(' ~ ~ Exiting ~ ~')
-        _exit(0)
+        exit(0)
         
             
     def run(self):
