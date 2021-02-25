@@ -47,6 +47,7 @@ class Layer3(Network_Layer):
             l3_packet = self.prev_up_queue.get(True)
             if self.debug:
                 print('from l2',l3_packet)
+                print()
             self.up_queue.put(l3_packet, True)
 
     def pass_down(self, stop):

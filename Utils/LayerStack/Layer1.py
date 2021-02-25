@@ -69,6 +69,8 @@ class Layer1(Network_Layer):
                 if self.debug:
                     print(received_pkt)
                 self.up_queue.put(received_pkt.tobytes(), True)
+                received_pkt=None
+
 
     def pass_down(self, stop):
         '''

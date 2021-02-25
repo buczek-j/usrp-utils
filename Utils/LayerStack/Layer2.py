@@ -69,9 +69,8 @@ class Layer2(Network_Layer):
         :param pktno: int for the packet number that has been acked
         '''
         if pktno == self.unacked_packet:
+            print('L2 RECV ACK', pktno)
             globals()["l2_ack"].set()
-            if self.debug:
-                print('ACK RCVD')
 
     def pass_up(self, stop):
         '''
@@ -94,14 +93,25 @@ class Layer2(Network_Layer):
 
             # check if destination correct (meant for this node to read)
             if mac_destination_ip == self.mac_ip:
-                if (self.mac_pkt_dict[mac_source_ip]+1)%(self.num_frames + 1):  # next sequential message 
+                if pktno_mac == L2_ENUMS.MSG.value:
+                    self.mac_pkt_dict[mac_source_ip] = pktno_mac        # update last received pkt number 
+                    self.send_ack(mac_packet[0:2], mac_source_ip)  # send ack
+                    self.up_pkt[mac_source_ip] = mac_packet[42:]
+                    mac_packet = b''
+                    continue
+
+                elif pktno_mac == (self.mac_pkt_dict[mac_source_ip]+1):  # next sequential message 
                     self.mac_pkt_dict[mac_source_ip] = pktno_mac        # update last received pkt number 
                     self.send_ack(mac_packet[0:2], mac_source_ip)  # send ack
                     self.up_pkt[mac_source_ip] += mac_packet[42:]
-                    mac_packet = ''
+                    mac_packet = b''
 
                     if pktno_mac == self.num_frames:    # if last packet in l4 frame
-                        break
+                        self.up_queue.put(self.up_pkt[mac_source_ip], True)
+                        self.up_pkt[mac_source_ip] = b''
+                        self.mac_pkt_dict[mac_source_ip] = L2_ENUMS.MSG.value
+                        continue
+
                     else:
                         continue
 
@@ -116,9 +126,7 @@ class Layer2(Network_Layer):
             else:
                 pass
         
-        self.up_queue.put(self.up_pkt[mac_source_ip], True)
-        self.up_pkt[mac_source_ip] = b''
-        self.mac_pkt_dict[mac_source_ip] = L2_ENUMS.MSG.value
+            
                 
     def pass_down(self, stop):
         '''

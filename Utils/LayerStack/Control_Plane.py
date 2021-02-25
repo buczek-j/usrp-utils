@@ -60,7 +60,7 @@ class Control_Plane():
             packet, addr = self.recv_sock.recvfrom(1024)
             (control_code,) = struct.unpack('h', packet[0:2]) 
             packet = packet[2:]
-
+            print(packet)
             if control_code == CP_Codes.L2_ACK.value:
                 l2_recv_ack(struct.unpack('h', packet[0:2]))
 
@@ -75,8 +75,8 @@ class Control_Plane():
         :param mac_ip: bytes for the destination mac ip
         '''
         pc_ip = self.wifi_ip_pre + get_post_ip(mac_ip)
-        print('ACK', pc_ip, self.port)
         self.send_sock.sendto(struct.pack('h', CP_Codes.L2_ACK.value)+ pktno, (pc_ip.decode('utf-8'), self.port))
+        print('L2 ACK', pc_ip.decode('utf-8'), self.port)
 
 
     def send_l4_ack(self, pktno, pc_ip):
@@ -86,5 +86,6 @@ class Control_Plane():
         :param pc_ip: bytes for the destination wifi ip
         '''
         self.send_sock.sendto(struct.pack('h', CP_Codes.L4_ACK.value)+ pktno, (pc_ip.decode('utf-8'), self.port))
+        print('L4 ACK', pc_ip.decode('utf-8'), self.port)
 
 

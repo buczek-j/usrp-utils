@@ -52,9 +52,9 @@ class Layer4(Network_Layer):
         :param pktno: int for the packet number that has been acked
         '''
         if pktno == self.unacked_packet:
+            print('L4 RECV ACK', pktno)
             globals()["l4_ack"].set()
-            if self.debug:
-                print('ACK RCVD')
+
 
     def pass_up(self, stop):
         '''
@@ -73,7 +73,7 @@ class Layer4(Network_Layer):
                 print('l4', pktno_l4, packet_source, packet_destination, timestamp)
 
             if packet_destination == self.my_pc:    # if this is the destination, then pass payload to the application layer
-                self.up_queue.put(l4_packet[56:])
+                self.up_queue.put(l4_packet[56:], True)
                 self.send_ack(l4_packet[:8], packet_source)  # send l4 ack
 
             else:   # relay/forward message

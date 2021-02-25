@@ -5,18 +5,18 @@
 from threading import Thread
 from time import sleep, time
 from math import ceil
-from subprocess import Popen, PIPE, run
+from subprocess import Popen, PIPE
 from signal import SIGTERM
-from os import killpg, system
+from os import killpg, _exit
 
-import random, string, struct, sys
+import random, string, struct
 
 # user made libraries
 from LayerStack import Control_Plane, Layer1, Layer2, Layer3, Layer4, Network_Layer
 from Node_Config import Node_Config
 
 class Simple_Node(Network_Layer.Network_Layer):
-    def __init__(self, my_config):
+    def __init__(self, my_config, l1_debug=False, l2_debug=False, l3_debug=False, l4_debug=False):
         '''
         Test node class for network layer stack
         :param my_config: Node_Config class object
@@ -32,10 +32,10 @@ class Simple_Node(Network_Layer.Network_Layer):
 
         # Initalize Network Stack
         self.control_plane = Control_Plane.Control_Plane(my_config.pc_ip, self.my_config.listen_port)
-        self.layer4 = Layer4.Layer4(self.my_config, self.control_plane.send_l4_ack, debug=True)
-        self.layer3 = Layer3.Layer3(self.my_config)
-        self.layer2 = Layer2.Layer2(self.my_config.usrp_ip, send_ack=self.control_plane.send_l2_ack, debug=True)
-        self.layer1 = Layer1.Layer1(debug=True)
+        self.layer4 = Layer4.Layer4(self.my_config, self.control_plane.send_l4_ack, debug=l4_debug)
+        self.layer3 = Layer3.Layer3(self.my_config, debug=l3_debug)
+        self.layer2 = Layer2.Layer2(self.my_config.usrp_ip, send_ack=self.control_plane.send_l2_ack, debug=l2_debug)
+        self.layer1 = Layer1.Layer1(debug=l1_debug)
         
         # Link layers together
         self.layer1.init_layers(upper=self.layer2, lower=None)
@@ -81,7 +81,9 @@ class Simple_Node(Network_Layer.Network_Layer):
     def rx_test(self):
         while not self.stop_threads:
             msg = self.prev_up_queue.get(True)
+            print('MSG: $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
             print(msg)
+            print('/MSG: $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
 
 
     def start_threads(self):
@@ -122,11 +124,10 @@ class Simple_Node(Network_Layer.Network_Layer):
         for thread in self.threads:
             try:
                 # print('Closing', thread)
-                self.threads[thread].join()
+                self.threads[thread].join(0.1)
             except Exception as e:
                 print(e)
                 pass
-        
 
         for proc in self.subproccesses:
             try:
@@ -137,10 +138,8 @@ class Simple_Node(Network_Layer.Network_Layer):
                 pass
         
         print(' ~ ~ Exiting ~ ~')
-
-        # kill all python programs
-        run('killall python3', shell=True)
-        exit(0)
+        _exit(0)
+        
             
     def run(self):
         '''
@@ -154,7 +153,7 @@ class Simple_Node(Network_Layer.Network_Layer):
             # run
             print("~ ~ Starting Transmission ~ ~")
             self.transmit = True
-            sleep(30)                   # run time
+            sleep(1)                   # run time
 
             # close
             self.transmit = False
@@ -206,7 +205,7 @@ def main():
     nodes[0].configure_hops(nodes[1], nodes[0], None, nodes[1])
     nodes[1].configure_hops(nodes[1], nodes[0], nodes[0], None)
     
-    simple_node = Simple_Node(nodes[0])
+    simple_node = Simple_Node(nodes[0], l2_debug=False)
     try:
         simple_node.run()
     except:
