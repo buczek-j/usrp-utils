@@ -9,7 +9,7 @@ from threading import  Event, Lock
 import struct
 
 l4_ack = Event()
-l4_down_access = Lock()     
+# l4_down_access = Lock()     
 
 class Layer4(Network_Layer):
     def __init__(self, my_config,
@@ -53,6 +53,8 @@ class Layer4(Network_Layer):
         '''
         if pktno == self.unacked_packet:
             globals()["l4_ack"].set()
+            if self.debug:
+                print('ACK RCVD')
 
     def pass_up(self, stop):
         '''
@@ -61,13 +63,14 @@ class Layer4(Network_Layer):
         '''
         while not stop():
             l4_packet = self.prev_up_queue.get(True)
-            if self.debug:
-                print('from l3',l4_packet)
                 
             packet_source = self.unpad(l4_packet[8:28])
             packet_destination = self.unpad(l4_packet[28:48])
             (timestamp,) = struct.unpack('d', l4_packet[48:56])
             (pktno_l4,) = struct.unpack('l', l4_packet[:8])	
+
+            if self.debug:
+                print('l4', pktno_l4, packet_source, packet_destination, timestamp)
 
             if packet_destination == self.my_pc:    # if this is the destination, then pass payload to the application layer
                 self.up_queue.put(l4_packet[56:])
@@ -92,7 +95,7 @@ class Layer4(Network_Layer):
                 pass
 
             pkt_no_mac = 1  # mac (l2) packet number counter
-            l4_down_access.acquire()
+            # l4_down_access.acquire()
             # pass l2 packets down to l3
             while pkt_no_mac <= self.num_frames:
                 chunk = l4_packet[(pkt_no_mac-1)*self.chunk_size : min((pkt_no_mac)*self.chunk_size,len(l4_packet)) ]
@@ -101,7 +104,7 @@ class Layer4(Network_Layer):
 
                 pkt_no_mac +=1
                 l2_packet=b''
-            l4_down_access.release()
+            # l4_down_access.release()
             
             
 
@@ -118,7 +121,7 @@ class Layer4(Network_Layer):
                         act_rt += 1 
 
                         pkt_no_mac = 1  # mac (l2) packet number counter
-                        l4_down_access.acquire()
+                        # l4_down_access.acquire()
                         # repeated transmission block 
                         while pkt_no_mac <= self.num_frames:
                             chunk = l4_packet[(pkt_no_mac-1)*self.chunk_size : min((pkt_no_mac)*self.chunk_size,len(l4_packet)) ]
@@ -127,7 +130,7 @@ class Layer4(Network_Layer):
 
                             pkt_no_mac +=1
                             l2_packet=b''
-                        l4_down_access.release()
+                        # l4_down_access.release()
 
                     else:
                         print("FATAL ERROR: L4 retransmit limit reached for pktno ", self.unacked_packet)

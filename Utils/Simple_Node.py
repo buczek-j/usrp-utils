@@ -2,14 +2,14 @@
 
 
 # external libraries
-from threading import Thread
+from multiprocessing import Process
 from time import sleep, time
 from math import ceil
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, run
 from signal import SIGTERM
-from os import killpg
+from os import killpg, system
 
-import random, string, struct
+import random, string, struct, sys
 
 # user made libraries
 from LayerStack import Control_Plane, Layer1, Layer2, Layer3, Layer4, Network_Layer
@@ -28,14 +28,14 @@ class Simple_Node(Network_Layer.Network_Layer):
         self.transmit = False
 
         self.threads = {}
-        self.subproccesses = []
+        self.subproccesses = {}
 
         # Initalize Network Stack
         self.control_plane = Control_Plane.Control_Plane(my_config.pc_ip, self.my_config.listen_port)
-        self.layer4 = Layer4.Layer4(self.my_config, self.control_plane.send_l4_ack)
+        self.layer4 = Layer4.Layer4(self.my_config, self.control_plane.send_l4_ack, debug=True)
         self.layer3 = Layer3.Layer3(self.my_config)
         self.layer2 = Layer2.Layer2(self.my_config.usrp_ip, send_ack=self.control_plane.send_l2_ack, debug=True)
-        self.layer1 = Layer1.Layer1()
+        self.layer1 = Layer1.Layer1(debug=True)
         
         # Link layers together
         self.layer1.init_layers(upper=self.layer2, lower=None)
@@ -91,23 +91,23 @@ class Simple_Node(Network_Layer.Network_Layer):
         self.stop_threads = False
         print("~ ~ Starting Threads ~ ~")
         # Initialize threads
-        self.threads["control_layer"] = Thread(target=self.control_plane.listening_socket, args=(self.layer2.recv_ack, self.layer4.recv_ack, lambda : self.stop_threads, ))
+        self.threads["control_layer"] = Process(target=self.control_plane.listening_socket, args=(self.layer2.recv_ack, self.layer4.recv_ack, lambda : self.stop_threads, ))
         self.threads["control_layer"].start()
 
         for layer in [self.layer1, self.layer2, self.layer3, self.layer4]:
-            self.threads[layer.layer_name + "_pass_up"] = Thread(target=layer.pass_up, args=(lambda : self.stop_threads,))
-            self.threads[layer.layer_name + "_pass_down"] = Thread(target=layer.pass_down, args=(lambda : self.stop_threads,))
+            self.threads[layer.layer_name + "_pass_up"] = Process(target=layer.pass_up, args=(lambda : self.stop_threads,))
+            self.threads[layer.layer_name + "_pass_down"] = Process(target=layer.pass_down, args=(lambda : self.stop_threads,))
             self.threads[layer.layer_name + "_pass_up"].start()
             self.threads[layer.layer_name + "_pass_down"].start() 
 
-        self.subproccesses.append(Popen('python3 LayerStack/L1_protocols/TRX_ODFM_USRP.py '+str(self.my_config.get_tranceiver_args()), stdout=PIPE, shell=True))
+        self.subproccesses['USRP'] = Popen('python3 LayerStack/L1_protocols/TRX_ODFM_USRP.py '+str(self.my_config.get_tranceiver_args()), stdout=PIPE, shell=True)
 
         if self.my_config.role == 'tx':
-            self.threads['tx_thread'] = Thread(target=self.tx_test, args=())
+            self.threads['tx_thread'] = Process(target=self.tx_test, args=())
             self.threads['tx_thread'].start()
 
         elif self.my_config.role == 'rx':
-            self.threads['rx_thread'] = Thread(target=self.rx_test, args=())
+            self.threads['rx_thread'] = Process(target=self.rx_test, args=())
             self.threads['rx_thread'].start()
 
         print("~ ~ Threads all running ~ ~")
@@ -121,17 +121,26 @@ class Simple_Node(Network_Layer.Network_Layer):
         print("~ ~ Closing Threads ~ ~")
         for thread in self.threads:
             try:
-                sleep(1)
-                self.threads[thread].join(2)
+                # print('Closing', thread)
+                self.threads[thread].terminate()
             except Exception as e:
                 print(e)
                 pass
+        
 
         for proc in self.subproccesses:
             try:
-                killpg(proc.pgid, SIGTERM)
-            except:
+                # print(self.subproccesses[proc])
+                killpg(self.subproccesses[proc].pid, SIGTERM)
+            except Exception as e:
+                print(e)
                 pass
+        
+        print(' ~ ~ Exiting ~ ~')
+
+        # kill all python programs
+        run('killall python3', shell=True)
+        exit(0)
             
     def run(self):
         '''
@@ -151,13 +160,13 @@ class Simple_Node(Network_Layer.Network_Layer):
             self.transmit = False
             self.stop_threads = True
             self.close_threads()
-            return 0
+            exit(0)
 
         except Exception as e:		
             print(e)
             self.stop_threads=True
             self.close_threads()
-            return 0
+            exit(0)
 
 def main():
     '''
@@ -171,8 +180,8 @@ def main():
     usrp_ip_list = ['192.170.10.2', '192.170.10.152']
     tx_gain = [0.8, 0.8]
     rx_gain = [0.8, 0.8]
-    tx_freq = [2.1e9, 2.2e9]
-    rx_freq = [2.2e9, 2.1e9]
+    tx_freq = [2.6e9, 2.2e9]
+    rx_freq = [2.2e9, 2.6e9]
     tx_bw = [0.5e6, 0.5e6]
     rx_bw = [0.5e6, 0.5e6]
     serial_list = ["31C9261", "31C9237"]

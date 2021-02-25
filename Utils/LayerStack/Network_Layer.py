@@ -5,16 +5,16 @@ Network layer parent class. Defines the basic structure of the stack
 '''
 IP_LEN = 20
 
-from threading import Thread, Event
-import queue, struct
+import  struct
+from multiprocessing import Queue
 class Network_Layer():
 	def __init__(self, layer_name, window=None, debug=False):
 		'''
 		Class to define the the basic structure of a network layer
 		'''
 		self.layer_name = layer_name
-		self.up_queue = queue.Queue(1024*1000)
-		self.down_queue = queue.Queue(1024*1000)
+		self.up_queue = Queue(1024*1000)
+		self.down_queue = Queue(1024*1000)
 		self.window = window
 		self.debug = debug
 
@@ -32,7 +32,7 @@ class Network_Layer():
 		if lower:
 			self.prev_up_queue = lower.up_queue
 		else:
-			self.prev_up_queue = queue.Queue(1024*1000)	# needed for l4 layer relay
+			self.prev_up_queue = Queue(1024*1000)	# needed for l4 layer relay
 
 		
 	def pass_up(self, stop):

@@ -70,6 +70,8 @@ class Layer2(Network_Layer):
         '''
         if pktno == self.unacked_packet:
             globals()["l2_ack"].set()
+            if self.debug:
+                print('ACK RCVD')
 
     def pass_up(self, stop):
         '''
