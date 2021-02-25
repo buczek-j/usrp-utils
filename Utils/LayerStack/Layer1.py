@@ -40,7 +40,7 @@ def ofdm_tranceiver_thread(stop, serial_num="31C9237", input_port_num="55555", o
      
 
 class Layer1(Network_Layer):
-    def __init__(self, input_port='55555', output_port='55556', debug=True):
+    def __init__(self, input_port='55555', output_port='55556', debug=False):
         '''
         Method to send and receive bytes via uarp radios through tcp connection to GNU radio object
         :param input_port: string for the input tcp port of the GNU radio object
@@ -66,6 +66,8 @@ class Layer1(Network_Layer):
             if self.recv_socket.poll(10) != 0:      # check if msg in socket
                 msg = self.recv_socket.recv()
                 received_pkt = frombuffer(msg, dtype=byte, count=-1)
+                if self.debug:
+                    print(received_pkt)
                 self.up_queue.put(received_pkt.tobytes(), True)
 
     def pass_down(self, stop):

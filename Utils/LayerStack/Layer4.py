@@ -44,7 +44,7 @@ class Layer4(Network_Layer):
         :param dest: bytes for the destination pc address
         '''
         # use wifi to send acks
-        self.send_ack_wifi(pktno, dest, self.my_pc)
+        self.send_ack_wifi(pktno, dest)
 
     def recv_ack(self, pktno):
         '''
@@ -71,7 +71,7 @@ class Layer4(Network_Layer):
 
             if packet_destination == self.my_pc:    # if this is the destination, then pass payload to the application layer
                 self.up_queue.put(l4_packet[56:])
-                self.send_ack(pktno_l4, packet_source)  # send l4 ack
+                self.send_ack(l4_packet[:8], packet_source)  # send l4 ack
 
             else:   # relay/forward message
                 self.prev_up_queue.put(l4_packet, True)

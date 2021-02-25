@@ -38,7 +38,7 @@ class Layer2(Network_Layer):
         '''  
         Network_Layer.__init__(self, "layer_2", window, debug=debug)
 
-        self.mac_ip = mac_ip
+        self.mac_ip = bytes(mac_ip, "utf-8")
         self.num_frames = num_frames
         self.timeout= timeout
         self.n_retrans = n_retrans 
@@ -58,10 +58,10 @@ class Layer2(Network_Layer):
         :param dest: bytes for the destination mac address
         '''
         if not self.udp_acks:   # use usrp for l2 acks
-            pkt = struct.pack('h', L2_ENUMS.ACK.value) + self.pad(bytes(self.mac_ip, 'utf-8')) + self.pad(dest) + pktno
+            pkt = struct.pack('h', L2_ENUMS.ACK.value) + self.pad(self.mac_ip) + self.pad(dest) + pktno
             self.down_queue.put(pkt, True)
         else:                   # use wifi to send acks
-            self.send_ack_wifi(pktno, dest, bytes(self.mac_ip, 'utf-8'))
+            self.send_ack_wifi(pktno, dest)
         
     def recv_ack(self, pktno):
         '''
@@ -83,9 +83,12 @@ class Layer2(Network_Layer):
             mac_destination_ip =   self.unpad(mac_packet[22:42]) 
             mac_source_ip =   self.unpad(mac_packet[2:22])
 
+            if self.debug:
+                print(pktno_mac, mac_destination_ip, self.mac_ip, mac_destination_ip == self.mac_ip)
+
             if not (mac_source_ip in self.mac_pkt_dict.keys()):
                 self.mac_pkt_dict[mac_source_ip] = L2_ENUMS.MSG.value
-                self.up_pkt[mac_source_ip] = ''
+                self.up_pkt[mac_source_ip] = b''
 
             # check if destination correct (meant for this node to read)
             if mac_destination_ip == self.mac_ip:
@@ -112,7 +115,7 @@ class Layer2(Network_Layer):
                 pass
         
         self.up_queue.put(self.up_pkt[mac_source_ip], True)
-        self.up_pkt[mac_source_ip] = ''
+        self.up_pkt[mac_source_ip] = b''
         self.mac_pkt_dict[mac_source_ip] = L2_ENUMS.MSG.value
                 
     def pass_down(self, stop):

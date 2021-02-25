@@ -31,10 +31,10 @@ class Simple_Node(Network_Layer.Network_Layer):
         self.subproccesses = []
 
         # Initalize Network Stack
-        self.control_plane = Control_Plane.Control_Plane(my_config.pc_ip)
+        self.control_plane = Control_Plane.Control_Plane(my_config.pc_ip, self.my_config.listen_port)
         self.layer4 = Layer4.Layer4(self.my_config, self.control_plane.send_l4_ack)
         self.layer3 = Layer3.Layer3(self.my_config)
-        self.layer2 = Layer2.Layer2(self.my_config.usrp_ip, send_ack=self.control_plane.send_l2_ack)
+        self.layer2 = Layer2.Layer2(self.my_config.usrp_ip, send_ack=self.control_plane.send_l2_ack, debug=True)
         self.layer1 = Layer1.Layer1()
         
         # Link layers together
@@ -81,7 +81,7 @@ class Simple_Node(Network_Layer.Network_Layer):
     def rx_test(self):
         while not self.stop_threads:
             msg = self.prev_up_queue.get(True)
-            print(msg.decode("utf-8"))
+            print(msg)
 
 
     def start_threads(self):
@@ -99,9 +99,6 @@ class Simple_Node(Network_Layer.Network_Layer):
             self.threads[layer.layer_name + "_pass_down"] = Thread(target=layer.pass_down, args=(lambda : self.stop_threads,))
             self.threads[layer.layer_name + "_pass_up"].start()
             self.threads[layer.layer_name + "_pass_down"].start() 
-
-        # self.threads["usrp_block"] = Thread(target=Layer1.ofdm_tranceiver_thread, args=(lambda : self.stop_threads, self.my_config.serial, self.my_config.usrp_in_port, self.my_config.usrp_out_port, self.my_config.rx_bw, self.my_config.rx_freq, self.my_config.rx_gain, self.my_config.tx_bw, self.my_config.tx_freq, self.my_config.tx_gain,))
-        # self.threads["usrp_block"].start()
 
         self.subproccesses.append(Popen('python3 LayerStack/L1_protocols/TRX_ODFM_USRP.py '+str(self.my_config.get_tranceiver_args()), stdout=PIPE, shell=True))
 
@@ -124,9 +121,10 @@ class Simple_Node(Network_Layer.Network_Layer):
         print("~ ~ Closing Threads ~ ~")
         for thread in self.threads:
             try:
-                sleep(4)
-                thread.join(2)
-            except:
+                sleep(1)
+                self.threads[thread].join(2)
+            except Exception as e:
+                print(e)
                 pass
 
         for proc in self.subproccesses:
@@ -173,8 +171,8 @@ def main():
     usrp_ip_list = ['192.170.10.2', '192.170.10.152']
     tx_gain = [0.8, 0.8]
     rx_gain = [0.8, 0.8]
-    tx_freq = [2e9, 2.4e9]
-    rx_freq = [2.4e9, 2e9]
+    tx_freq = [2.1e9, 2.2e9]
+    rx_freq = [2.2e9, 2.1e9]
     tx_bw = [0.5e6, 0.5e6]
     rx_bw = [0.5e6, 0.5e6]
     serial_list = ["31C9261", "31C9237"]
@@ -196,8 +194,8 @@ def main():
             tx_gain=tx_gain[ii],
             serial=serial_list[ii]
         ))
-    nodes[0].configure_hops(nodes[0], nodes[1], None, nodes[1])
-    nodes[1].configure_hops(nodes[0], nodes[1], nodes[1], None)
+    nodes[0].configure_hops(nodes[1], nodes[0], None, nodes[1])
+    nodes[1].configure_hops(nodes[1], nodes[0], nodes[0], None)
     
     simple_node = Simple_Node(nodes[0])
     try:
