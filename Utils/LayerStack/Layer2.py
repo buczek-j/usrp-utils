@@ -22,7 +22,7 @@ class L2_ENUMS(Enum):
 class Layer2(Network_Layer):
     def __init__(self, mac_ip,
                 send_ack=None, udp_acks=True,
-                window='', num_frames=5, timeout=0.01, n_retrans=8, debug=False):
+                window='', num_frames=5, timeout=0.02, n_retrans=8, debug=False):
         '''
         Layer 2 network layer object
         :param mac_ip: string for the usrp mac address fo the current node
