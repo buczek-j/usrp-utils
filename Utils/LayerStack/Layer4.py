@@ -74,9 +74,11 @@ class Layer4(Network_Layer):
             if packet_destination == self.my_pc:    # if this is the destination, then pass payload to the application layer
                 self.up_queue.put(l4_packet[56:], True)
                 self.send_ack(l4_packet[:8], packet_source)  # send l4 ack
+                l4_packet = b''
 
             else:   # relay/forward message
                 self.prev_up_queue.put(l4_packet, True)
+                l4_packet = b''
 
 
     def pass_down(self, stop):
