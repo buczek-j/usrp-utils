@@ -79,7 +79,7 @@ class Control_Plane():
         pc_ip = self.wifi_ip_pre + get_post_ip(mac_ip)
         ack_msg = CP_Codes.L2_ACK.value + pktno
         self.send_sock.sendto(ack_msg, (pc_ip.decode('utf-8'), self.port))
-        # print('L2 ACK', pc_ip.decode('utf-8'), self.port, ack_msg)
+        print('L2 ACK', pc_ip.decode('utf-8'), self.port, ack_msg)
 
 
     def send_l4_ack(self, pktno, pc_ip):
@@ -90,6 +90,6 @@ class Control_Plane():
         '''
         ack_msg = CP_Codes.L4_ACK.value + pktno
         self.send_sock.sendto(ack_msg, (pc_ip.decode('utf-8'), self.port))
-        # print('L4 ACK', pc_ip.decode('utf-8'), self.port, ack_msg)
+        print('L4 ACK', pc_ip.decode('utf-8'), self.port, ack_msg)
 
 
