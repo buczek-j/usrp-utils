@@ -150,7 +150,7 @@ class Simple_Node(Network_Layer.Network_Layer):
             # run
             print("~ ~ Starting Transmission ~ ~")
             self.transmit = True
-            sleep(30)                   # run time
+            sleep(60)                   # run time
 
             # close
             self.transmit = False
