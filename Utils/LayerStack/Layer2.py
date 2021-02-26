@@ -84,7 +84,7 @@ class Layer2(Network_Layer):
             mac_source_ip =   self.unpad(mac_packet[2:22])
 
             if self.debug:
-                print(pktno_mac, mac_destination_ip, self.mac_ip, mac_destination_ip == self.mac_ip)
+                print(pktno_mac, mac_destination_ip, mac_source_ip, mac_destination_ip == self.mac_ip)
 
             if not (mac_source_ip in self.mac_pkt_dict.keys()):
                 self.mac_pkt_dict[mac_source_ip] = L2_ENUMS.MSG.value

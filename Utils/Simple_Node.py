@@ -209,7 +209,7 @@ def main():
     nodes['src1'].configure_hops(nodes['src1'], nodes['dest1'], nodes['rly1'], None)
 
     
-    simple_node = Simple_Node(nodes[id_list[int(options.index)]], l2_debug=True)
+    simple_node = Simple_Node(nodes[id_list[int(options.index)]], l2_debug=True, l3_debug=True, l4_debug=True)
     try:
         simple_node.run()
     except:
