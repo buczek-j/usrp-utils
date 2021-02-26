@@ -184,7 +184,7 @@ def main():
 
     nodes = {}
     for ii in range(len(id_list)):
-        nodes[role_list[ii]] = Node_Config(
+        nodes[id_list[ii]] = Node_Config(
             pc_ip=wifi_ip_list[ii],
             usrp_ip=usrp_ip_list[ii],
             my_id=id_list[ii],
@@ -204,12 +204,12 @@ def main():
     parser.add_argument('--index', type=int, default='', help='node index number')
     options = parser.parse_args()
 
-    nodes[0].configure_hops(nodes[2], nodes[0], None, nodes[1])
-    nodes[1].configure_hops(nodes[2], nodes[0], nodes[0], nodes[1])
-    nodes[2].configure_hops(nodes[2], nodes[0], nodes[1], None)
+    nodes['dest1'].configure_hops(nodes['src1'], nodes['dest1'], None, nodes['rly1'])
+    nodes['rly1'].configure_hops(nodes['src1'], nodes['dest1'], nodes['dest1'], nodes['src1'])
+    nodes['src1'].configure_hops(nodes['src1'], nodes['dest1'], nodes['rly1'], None)
 
     
-    simple_node = Simple_Node(nodes[int(options.index)], l2_debug=True)
+    simple_node = Simple_Node(nodes[id_list[int(options.index)]], l2_debug=True)
     try:
         simple_node.run()
     except:
