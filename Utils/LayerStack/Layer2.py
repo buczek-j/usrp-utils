@@ -13,7 +13,7 @@ l2_ack = Event()
 l2_control = Event()
 
 class L2_ENUMS(Enum):
-    MSG = 0
+    MSG = 1
     ACK = -2
     CNTRL = -3
     NEIGHBOR_DISCOVERY = -10
