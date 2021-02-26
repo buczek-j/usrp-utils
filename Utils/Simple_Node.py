@@ -8,6 +8,7 @@ from math import ceil
 from subprocess import Popen, PIPE
 from signal import SIGTERM
 from os import killpg, _exit, getpgid
+from argparse import ArgumentParser
 
 import random, string, struct
 
@@ -199,13 +200,16 @@ def main():
             serial=serial_list[ii]
         )
 
+    parser = ArgumentParser()
+    parser.add_argument('--index', type=int, default='', help='node index number')
+    options = parser.parse_args()
 
     nodes[0].configure_hops(nodes[2], nodes[0], None, nodes[1])
     nodes[1].configure_hops(nodes[2], nodes[0], nodes[0], nodes[1])
     nodes[2].configure_hops(nodes[2], nodes[0], nodes[1], None)
 
     
-    simple_node = Simple_Node(nodes[0], l2_debug=True)
+    simple_node = Simple_Node(nodes[int(options.index)], l2_debug=True)
     try:
         simple_node.run()
     except:
