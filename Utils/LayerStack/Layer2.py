@@ -161,7 +161,7 @@ class Layer2(Network_Layer):
                 else:
                     if self.debug:
                         print("FATAL ERROR: L2 retransmit limit reached for pktno ", self.unacked_packet)
-                    for ii in range(self.num_frames):
+                    for ii in range(self.num_frames-self.unacked_packet):
                         self.prev_down_queue.get(True)
                         if self.debug:
                             print("popped packet")
