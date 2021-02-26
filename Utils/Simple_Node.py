@@ -167,23 +167,23 @@ def main():
     '''
     Main method
     '''
-    id_list = ['dest1', 'src1']
-    role_list = ['rx', 'tx']
-    udp_port_list = [9000, 9000]
-    usrp_ports = [['55555','55556'], ['55555','55556']]
-    wifi_ip_list = ['192.168.10.2', '192.168.10.152']#['192.168.10.', '192.168.10.']
-    usrp_ip_list = ['192.170.10.2', '192.170.10.152']
-    tx_gain = [0.8, 0.8]
-    rx_gain = [0.8, 0.8]
-    tx_freq = [2.6e9, 2.2e9]
-    rx_freq = [2.2e9, 2.6e9]
-    tx_bw = [0.5e6, 0.5e6]
-    rx_bw = [0.5e6, 0.5e6]
-    serial_list = ["31C9261", "31C9237"]
+    id_list = ['dest1','rly1', 'src1']
+    role_list = ['rx', 'rly','tx']
+    udp_port_list = [9000, 9000, 9000]
+    usrp_ports = [['55555','55556'], ['55555','55556'], ['55555','55556']]
+    wifi_ip_list = ['192.168.10.2', '192.168.10.104', '192.168.10.104']
+    usrp_ip_list = ['192.170.10.2', '192.170.10.104', '192.170.10.104']
+    tx_gain = [0.8, 0.8, 0.8]
+    rx_gain = [0.8, 0.8, 0.8]
+    tx_freq = [2.6e9, 2.5e9, 2.6e9]
+    rx_freq = [2.5e9, 2.6e9, 2.5e9]
+    tx_bw = [0.5e6, 0.5e6, 0.5e6]
+    rx_bw = [0.5e6, 0.5e6, 0.5e6]
+    serial_list = ["31C9261", "31C9237", "318D2A3"]
 
-    nodes = []
+    nodes = {}
     for ii in range(len(id_list)):
-        nodes.append(Node_Config(
+        nodes[role_list[ii]] = Node_Config(
             pc_ip=wifi_ip_list[ii],
             usrp_ip=usrp_ip_list[ii],
             my_id=id_list[ii],
@@ -197,11 +197,15 @@ def main():
             tx_freq=tx_freq[ii],
             tx_gain=tx_gain[ii],
             serial=serial_list[ii]
-        ))
-    nodes[0].configure_hops(nodes[1], nodes[0], None, nodes[1])
-    nodes[1].configure_hops(nodes[1], nodes[0], nodes[0], None)
+        )
+
+
+    nodes[0].configure_hops(nodes[2], nodes[0], None, nodes[1])
+    nodes[1].configure_hops(nodes[2], nodes[0], nodes[0], nodes[1])
+    nodes[2].configure_hops(nodes[2], nodes[0], nodes[1], None)
+
     
-    simple_node = Simple_Node(nodes[0], l2_debug=False)
+    simple_node = Simple_Node(nodes[0], l2_debug=True)
     try:
         simple_node.run()
     except:
