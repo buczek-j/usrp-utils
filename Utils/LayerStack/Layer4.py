@@ -9,7 +9,7 @@ from threading import  Event, Lock
 import struct
 
 l4_ack = Event()
-# l4_down_access = Lock()     
+l4_down_access = Lock()     
 
 class Layer4(Network_Layer):
     def __init__(self, my_config,
@@ -96,7 +96,7 @@ class Layer4(Network_Layer):
                 pass
 
             pkt_no_mac = 1  # mac (l2) packet number counter
-            # l4_down_access.acquire()
+            l4_down_access.acquire()
             # pass l2 packets down to l3
             while pkt_no_mac <= self.num_frames:
                 chunk = l4_packet[(pkt_no_mac-1)*self.chunk_size : min((pkt_no_mac)*self.chunk_size,len(l4_packet)) ]
@@ -105,7 +105,7 @@ class Layer4(Network_Layer):
 
                 pkt_no_mac +=1
                 l2_packet=b''
-            # l4_down_access.release()
+            l4_down_access.release()
             
             
 
@@ -122,7 +122,7 @@ class Layer4(Network_Layer):
                         act_rt += 1 
 
                         pkt_no_mac = 1  # mac (l2) packet number counter
-                        # l4_down_access.acquire()
+                        l4_down_access.acquire()
                         # repeated transmission block 
                         while pkt_no_mac <= self.num_frames:
                             chunk = l4_packet[(pkt_no_mac-1)*self.chunk_size : min((pkt_no_mac)*self.chunk_size,len(l4_packet)) ]
@@ -131,7 +131,7 @@ class Layer4(Network_Layer):
 
                             pkt_no_mac +=1
                             l2_packet=b''
-                        # l4_down_access.release()
+                        l4_down_access.release()
 
                     else:
                         if self.debug:

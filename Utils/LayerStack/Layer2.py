@@ -22,7 +22,7 @@ class L2_ENUMS(Enum):
 class Layer2(Network_Layer):
     def __init__(self, mac_ip,
                 send_ack=None, udp_acks=True,
-                window='', num_frames=5, timeout=0.02, n_retrans=8, debug=False):
+                window='', num_frames=5, timeout=0.02, n_retrans=5, debug=False):
         '''
         Layer 2 network layer object
         :param mac_ip: string for the usrp mac address fo the current node
@@ -147,7 +147,6 @@ class Layer2(Network_Layer):
             self.unacked_packet = pktno_mac
 
             while not stop():
-                time.sleep(0.005)
                 globals()["l2_ack"].wait(self.timeout)
                 if globals()["l2_ack"].isSet():     # ack received
                     globals()["l2_ack"].clear()
