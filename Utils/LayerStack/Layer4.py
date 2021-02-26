@@ -77,7 +77,7 @@ class Layer4(Network_Layer):
                 l4_packet = b''
 
             else:   # relay/forward message
-                self.prev_up_queue.put(l4_packet, True)
+                self.prev_down_queue.put(l4_packet, True)
                 l4_packet = b''
 
 
