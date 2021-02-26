@@ -134,6 +134,7 @@ class Layer2(Network_Layer):
         '''
         while not stop():
             down_packet = self.prev_down_queue.get(True)
+            
 
             if self.debug:
                 print("from l3", down_packet)
@@ -146,6 +147,7 @@ class Layer2(Network_Layer):
             self.unacked_packet = pktno_mac
 
             while not stop():
+                time.sleep(0.005)
                 globals()["l2_ack"].wait(self.timeout)
                 if globals()["l2_ack"].isSet():     # ack received
                     globals()["l2_ack"].clear()
