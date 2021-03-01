@@ -82,9 +82,9 @@ class Simple_Node(Network_Layer.Network_Layer):
     def rx_test(self):
         while not self.stop_threads:
             msg = self.prev_up_queue.get(True)
-            print('MSG: $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
-            print(msg)
-            print('/MSG: $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+            
+            print(msg, len(msg))
+            
 
 
     def start_threads(self):

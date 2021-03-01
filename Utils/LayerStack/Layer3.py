@@ -11,7 +11,8 @@ class Layer3(Network_Layer):
     def __init__(self, my_config, debug=False):
         '''
         Layer 3 network layer object
-        :param : TODO
+        :param my_config: Node_Config object for the current node
+        :param debug: bool for debug outputs or not
         '''
         Network_Layer.__init__(self, "layer_3", debug=debug)
 

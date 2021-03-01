@@ -11,6 +11,9 @@ class Network_Layer():
 	def __init__(self, layer_name, window=None, debug=False):
 		'''
 		Class to define the the basic structure of a network layer
+		:param layer_name: sting for the layer name
+		:param window: int for the number of l2 windows to open TODO
+		:param debug: bool for debug console outputs 
 		'''
 		self.layer_name = layer_name
 		self.up_queue = Queue(1024*1000)

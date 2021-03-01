@@ -7,7 +7,8 @@ Layer 2 object: Mac address layer (Datalink)
 from LayerStack.Network_Layer import Network_Layer
 from enum import Enum 
 from threading import  Event
-import socket, time, struct, socket, numpy
+from time import time
+import struct
 
 l2_ack = Event()
 l2_control = Event()
@@ -20,15 +21,12 @@ class L2_ENUMS(Enum):
 
 
 class Layer2(Network_Layer):
-    def __init__(self, mac_ip,
-                send_ack=None, udp_acks=True,
-                window='', num_frames=5, timeout=0.03, n_retrans=5, debug=False):
+    def __init__(self, mac_ip, send_ack=None, udp_acks=True, num_frames=5, timeout=0.03, n_retrans=5, debug=False):
         '''
         Layer 2 network layer object
         :param mac_ip: string for the usrp mac address fo the current node
         :param send_ack: method to send udp acks via wifi
         :param udp_acks: bool to use udp acks via wifi
-        :param window: #TODO
         :param num_frames: int for the number of l2 frames in one l4 packet
         :param timeout: float for the time in seconds to wait for a l2 packet ack
         :param n_retrans: int for the numbre of retranmission before packet tranmssion failure
@@ -36,7 +34,7 @@ class Layer2(Network_Layer):
         :param ack_send_port: int for the layer 2 ack send port number 
         
         '''  
-        Network_Layer.__init__(self, "layer_2", window, debug=debug)
+        Network_Layer.__init__(self, "layer_2", debug=debug)
 
         self.mac_ip = bytes(mac_ip, "utf-8")
         self.num_frames = num_frames
@@ -49,6 +47,11 @@ class Layer2(Network_Layer):
         self.mac_pkt_dict = {}
         self.up_pkt = {}
         self.unacked_packet = 0
+
+        self.throughput = 0
+        self.time_sent = 0
+        self.l2_size = 0
+        self.rtt = 0
 
     def send_ack(self, pktno, dest):
         '''
@@ -70,6 +73,11 @@ class Layer2(Network_Layer):
         '''
         if pktno == self.unacked_packet:
             globals()["l2_ack"].set()
+            self.rtt = time() - self.time_sent
+            self.throughput = 0.5*self.throughput + 0.5*(self.l2_size * 8 / self.rtt)   # L4 throughput in bits per sec moving average
+            
+            if self.debug:
+                print('L2 RTT:', self.rtt, '(s)', 'L2 Throughput: ', self.throughput, "(bits/sec)")
 
     def pass_up(self, stop):
         '''
@@ -135,6 +143,8 @@ class Layer2(Network_Layer):
         while not stop():
             down_packet = self.prev_down_queue.get(True)
             
+            self.l2_size = len(down_packet)
+            self.time_sent = time()
 
             if self.debug:
                 print("from l3", down_packet)

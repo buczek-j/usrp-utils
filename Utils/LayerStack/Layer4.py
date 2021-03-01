@@ -6,25 +6,25 @@ Layer 4 object: Transport layer
 
 from LayerStack.Network_Layer import Network_Layer
 from threading import  Event, Lock
+from time import time
 import struct
 
 l4_ack = Event()
 l4_down_access = Lock()     
 
 class Layer4(Network_Layer):
-    def __init__(self, my_config,
-                send_ack,
-                num_frames=5,
-                num_blocks=2,
-                l2_header=42,
-                l2_block_size=128,
-                timeout=1,
-                n_retrans=3,
-                debug=False
-                ):
+    def __init__(self, my_config, send_ack, num_frames=5, num_blocks=2, l2_header=42, l2_block_size=128, timeout=1, n_retrans=3, debug=False):
         '''
         Layer 4 Transport layer object
-        :param : TODO
+        :param my_config: Node_Config object for the current node
+        :param send_ack: function to call to send an acknowledgement
+        :param num_frames: int for the number of l2 frames in one l4 packet
+        :param num_blocks: int for the number of blocks in an l2 message
+        :param l2_header: int for the byte length of the l2 header
+        :param l2_block_size: int for the byte length for one l2 block
+        :param timeout: int for the l4 ack timeout
+        :param n_retrans: int for the number of times to retransmit a l4 message
+        :param debug: bool for debug outputs or not
         '''
         Network_Layer.__init__(self, "layer_4", debug=debug)
         self.my_pc = bytes(my_config.pc_ip, "utf-8")
@@ -36,6 +36,11 @@ class Layer4(Network_Layer):
         self.timeout=timeout
         self.n_retrans = n_retrans
         self.unacked_packet = 0
+        
+        self.time_sent = 0
+        self.l4_size = 0
+        self.rtt = 0
+        self.throughput = 0
 
     def send_ack(self, pktno, dest):
         '''
@@ -53,7 +58,11 @@ class Layer4(Network_Layer):
         '''
         if pktno == self.unacked_packet:
             globals()["l4_ack"].set()
+            self.rtt = time() - self.time_sent 
+            self.throughput = 0.5*self.throughput + 0.5*(self.l4_size * 8 / self.rtt)   # L4 throughput in bits per sec moving average
 
+            if self.debug:
+                print('L4 RTT:', self.rtt, '(s)', 'L4 Throughput: ', self.throughput, "(bits/sec)")            
 
     def pass_up(self, stop):
         '''
@@ -80,7 +89,6 @@ class Layer4(Network_Layer):
                 self.prev_down_queue.put(l4_packet, True)
                 l4_packet = b''
 
-
     def pass_down(self, stop):
         '''
         Method to receive l4 packets, break them into l2 sized packets, and pass them to l3
@@ -90,6 +98,11 @@ class Layer4(Network_Layer):
             act_rt=0 # retransmission counter
             l4_packet = self.prev_down_queue.get(True)
             packet_source = self.unpad(l4_packet[8:28])
+
+            if packet_source == self.my_pc: # record l4 sent time if pkt source
+                self.time_sent = struct.unpack('d', l4_packet[48:56])
+                self.l4_size = len(l4_packet)
+
             try:
                 self.unacked_packet = struct.unpack('h', l4_packet[0:8])
             except:
@@ -106,7 +119,6 @@ class Layer4(Network_Layer):
                 pkt_no_mac +=1
                 l2_packet=b''
             l4_down_access.release()
-            
             
 
             # if l4 packet originated from this node, then wait for ack
