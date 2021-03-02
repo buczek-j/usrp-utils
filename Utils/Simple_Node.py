@@ -117,8 +117,6 @@ class Simple_Node(Network_Layer.Network_Layer):
         Method to close all of the threads and subprocesses
         '''
         self.stop_threads = True
-        self.closeout_report()
-
         print("~ ~ Closing Threads ~ ~")
         for thread in self.threads:
             try:
@@ -150,13 +148,13 @@ class Simple_Node(Network_Layer.Network_Layer):
             print("~ ~ Starting Transmission ~ ~")
             self.transmit = True
             sleep(30)                   # run time
-            stop_time = time()
-
+            trans_time = time() - start_time
+            
             # close
             self.transmit = False
             self.stop_threads = True
 
-            trans_time = stop_time = start_time
+            
             print('bytes sent:', self.layer4.n_sent, 'bytes recv:', self.layer4.n_recv, 'time:', trans_time, 's')
             print('tx throughput: ', 8*self.layer4.n_sent/trans_time, 'bps', 'rx throughtput: ', 8*self.layer4.n_recv/trans_time, 'bps', 'RTT:', self.layer4.rtt, 's')
             self.close_threads()
