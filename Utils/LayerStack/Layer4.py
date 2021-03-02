@@ -86,7 +86,6 @@ class Layer4(Network_Layer):
             if packet_destination == self.my_pc:    # if this is the destination, then pass payload to the application layer
                 self.up_queue.put(l4_packet[56:], True)
                 self.send_ack(l4_packet[:8], packet_source)  # send l4 ack
-
                 l4_packet = b''
 
             else:   # relay/forward message
@@ -103,7 +102,7 @@ class Layer4(Network_Layer):
             act_rt=0 # retransmission counter
             l4_packet = self.prev_down_queue.get(True)
             packet_source = self.unpad(l4_packet[8:28])
-            self.n_sent = self.n_sent + len(l4_packet)
+            self.n_sent = self.n_sent + len(l4_packet)      # record number of bytes
             
 
             if packet_source == self.my_pc: # record l4 sent time if pkt source
@@ -126,7 +125,6 @@ class Layer4(Network_Layer):
                 l2_packet=b''
             l4_down_access.release()
             
-
             # if l4 packet originated from this node, then wait for ack
             if packet_source == self.my_pc:
                 while not stop():
@@ -138,6 +136,7 @@ class Layer4(Network_Layer):
 
                     elif act_rt < self.n_retrans:       # check num of retransmissions
                         act_rt += 1 
+                        self.n_sent = self.n_sent + len(l4_packet)
 
                         pkt_no_mac = 1  # mac (l2) packet number counter
                         l4_down_access.acquire()
