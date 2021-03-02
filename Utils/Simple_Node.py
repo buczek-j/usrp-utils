@@ -147,8 +147,8 @@ class Simple_Node(Network_Layer.Network_Layer):
             self.stop_threads = True
 
             
-            print('bytes sent:', self.layer4.n_sent, 'bytes recv:', self.layer4.n_recv, 'time:', trans_time, 's')
-            print('tx throughput: ', 8*self.layer4.n_sent/trans_time, 'bps', 'rx throughtput: ', 8*self.layer4.n_recv/trans_time, 'bps', 'RTT:', self.layer4.rtt, 's')
+            print('bytes sent:', self.layer3.n_sent, 'bytes recv:', self.layer3.n_recv, 'time:', trans_time, 's')
+            print('tx throughput: ', 8*self.layer3.n_sent/trans_time, 'bps', 'rx throughtput: ', 8*self.layer3.n_recv/trans_time, 'bps', 'RTT:', self.layer4.rtt, 's')
             self.close_threads()
             exit(0)
 
