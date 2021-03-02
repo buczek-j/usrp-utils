@@ -49,7 +49,10 @@ class Layer2(Network_Layer):
         self.unacked_packet = 0
 
         self.l2_size = 0
-        
+
+        # measurements
+        self.n_sent = 0
+        self.n_recv = 0        
 
     def send_ack(self, pktno, dest):
         '''
@@ -93,6 +96,8 @@ class Layer2(Network_Layer):
 
             # check if destination correct (meant for this node to read)
             if mac_destination_ip == self.mac_ip:
+                self.n_recv = self.n_recv + len(mac_packet)
+                
                 if pktno_mac == L2_ENUMS.MSG.value:
                     self.mac_pkt_dict[mac_source_ip] = pktno_mac        # update last received pkt number 
                     self.send_ack(mac_packet[0:2], mac_source_ip)  # send ack
@@ -134,8 +139,6 @@ class Layer2(Network_Layer):
                     continue
             else:
                 pass
-        
-            
                 
     def pass_down(self, stop):
         '''
@@ -144,6 +147,7 @@ class Layer2(Network_Layer):
         '''
         while not stop():
             down_packet = self.prev_down_queue.get(True)
+            self.n_sent = self.n_sent + len(down_packet)
 
             if self.debug:
                 print("from l3", down_packet)
