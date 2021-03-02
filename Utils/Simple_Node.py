@@ -54,7 +54,7 @@ class Simple_Node(Network_Layer.Network_Layer):
         payload = bytes((self.layer4.l4_size - self.layer4.l4_header) * random.choice(string.digits), "utf-8")
         pktno_l4 = 0
         l4_pkts_to_send = 10000
-        n_sent = 0
+        self.n_sent = 0
 
         l4_maximum_rate = tspt_rate/8 	    # bps -> [Bps]
         max_pkt_per_sec = max(1,int(ceil(l4_maximum_rate/self.layer4.l4_size)))
@@ -73,17 +73,19 @@ class Simple_Node(Network_Layer.Network_Layer):
                     
                     self.down_queue.put(packet, True)
                 
-                    n_sent += 1
+                    self.n_sent += 1
                     pktno_l4 += 1
                     print('L4: ', self.layer4.throughput, 'bps',self.layer4.rtt, 's')
                     print('L2: ', self.layer2.throughput, 'bps',self.layer2.rtt, 's')
                     
 
     def rx_test(self):
+        self.n_recv = 0
         while not self.stop_threads:
             msg = self.prev_up_queue.get(True)
             
             print(msg, len(msg))
+            self.n_recv += 1
             
 
 
@@ -115,12 +117,19 @@ class Simple_Node(Network_Layer.Network_Layer):
 
         print("~ ~ Threads all running ~ ~")
 
+    def closeout_report(self):
+        '''     
+        Method to display the end parameters
+        '''     
+        print(self.n_sent, self.n_recv)
+
 
     def close_threads(self):
         '''
         Method to close all of the threads and subprocesses
         '''
         self.stop_threads = True
+
         print("~ ~ Closing Threads ~ ~")
         for thread in self.threads:
             try:
