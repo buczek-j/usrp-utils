@@ -110,7 +110,7 @@ class Simple_Node(Network_Layer.Network_Layer):
         Method to close all of the threads and subprocesses
         '''
         self.stop_threads = True
-        print('\n ~ ~ Closing Threads ~ ~", end='\n\n')
+        print("\n ~ ~ Closing Threads ~ ~", end='\n\n')
         for thread in self.threads:
             try:
                 self.threads[thread].join(0.1)
