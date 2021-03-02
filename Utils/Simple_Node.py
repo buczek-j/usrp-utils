@@ -74,7 +74,7 @@ class Simple_Node(Network_Layer.Network_Layer):
         while not self.stop_threads:
             msg = self.prev_up_queue.get(True)
             # print(msg)
-            print('.', end='')
+            print('.', end='\r')
 
 
     def start_threads(self):
