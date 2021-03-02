@@ -65,6 +65,7 @@ class Layer4(Network_Layer):
             globals()["l4_ack"].set()
             rtt = time() - self.time_sent 
             self.rtt = 0.99*self.rtt + 0.01*rtt
+            self.n_sent = self.n_sent + self.l4_size
            
 
     def pass_up(self, stop):
@@ -104,7 +105,7 @@ class Layer4(Network_Layer):
             act_rt=0 # retransmission counter
             l4_packet = self.prev_down_queue.get(True)
             packet_source = self.unpad(l4_packet[8:28])
-            self.n_sent = self.n_sent + len(l4_packet)
+            
 
             if packet_source == self.my_pc: # record l4 sent time if pkt source
                 (self.time_sent, ) = struct.unpack('d', l4_packet[48:56])
