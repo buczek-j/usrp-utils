@@ -130,7 +130,7 @@ class Simple_Node(Network_Layer.Network_Layer):
         '''     
         Method to display the end parameters
         '''     
-        print('tx:', self.bytes_sent/(time()-self.time_start), 'rx:', self.bytes_recv/(time()-self.time_start))
+        print('tx:', 8*self.bytes_sent/(time()-self.time_start), 'bps','rx:', 8*self.bytes_recv/(time()-self.time_start), 'bps')
 
 
     def close_threads(self):
