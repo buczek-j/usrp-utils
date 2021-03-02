@@ -52,7 +52,6 @@ class Simple_Node(Network_Layer.Network_Layer):
         payload = bytes((self.layer4.l4_size - self.layer4.l4_header) * random.choice(string.digits), "utf-8")
         pktno_l4 = 0
         l4_pkts_to_send = 10000
-        
 
         l4_maximum_rate = tspt_rate/8 	    # bps -> [Bps]
         max_pkt_per_sec = max(1,int(ceil(l4_maximum_rate/self.layer4.l4_size)))
@@ -60,9 +59,6 @@ class Simple_Node(Network_Layer.Network_Layer):
         while not self.stop_threads:
             if self.transmit:
                 sleep(1)
-                if not started:
-                    self.time_start = time()
-                    started = True
 
                 if pktno_l4 == l4_pkts_to_send:
                         print("Max number of packets sent")
@@ -74,7 +70,6 @@ class Simple_Node(Network_Layer.Network_Layer):
                     
                     self.down_queue.put(packet, True)
                 
-                    self.n_sent += 1
                     self.bytes_sent = self.bytes_sent + len(packet)
                     pktno_l4 += 1
 
@@ -149,7 +144,7 @@ class Simple_Node(Network_Layer.Network_Layer):
             self.transmit = True
             sleep(30)                   # run time
             trans_time = time() - start_time
-            
+
             # close
             self.transmit = False
             self.stop_threads = True
