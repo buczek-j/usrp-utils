@@ -60,11 +60,11 @@ class Layer4(Network_Layer):
         '''
         if pktno == self.unacked_packet:
             globals()["l4_ack"].set()
-            self.rtt = time() - self.time_sent 
-            self.throughput = 0.5*self.throughput + 0.5*(self.l4_size * 8 / self.rtt)   # L4 throughput in bits per sec moving average
+            # self.rtt = time() - self.time_sent 
+            # self.throughput = 0.5*self.throughput + 0.5*(self.l4_size * 8 / self.rtt)   # L4 throughput in bits per sec moving average
 
-            if self.debug:
-                print('L4 RTT:', self.rtt, '(s)', 'L4 Throughput: ', self.throughput, "(bits/sec)")            
+            # if self.debug:
+            #     print('L4 RTT:', self.rtt, '(s)', 'L4 Throughput: ', self.throughput, "(bits/sec)")            
 
     def pass_up(self, stop):
         '''
@@ -102,7 +102,7 @@ class Layer4(Network_Layer):
             packet_source = self.unpad(l4_packet[8:28])
 
             if packet_source == self.my_pc: # record l4 sent time if pkt source
-                (_, self.time_sent) = struct.unpack('d', l4_packet[48:56])
+                print(struct.unpack('d', l4_packet[48:56]))
 
             try:
                 self.unacked_packet = struct.unpack('h', l4_packet[0:8])
