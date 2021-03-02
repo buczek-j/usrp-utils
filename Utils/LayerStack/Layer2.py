@@ -21,7 +21,7 @@ class L2_ENUMS(Enum):
 
 
 class Layer2(Network_Layer):
-    def __init__(self, mac_ip, send_ack=None, udp_acks=True, num_frames=5, timeout=0.03, n_retrans=5, debug=False):
+    def __init__(self, mac_ip, send_ack=None, udp_acks=True, num_frames=5, timeout=0.02, n_retrans=5, debug=False):
         '''
         Layer 2 network layer object
         :param mac_ip: string for the usrp mac address fo the current node
@@ -179,7 +179,8 @@ class Layer2(Network_Layer):
                         if self.debug:
                             print("popped packet")
                     if self.n_ack > 10:
-                        self.timeout = self.timeout - 0.001
+                        self.timeout = self.timeout + 0.001
                         self.n_ack = 0
+                        print'N_ACK' , (self.n_ack)
                     break
                         
