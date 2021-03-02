@@ -25,6 +25,7 @@ class Layer4(Network_Layer):
         :param timeout: int for the l4 ack timeout
         :param n_retrans: int for the number of times to retransmit a l4 message
         :param debug: bool for debug outputs or not
+        :param l4_header: int for the l4 packet header length
         '''
         Network_Layer.__init__(self, "layer_4", debug=debug)
         self.my_pc = bytes(my_config.pc_ip, "utf-8")
