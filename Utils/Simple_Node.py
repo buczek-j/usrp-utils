@@ -64,11 +64,14 @@ class Simple_Node(Network_Layer.Network_Layer):
 
         l4_maximum_rate = tspt_rate/8 	    # bps -> [Bps]
         max_pkt_per_sec = max(1,int(ceil(l4_maximum_rate/self.layer4.l4_size)))
-        self.time_start = time()
+        started = False
 
         while not self.stop_threads:
             if self.transmit:
                 sleep(1)
+                if not started:
+                    self.time_start = time()
+                    started = True
 
                 if pktno_l4 == l4_pkts_to_send:
                         print("Max number of packets sent")
@@ -83,14 +86,16 @@ class Simple_Node(Network_Layer.Network_Layer):
                     self.n_sent += 1
                     self.bytes_sent = self.bytes_sent + len(packet)
                     pktno_l4 += 1
-                    # print('L4: ', self.layer4.throughput, 'bps',self.layer4.rtt, 's')
-                    # print('L2: ', self.layer2.throughput, 'bps',self.layer2.rtt, 's')
+
                     
 
     def rx_test(self):
-        self.time_start = time()
+        started = False
         while not self.stop_threads:
             msg = self.prev_up_queue.get(True)
+            if not started:
+                self.time_start = time()
+                started = True
             
             print(msg, len(msg))
             self.n_recv += 1
@@ -130,6 +135,7 @@ class Simple_Node(Network_Layer.Network_Layer):
         '''     
         Method to display the end parameters
         '''     
+
         print('tx:', 8*self.bytes_sent/(time()-self.time_start), 'bps','rx:', 8*self.bytes_recv/(time()-self.time_start), 'bps')
 
 
