@@ -176,6 +176,5 @@ class Layer2(Network_Layer):
                         if self.debug:
                             print("popped packet")
 
-                    self.timeout = self.timeout + 0.001
                     break
                         
