@@ -75,7 +75,6 @@ class Simple_Node(Network_Layer.Network_Layer):
             # print(msg)
             print('...')
 
-
     def start_threads(self):
         '''
         Method to start all of the threads 
@@ -125,7 +124,6 @@ class Simple_Node(Network_Layer.Network_Layer):
                 pass
         exit(0)
         
-            
     def run(self):
         '''
         Main node method
