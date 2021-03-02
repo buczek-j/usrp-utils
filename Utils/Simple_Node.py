@@ -58,8 +58,6 @@ class Simple_Node(Network_Layer.Network_Layer):
         print('max throughput:', l4_maximum_rate, 'bps')
         while not self.stop_threads:
             if self.transmit:
-                sleep(1)
-
                 if pktno_l4 == l4_pkts_to_send:
                         print("Max number of packets sent")
                         break
@@ -69,9 +67,8 @@ class Simple_Node(Network_Layer.Network_Layer):
                     packet = struct.pack('l', pktno_l4)  + self.pad(bytes(self.my_config.pc_ip, "utf-8")) + self.pad(bytes(self.my_config.dest.pc_ip, "utf-8")) +  struct.pack('d', time_stamp) + payload # 56 bytes added + payload
                     
                     self.down_queue.put(packet, True)
-                
-                    self.bytes_sent = self.bytes_sent + len(packet)
                     pktno_l4 += 1
+                    sleep(1.0/max_pkt_per_sec)
 
     def rx_test(self):
         while not self.stop_threads:
