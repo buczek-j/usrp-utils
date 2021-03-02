@@ -41,8 +41,11 @@ class Layer4(Network_Layer):
         self.time_sent = 0
         self.l4_size = num_blocks*l2_block_size*num_frames
         self.l4_header = l4_header
+
+        # Measurements
         self.rtt = 0
-        self.throughput = 0
+        self.n_sent = 0
+        self.n_recv = 0
 
     def send_ack(self, pktno, dest):
         '''
@@ -60,11 +63,9 @@ class Layer4(Network_Layer):
         '''
         if pktno == self.unacked_packet:
             globals()["l4_ack"].set()
-            # self.rtt = time() - self.time_sent 
-            # self.throughput = 0.5*self.throughput + 0.5*(self.l4_size * 8 / self.rtt)   # L4 throughput in bits per sec moving average
-
-            # if self.debug:
-            #     print('L4 RTT:', self.rtt, '(s)', 'L4 Throughput: ', self.throughput, "(bits/sec)")            
+            rtt = time() - self.time_sent 
+            self.rtt = 0.99*self.rtt + 0.01*rtt
+           
 
     def pass_up(self, stop):
         '''
@@ -85,10 +86,13 @@ class Layer4(Network_Layer):
             if packet_destination == self.my_pc:    # if this is the destination, then pass payload to the application layer
                 self.up_queue.put(l4_packet[56:], True)
                 self.send_ack(l4_packet[:8], packet_source)  # send l4 ack
+
+                self.n_recv = self.n_recv + len(l4_packet)
                 l4_packet = b''
 
             else:   # relay/forward message
                 self.prev_down_queue.put(l4_packet, True)
+                self.n_recv = self.n_recv + len(l4_packet)
                 l4_packet = b''
 
     def pass_down(self, stop):
@@ -100,9 +104,10 @@ class Layer4(Network_Layer):
             act_rt=0 # retransmission counter
             l4_packet = self.prev_down_queue.get(True)
             packet_source = self.unpad(l4_packet[8:28])
+            self.n_sent = self.n_sent + len(l4_packet)
 
             if packet_source == self.my_pc: # record l4 sent time if pkt source
-                print(struct.unpack('d', l4_packet[48:56]))
+                (self.time_sent, ) = struct.unpack('d', l4_packet[48:56])
 
             try:
                 self.unacked_packet = struct.unpack('h', l4_packet[0:8])

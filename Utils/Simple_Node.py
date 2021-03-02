@@ -45,14 +45,6 @@ class Simple_Node(Network_Layer.Network_Layer):
         self.layer4.init_layers(upper=self, lower=self.layer3)  # link l4 to this class object
         self.init_layers(upper=None, lower=self.layer4)
 
-        # Measurements
-        self.n_sent = 0
-        self.bytes_sent = 0
-
-        self.n_recv = 0
-        self.bytes_recv = 0
-        self.time_start = 0
-
         print("~ ~ Initialization Complete ~ ~")
 
     def tx_test(self):
@@ -64,8 +56,7 @@ class Simple_Node(Network_Layer.Network_Layer):
 
         l4_maximum_rate = tspt_rate/8 	    # bps -> [Bps]
         max_pkt_per_sec = max(1,int(ceil(l4_maximum_rate/self.layer4.l4_size)))
-        started = False
-
+        print('max throughput:', l4_maximum_rate, 'bps')
         while not self.stop_threads:
             if self.transmit:
                 sleep(1)
@@ -87,20 +78,10 @@ class Simple_Node(Network_Layer.Network_Layer):
                     self.bytes_sent = self.bytes_sent + len(packet)
                     pktno_l4 += 1
 
-                    
-
     def rx_test(self):
-        started = False
         while not self.stop_threads:
             msg = self.prev_up_queue.get(True)
-            if not started:
-                self.time_start = time()
-                started = True
-            
-            print(msg, len(msg))
-            self.n_recv += 1
-            self.bytes_recv = self.bytes_recv + len(msg)
-            
+            print(msg)
 
 
     def start_threads(self):
@@ -130,14 +111,6 @@ class Simple_Node(Network_Layer.Network_Layer):
             self.threads['rx_thread'].start()
 
         print("~ ~ Threads all running ~ ~")
-
-    def closeout_report(self):
-        '''     
-        Method to display the end parameters
-        '''     
-
-        print('tx:', 8*self.bytes_sent/(time()-self.time_start), 'bps','rx:', 8*self.bytes_recv/(time()-self.time_start), 'bps')
-
 
     def close_threads(self):
         '''
@@ -171,15 +144,21 @@ class Simple_Node(Network_Layer.Network_Layer):
             # setup
             self.start_threads()
             sleep(10)                   # startup time
+            start_time = time()
 
             # run
             print("~ ~ Starting Transmission ~ ~")
             self.transmit = True
-            sleep(60)                   # run time
+            sleep(30)                   # run time
+            stop_time = time()
 
             # close
             self.transmit = False
             self.stop_threads = True
+
+            trans_time = stop_time = start_time
+            print('bytes sent:', self.layer4.n_sent, 'bytes recv:', self.layer4.n_recv, 'time:', trans_time, 's')
+            print('tx throughput: ', 8*self.layer4.n_sent/trans_time, 'bps', 'rx throughtput: ', 8*self.layer4.n_recv/trans_time, 'bps', 'RTT:', self.layer4.rtt, 's')
             self.close_threads()
             exit(0)
 
