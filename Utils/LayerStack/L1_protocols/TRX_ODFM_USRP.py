@@ -29,7 +29,7 @@ from gnuradio.digital.utils import tagged_streams
 
 class TRX_ODFM_USRP(gr.top_block):
 
-    def __init__(self, input_port_num="55555", output_port_num="55556", rx_bw=0.5e6, rx_freq=2e9, rx_gain=0.8, serial_num="31C9237", tx_bw=0.5e6, tx_freq=1e9, tx_gain=0.8, l2_packet_size=256):
+    def __init__(self, input_port_num="55555", output_port_num="55556", rx_bw=0.5e6, rx_freq=2e9, rx_gain=0.8, serial_num="", tx_bw=0.5e6, tx_freq=1e9, tx_gain=0.8, l2_packet_size=256):
         gr.top_block.__init__(self, "tranceiver_ofdm_usrp")
 
         ##################################################
@@ -72,14 +72,25 @@ class TRX_ODFM_USRP(gr.top_block):
         ##################################################
         self.zeromq_sub_source_0 = zeromq.sub_source(gr.sizeof_char, 1, "tcp://127.0.0.1:"+input_port_num, 100, False, -1)
         self.zeromq_pub_sink_0 = zeromq.pub_sink(gr.sizeof_char, 1, "tcp://127.0.0.1:"+output_port_num, 100, False, -1)
-        self.uhd_usrp_source_0 = uhd.usrp_source(
-            ",".join(("serial="+serial_num, "")),
-            uhd.stream_args(
-                cpu_format="fc32",
-                args='',
-                channels=list(range(0,1)),
-            ),
-        )
+
+        if self.serial_num == "" or self.serial_num==None:
+            self.uhd_usrp_source_0 = uhd.usrp_source(
+                ",",
+                uhd.stream_args(
+                    cpu_format="fc32",
+                    args='',
+                    channels=list(range(0,1)),
+                ),
+            )
+        else:
+            self.uhd_usrp_source_0 = uhd.usrp_source(
+                ",".join(("serial="+serial_num, "")),
+                uhd.stream_args(
+                    cpu_format="fc32",
+                    args='',
+                    channels=list(range(0,1)),
+                ),
+            )
         self.uhd_usrp_source_0.set_samp_rate(rx_bw)
         self.uhd_usrp_source_0.set_time_now(uhd.time_spec(time.time()), uhd.ALL_MBOARDS)
 

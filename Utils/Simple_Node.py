@@ -21,7 +21,10 @@ class Simple_Node(Network_Layer.Network_Layer):
         '''
         Test node class for network layer stack
         :param my_config: Node_Config class object
-        :param serial: string for the usrp serial number
+        :param l1_debug: bool for layer 1 debug outputs
+        :param l2_debug: bool for layer 2 debug outputs
+        :param l3_debug: bool for layer 3 debug outputs
+        :param l4_debug: bool for layer 4 debug outputs
         '''
         Network_Layer.Network_Layer.__init__(self, "application_layer")
         self.my_config = my_config
@@ -92,6 +95,7 @@ class Simple_Node(Network_Layer.Network_Layer):
             self.threads[layer.layer_name + "_pass_down"].start() 
 
         self.subproccesses['USRP'] = Popen('python3 LayerStack/L1_protocols/TRX_ODFM_USRP.py '+str(self.my_config.get_tranceiver_args()), stdout=DEVNULL, stderr=DEVNULL, shell=True)
+        print(self.my_config.get_tranceiver_args())
 
         if self.my_config.role == 'tx':
             self.threads['tx_thread'] = Thread(target=self.tx_test, args=())
