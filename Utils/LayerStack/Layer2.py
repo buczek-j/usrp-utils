@@ -105,7 +105,16 @@ class Layer2(Network_Layer):
                     self.send_ack(mac_packet[0:2], mac_source_ip)  # send ack
                     self.up_pkt[mac_source_ip] = mac_packet[42:]
                     mac_packet = b''
-                    continue
+
+                    if pktno_mac == self.num_frames:    # if last packet in l4 frame
+                        self.up_queue.put(self.up_pkt[mac_source_ip], True)
+                        self.up_pkt[mac_source_ip] = b''
+                        self.mac_pkt_dict[mac_source_ip] = L2_ENUMS.MSG.value
+                        continue
+
+                    else:
+                        continue
+
 
                 elif pktno_mac == (self.mac_pkt_dict[mac_source_ip]+1):  # next sequential message 
                     self.mac_pkt_dict[mac_source_ip] = pktno_mac        # update last received pkt number 
