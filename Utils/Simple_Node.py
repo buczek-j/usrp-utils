@@ -74,7 +74,7 @@ class Simple_Node(Network_Layer.Network_Layer):
         while not self.stop_threads:
             msg = self.prev_up_queue.get(True)
             # print(msg)
-            print('.', end='\r')
+            print('...')
 
 
     def start_threads(self):
@@ -140,7 +140,7 @@ class Simple_Node(Network_Layer.Network_Layer):
             # run
             print("~ ~ Starting Test ~ ~", end='\n\n')
             self.transmit = True
-            sleep(30)                   # run time
+            sleep(180)                   # run time
             trans_time = time() - start_time
             print(" \n ~ ~ Test Complete ~ ~", end='\n\n')
 
