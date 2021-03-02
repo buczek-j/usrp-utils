@@ -75,6 +75,8 @@ class Simple_Node(Network_Layer.Network_Layer):
                 
                     n_sent += 1
                     pktno_l4 += 1
+                    print('L4: ', self.layer4.throughput, 'bps',self.layer4.rtt, 's')
+                    print('L2: ', self.layer2.throughput, 'bps',self.layer2.rtt, 's')
                     
 
     def rx_test(self):
@@ -200,6 +202,10 @@ def main():
 
     parser = ArgumentParser()
     parser.add_argument('--index', type=int, default='', help='node index number')
+    parser.add_argument('--l1', type=str, default='n', help='layer 1 debug (y/n)')
+    parser.add_argument('--l2', type=str, default='n', help='layer 2 debug (y/n)')
+    parser.add_argument('--l3', type=str, default='n', help='layer 3 debug (y/n)')
+    parser.add_argument('--l4', type=str, default='n', help='layer 4 debug (y/n)')
     options = parser.parse_args()
 
     nodes['dest1'].configure_hops(nodes['src1'], nodes['dest1'], None, nodes['rly1'])
@@ -207,7 +213,7 @@ def main():
     nodes['src1'].configure_hops(nodes['src1'], nodes['dest1'], nodes['rly1'], None)
 
     
-    simple_node = Simple_Node(nodes[id_list[int(options.index)]], l2_debug=True, l3_debug=False, l4_debug=False)
+    simple_node = Simple_Node(nodes[id_list[int(options.index)]], l1_debug=(options.l1=='y' or options.l1 == 'Y'), l2_debug=(options.l2=='y' or options.l2 == 'Y'), l3_debug=(options.l3=='y' or options.l3 == 'Y'), l4_debug=(options.l4=='y' or options.l4 == 'Y'))
     try:
         simple_node.run()
     except:
