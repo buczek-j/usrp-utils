@@ -51,6 +51,7 @@ class Simple_Node(Network_Layer.Network_Layer):
 
         self.n_recv = 0
         self.bytes_recv = 0
+        self.time_start = 0
 
         print("~ ~ Initialization Complete ~ ~")
 
@@ -63,6 +64,7 @@ class Simple_Node(Network_Layer.Network_Layer):
 
         l4_maximum_rate = tspt_rate/8 	    # bps -> [Bps]
         max_pkt_per_sec = max(1,int(ceil(l4_maximum_rate/self.layer4.l4_size)))
+        self.time_start = time()
 
         while not self.stop_threads:
             if self.transmit:
@@ -86,7 +88,7 @@ class Simple_Node(Network_Layer.Network_Layer):
                     
 
     def rx_test(self):
-        
+        self.time_start = time()
         while not self.stop_threads:
             msg = self.prev_up_queue.get(True)
             
@@ -128,7 +130,7 @@ class Simple_Node(Network_Layer.Network_Layer):
         '''     
         Method to display the end parameters
         '''     
-        print(self.n_sent, self.bytes_sent, self.n_recv, self.bytes_recv)
+        print('tx:', self.bytes_sent/(time()-self.time_start), 'rx:', self.bytes_recv/(time()-self.time_start))
 
 
     def close_threads(self):
