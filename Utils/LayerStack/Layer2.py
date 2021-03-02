@@ -181,6 +181,6 @@ class Layer2(Network_Layer):
                     if self.n_ack > 10:
                         self.timeout = self.timeout + 0.001
                         self.n_ack = 0
-                        print'N_ACK' , (self.n_ack)
+                        print('N_ACK' , self.n_ack)
                     break
                         
