@@ -178,5 +178,7 @@ class Layer2(Network_Layer):
                         self.prev_down_queue.get(True)
                         if self.debug:
                             print("popped packet")
+                    if self.n_ack > 10:
+                        self.timeout = self.timeout + 0.001
                     break
                         
