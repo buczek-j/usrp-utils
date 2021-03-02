@@ -44,6 +44,8 @@ class Layer4(Network_Layer):
 
         # Measurements
         self.rtt = 0
+        self.n_recv = 0
+        self.n_sent = 0
 
     def send_ack(self, pktno, dest):
         '''
@@ -76,6 +78,7 @@ class Layer4(Network_Layer):
             packet_destination = self.unpad(l4_packet[28:48])
             (timestamp,) = struct.unpack('d', l4_packet[48:56])
             (pktno_l4,) = struct.unpack('l', l4_packet[:8])	
+            self.n_recv = self.n_recv + len(l4_packet)
 
             if self.debug:
                 print('l4', pktno_l4, packet_source, packet_destination, timestamp)
@@ -88,6 +91,7 @@ class Layer4(Network_Layer):
 
             else:   # relay/forward message
                 self.prev_down_queue.put(l4_packet, True)
+
                 l4_packet = b''
 
     def pass_down(self, stop):
@@ -99,6 +103,7 @@ class Layer4(Network_Layer):
             act_rt=0 # retransmission counter
             l4_packet = self.prev_down_queue.get(True)
             packet_source = self.unpad(l4_packet[8:28])
+            self.n_sent = self.n_sent + len(l4_packet)
             
 
             if packet_source == self.my_pc: # record l4 sent time if pkt source

@@ -24,9 +24,6 @@ class Layer3(Network_Layer):
         self.nh_usrp = bytes(my_config.next_hop.usrp_ip, "utf-8")
         self.ph_usrp = bytes(my_config.prev_hop.usrp_ip, "utf-8")
 
-        # measurements
-        self.n_sent = 0
-        self.n_recv = 0
 
         if self.debug:
             print('src', self.src_pc, "dest", self.dest_pc, 'nh', self.nh_usrp, 'ph', self.ph_usrp)
@@ -55,7 +52,6 @@ class Layer3(Network_Layer):
                 print()
             self.up_queue.put(l3_packet, True)
 
-            self.n_recv = self.n_recv + len(l3_packet)
 
     def pass_down(self, stop):
         '''
@@ -70,4 +66,4 @@ class Layer3(Network_Layer):
 
             mac_addr = self.determine_mac(self.unpad(l3_packet[22:42])) # determine and replace pc address with mac address then pass to l2
             self.down_queue.put(l3_packet[0:2]+self.pad(self.my_usrp)+self.pad(mac_addr)+l3_packet[42:], True)
-            self.n_sent = self.n_sent + len(l3_packet)
+
