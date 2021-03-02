@@ -13,7 +13,7 @@ l4_ack = Event()
 l4_down_access = Lock()     
 
 class Layer4(Network_Layer):
-    def __init__(self, my_config, send_ack, num_frames=5, num_blocks=2, l2_header=42, l2_block_size=128, timeout=1, n_retrans=3, debug=False):
+    def __init__(self, my_config, send_ack, num_frames=1, num_blocks=2, l2_header=42, l2_block_size=128, timeout=1, n_retrans=3, debug=False, l4_header=56):
         '''
         Layer 4 Transport layer object
         :param my_config: Node_Config object for the current node
@@ -38,7 +38,8 @@ class Layer4(Network_Layer):
         self.unacked_packet = 0
         
         self.time_sent = 0
-        self.l4_size = 0
+        self.l4_size = num_blocks*l2_block_size*num_frames
+        self.l4_header = l4_header
         self.rtt = 0
         self.throughput = 0
 
@@ -101,7 +102,6 @@ class Layer4(Network_Layer):
 
             if packet_source == self.my_pc: # record l4 sent time if pkt source
                 self.time_sent = struct.unpack('d', l4_packet[48:56])
-                self.l4_size = len(l4_packet)
 
             try:
                 self.unacked_packet = struct.unpack('h', l4_packet[0:8])

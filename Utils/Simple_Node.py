@@ -51,15 +51,13 @@ class Simple_Node(Network_Layer.Network_Layer):
 
     def tx_test(self):
         tspt_rate = 20000			# Initial tansport layer rate in bps
-        size = 5*128*2
-        header = 56
-        payload = bytes((size - header) * random.choice(string.digits), "utf-8")
+        payload = bytes((self.layer4.l4_size - self.layer4.l4_header) * random.choice(string.digits), "utf-8")
         pktno_l4 = 0
         l4_pkts_to_send = 10000
         n_sent = 0
 
         l4_maximum_rate = tspt_rate/8 	    # bps -> [Bps]
-        max_pkt_per_sec = max(1,int(ceil(l4_maximum_rate/size)))
+        max_pkt_per_sec = max(1,int(ceil(l4_maximum_rate/self.layer4.l4_size)))
 
         while not self.stop_threads:
             if self.transmit:
