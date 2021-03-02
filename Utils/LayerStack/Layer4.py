@@ -102,7 +102,7 @@ class Layer4(Network_Layer):
             packet_source = self.unpad(l4_packet[8:28])
 
             if packet_source == self.my_pc: # record l4 sent time if pkt source
-                self.time_sent = struct.unpack('d', l4_packet[48:56])
+                (_, self.time_sent) = struct.unpack('d', l4_packet[48:56])
 
             try:
                 self.unacked_packet = struct.unpack('h', l4_packet[0:8])

@@ -48,10 +48,8 @@ class Layer2(Network_Layer):
         self.up_pkt = {}
         self.unacked_packet = 0
 
-        self.throughput = 0
-        self.time_sent = 0
         self.l2_size = 0
-        self.rtt = 0
+        
 
     def send_ack(self, pktno, dest):
         '''
@@ -73,11 +71,6 @@ class Layer2(Network_Layer):
         '''
         if pktno == self.unacked_packet:
             globals()["l2_ack"].set()
-            self.rtt = time() - self.time_sent
-            self.throughput = 0.5*self.throughput + 0.5*(self.l2_size * 8 / self.rtt)   # L4 throughput in bits per sec moving average
-            
-            if self.debug:
-                print('L2 RTT:', self.rtt, '(s)', 'L2 Throughput: ', self.throughput, "(bits/sec)")
 
     def pass_up(self, stop):
         '''
@@ -151,9 +144,6 @@ class Layer2(Network_Layer):
         '''
         while not stop():
             down_packet = self.prev_down_queue.get(True)
-            
-            self.l2_size = len(down_packet)
-            self.time_sent = time()
 
             if self.debug:
                 print("from l3", down_packet)
