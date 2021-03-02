@@ -48,14 +48,13 @@ class Simple_Node(Network_Layer.Network_Layer):
         print("~ ~ Initialization Complete ~ ~", end='\n\n')
 
     def tx_test(self):
-        tspt_rate = 20000			# Initial tansport layer rate in bps
+        tspt_rate = 200000			# Initial tansport layer rate in bps
         payload = bytes((self.layer4.l4_size - self.layer4.l4_header) * random.choice(string.digits), "utf-8")
         pktno_l4 = 0
         l4_pkts_to_send = 10000
 
         l4_maximum_rate = tspt_rate/8 	    # bps -> [Bps]
         max_pkt_per_sec = max(1,int(ceil(l4_maximum_rate/self.layer4.l4_size)))
-        print('max throughput:', l4_maximum_rate, 'bps')
         while not self.stop_threads:
             if self.transmit:
                 if pktno_l4 == l4_pkts_to_send:
@@ -140,7 +139,7 @@ class Simple_Node(Network_Layer.Network_Layer):
             # run
             print("~ ~ Starting Test ~ ~", end='\n\n')
             self.transmit = True
-            sleep(180)                   # run time
+            sleep(30)                   # run time
             trans_time = time() - start_time
             print(" \n ~ ~ Test Complete ~ ~", end='\n\n')
 
