@@ -56,6 +56,10 @@ class Layer1(Network_Layer):
         self.recv_socket = recv_context.socket(zmq.SUB)
         self.recv_socket.connect("tcp://127.0.0.1:"+str(output_port))
         self.recv_socket.setsockopt(zmq.SUBSCRIBE, b'')
+
+        # measurement
+        self.n_sent = 0
+        self.n_recv = 0
     
     def pass_up(self, stop):
         '''
@@ -66,9 +70,8 @@ class Layer1(Network_Layer):
             if self.recv_socket.poll(10) != 0:      # check if msg in socket
                 msg = self.recv_socket.recv()
                 received_pkt = frombuffer(msg, dtype=byte, count=-1)
-                if self.debug:
-                    print(received_pkt)
                 self.up_queue.put(received_pkt.tobytes(), True)
+                self.n_recv = self.n_recv + len(received_pkt.tobytes())
                 received_pkt=None
 
 
@@ -79,7 +82,6 @@ class Layer1(Network_Layer):
         '''
         while not stop():
             msg = self.prev_down_queue.get(True)    #  get message from previous layer down queue
-            if self.debug:
-                print('from l2', msg)
             self.send_socket.send(msg)
+            self.n_sent = self.n_sent + len(msg)
 
