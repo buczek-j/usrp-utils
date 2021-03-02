@@ -21,7 +21,7 @@ class L2_ENUMS(Enum):
 
 
 class Layer2(Network_Layer):
-    def __init__(self, mac_ip, send_ack=None, udp_acks=True, num_frames=5, timeout=0.02, n_retrans=5, debug=False):
+    def __init__(self, mac_ip, send_ack=None, udp_acks=True, num_frames=5, timeout=0.025, n_retrans=5, debug=False):
         '''
         Layer 2 network layer object
         :param mac_ip: string for the usrp mac address fo the current node
@@ -52,7 +52,6 @@ class Layer2(Network_Layer):
         self.time_sent = 0
         self.l2_size = 0
         self.rtt = 0
-        self.n_ack = 0      # count the number of non-acked l2 and see if the channel values need to change
 
     def send_ack(self, pktno, dest):
         '''
@@ -76,7 +75,6 @@ class Layer2(Network_Layer):
             globals()["l2_ack"].set()
             self.rtt = time() - self.time_sent
             self.throughput = 0.5*self.throughput + 0.5*(self.l2_size * 8 / self.rtt)   # L4 throughput in bits per sec moving average
-            self.n_ack = 0
             
             if self.debug:
                 print('L2 RTT:', self.rtt, '(s)', 'L2 Throughput: ', self.throughput, "(bits/sec)")
@@ -167,7 +165,6 @@ class Layer2(Network_Layer):
 
                 elif act_rt < self.n_retrans:       # check num of retransmissions
                     act_rt += 1
-                    self.n_ack += 1
                     self.down_queue.put(down_packet, True)
                     self.unacked_packet = pktno_mac
 
@@ -178,9 +175,7 @@ class Layer2(Network_Layer):
                         self.prev_down_queue.get(True)
                         if self.debug:
                             print("popped packet")
-                    if self.n_ack > 10:
-                        self.timeout = self.timeout + 0.001
-                        self.n_ack = 0
-                        print('N_ACK' , self.n_ack)
+
+                    self.timeout = self.timeout + 0.001
                     break
                         
