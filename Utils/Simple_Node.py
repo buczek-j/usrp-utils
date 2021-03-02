@@ -45,7 +45,12 @@ class Simple_Node(Network_Layer.Network_Layer):
         self.layer4.init_layers(upper=self, lower=self.layer3)  # link l4 to this class object
         self.init_layers(upper=None, lower=self.layer4)
 
-        
+        # Measurements
+        self.n_sent = 0
+        self.bytes_sent = 0
+
+        self.n_recv = 0
+        self.bytes_recv = 0
 
         print("~ ~ Initialization Complete ~ ~")
 
@@ -54,7 +59,7 @@ class Simple_Node(Network_Layer.Network_Layer):
         payload = bytes((self.layer4.l4_size - self.layer4.l4_header) * random.choice(string.digits), "utf-8")
         pktno_l4 = 0
         l4_pkts_to_send = 10000
-        self.n_sent = 0
+        
 
         l4_maximum_rate = tspt_rate/8 	    # bps -> [Bps]
         max_pkt_per_sec = max(1,int(ceil(l4_maximum_rate/self.layer4.l4_size)))
@@ -74,18 +79,20 @@ class Simple_Node(Network_Layer.Network_Layer):
                     self.down_queue.put(packet, True)
                 
                     self.n_sent += 1
+                    self.bytes_sent = self.bytes_sent + len(packet)
                     pktno_l4 += 1
-                    print('L4: ', self.layer4.throughput, 'bps',self.layer4.rtt, 's')
-                    print('L2: ', self.layer2.throughput, 'bps',self.layer2.rtt, 's')
+                    # print('L4: ', self.layer4.throughput, 'bps',self.layer4.rtt, 's')
+                    # print('L2: ', self.layer2.throughput, 'bps',self.layer2.rtt, 's')
                     
 
     def rx_test(self):
-        self.n_recv = 0
+        
         while not self.stop_threads:
             msg = self.prev_up_queue.get(True)
             
             print(msg, len(msg))
             self.n_recv += 1
+            self.bytes_recv = self.bytes_recv + len(msg)
             
 
 
@@ -121,7 +128,7 @@ class Simple_Node(Network_Layer.Network_Layer):
         '''     
         Method to display the end parameters
         '''     
-        print(self.n_sent, self.n_recv)
+        print(self.n_sent, self.bytes_sent, self.n_recv, self.bytes_recv)
 
 
     def close_threads(self):
@@ -129,6 +136,7 @@ class Simple_Node(Network_Layer.Network_Layer):
         Method to close all of the threads and subprocesses
         '''
         self.stop_threads = True
+        self.closeout_report()
 
         print("~ ~ Closing Threads ~ ~")
         for thread in self.threads:
