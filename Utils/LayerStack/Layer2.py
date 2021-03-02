@@ -97,7 +97,7 @@ class Layer2(Network_Layer):
             # check if destination correct (meant for this node to read)
             if mac_destination_ip == self.mac_ip:
                 self.n_recv = self.n_recv + len(mac_packet)
-                
+
                 if pktno_mac == L2_ENUMS.MSG.value:
                     self.mac_pkt_dict[mac_source_ip] = pktno_mac        # update last received pkt number 
                     self.send_ack(mac_packet[0:2], mac_source_ip)  # send ack
@@ -168,6 +168,7 @@ class Layer2(Network_Layer):
 
                 elif act_rt < self.n_retrans:       # check num of retransmissions
                     act_rt += 1
+                    self.n_sent = self.n_sent + len(down_packet)
                     self.down_queue.put(down_packet, True)
                     self.unacked_packet = pktno_mac
 
