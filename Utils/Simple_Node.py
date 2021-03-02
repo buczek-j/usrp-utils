@@ -48,7 +48,7 @@ class Simple_Node(Network_Layer.Network_Layer):
         print("~ ~ Initialization Complete ~ ~", end='\n\n')
 
     def tx_test(self):
-        tspt_rate = 200000			# Initial tansport layer rate in bps
+        tspt_rate = 20000			# Initial tansport layer rate in bps
         payload = bytes((self.layer4.l4_size - self.layer4.l4_header) * random.choice(string.digits), "utf-8")
         pktno_l4 = 0
         l4_pkts_to_send = 10000
