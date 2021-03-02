@@ -92,7 +92,7 @@ class Simple_Node(Network_Layer.Network_Layer):
             self.threads[layer.layer_name + "_pass_up"].start()
             self.threads[layer.layer_name + "_pass_down"].start() 
 
-        self.subproccesses['USRP'] = Popen('python3 LayerStack/L1_protocols/TRX_ODFM_USRP.py '+str(self.my_config.get_tranceiver_args()), stdout=PIPE, shell=True)
+        self.subproccesses['USRP'] = Popen('python3 LayerStack/L1_protocols/TRX_ODFM_USRP.py '+str(self.my_config.get_tranceiver_args()), shell=True)
 
         if self.my_config.role == 'tx':
             self.threads['tx_thread'] = Thread(target=self.tx_test, args=())
