@@ -45,7 +45,7 @@ class Simple_Node(Network_Layer.Network_Layer):
         self.layer4.init_layers(upper=self, lower=self.layer3)  # link l4 to this class object
         self.init_layers(upper=None, lower=self.layer4)
 
-        print("~ ~ Initialization Complete ~ ~", end='\n')
+        print("~ ~ Initialization Complete ~ ~", end='\n\n')
 
     def tx_test(self):
         tspt_rate = 20000			# Initial tansport layer rate in bps
@@ -73,7 +73,8 @@ class Simple_Node(Network_Layer.Network_Layer):
     def rx_test(self):
         while not self.stop_threads:
             msg = self.prev_up_queue.get(True)
-            print(msg)
+            # print(msg)
+            print('.', end='')
 
 
     def start_threads(self):
@@ -81,7 +82,7 @@ class Simple_Node(Network_Layer.Network_Layer):
         Method to start all of the threads 
         '''
         self.stop_threads = False
-        print("~ ~ Starting Threads ~ ~", end='\n')
+        print("~ ~ Starting Threads ~ ~", end='\n\n')
         # Initialize threads
         self.threads["control_layer"] = Thread(target=self.control_plane.listening_socket, args=(self.layer2.recv_ack, self.layer4.recv_ack, lambda : self.stop_threads, ))
         self.threads["control_layer"].start()
@@ -102,14 +103,14 @@ class Simple_Node(Network_Layer.Network_Layer):
             self.threads['rx_thread'] = Thread(target=self.rx_test, args=())
             self.threads['rx_thread'].start()
 
-        print("~ ~ Threads all running ~ ~", end='\n')
+        print("~ ~ Threads all running ~ ~", end='\n\n')
 
     def close_threads(self):
         '''
         Method to close all of the threads and subprocesses
         '''
         self.stop_threads = True
-        print("~ ~ Closing Threads ~ ~", end='\n')
+        print('\n ~ ~ Closing Threads ~ ~", end='\n\n')
         for thread in self.threads:
             try:
                 self.threads[thread].join(0.1)
@@ -137,11 +138,11 @@ class Simple_Node(Network_Layer.Network_Layer):
             start_time = time()
 
             # run
-            print("~ ~ Starting Test ~ ~", end='\n')
+            print("~ ~ Starting Test ~ ~", end='\n\n')
             self.transmit = True
             sleep(30)                   # run time
             trans_time = time() - start_time
-            print("~ ~ Test Complete ~ ~", end='\n')
+            print(" \n ~ ~ Test Complete ~ ~", end='\n\n')
 
             # close
             self.transmit = False
