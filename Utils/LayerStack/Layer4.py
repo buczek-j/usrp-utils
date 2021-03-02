@@ -44,8 +44,6 @@ class Layer4(Network_Layer):
 
         # Measurements
         self.rtt = 0
-        self.n_sent = 0
-        self.n_recv = 0
 
     def send_ack(self, pktno, dest):
         '''
@@ -65,8 +63,6 @@ class Layer4(Network_Layer):
             globals()["l4_ack"].set()
             rtt = time() - self.time_sent 
             self.rtt = 0.99*self.rtt + 0.01*rtt
-            self.n_sent = self.n_sent + self.l4_size
-           
 
     def pass_up(self, stop):
         '''
@@ -88,12 +84,10 @@ class Layer4(Network_Layer):
                 self.up_queue.put(l4_packet[56:], True)
                 self.send_ack(l4_packet[:8], packet_source)  # send l4 ack
 
-                self.n_recv = self.n_recv + len(l4_packet)
                 l4_packet = b''
 
             else:   # relay/forward message
                 self.prev_down_queue.put(l4_packet, True)
-                self.n_recv = self.n_recv + len(l4_packet)
                 l4_packet = b''
 
     def pass_down(self, stop):
