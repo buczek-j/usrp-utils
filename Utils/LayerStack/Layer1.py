@@ -60,6 +60,18 @@ class Layer1(Network_Layer):
         # measurement
         self.n_sent = 0
         self.n_recv = 0
+
+
+        self.tb = TRX_ODFM_USRP(input_port_num=str(input_port), serial_num=str('318D2A3'), output_port_num=str(output_port), rx_bw=int(0.5e6), rx_freq=int(2.1e9), rx_gain=0.8, tx_bw=int(0.5e6), tx_freq=int(2.4e9), tx_gain=0.8)
+        def sig_handler(sig=None, frame=None):
+            self.tb.stop()
+            self.tb.wait()
+
+            sys.exit(0)
+        signal.signal(signal.SIGINT, sig_handler)
+        signal.signal(signal.SIGTERM, sig_handler)
+
+        self.tb.start()
     
     def pass_up(self, stop):
         '''

@@ -18,7 +18,7 @@ def main():
     '''
     Main execution method
     '''
-    CMD = 'python3 ~/Documents/usrp-utils/Utils/Emane_Node.py --index '
+    CMD = 'python3 ~/Documents/usrp-utils/Utils/UAV_Node.py --index '
     ssh_connections = []
     threads = []
 

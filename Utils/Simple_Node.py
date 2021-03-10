@@ -94,7 +94,8 @@ class Simple_Node(Network_Layer.Network_Layer):
             self.threads[layer.layer_name + "_pass_up"].start()
             self.threads[layer.layer_name + "_pass_down"].start() 
 
-        self.subproccesses['USRP'] = Popen('python3 LayerStack/L1_protocols/TRX_ODFM_USRP.py '+str(self.my_config.get_tranceiver_args()), stdout=DEVNULL, stderr=DEVNULL, shell=True)
+        # self.subproccesses['USRP'] = Popen('python3 LayerStack/L1_protocols/TRX_ODFM_USRP.py '+str(self.my_config.get_tranceiver_args()), stdout=PIPE, shell=True)
+        
 
         if self.my_config.role == 'tx':
             self.threads['tx_thread'] = Thread(target=self.tx_test, args=())
@@ -140,7 +141,11 @@ class Simple_Node(Network_Layer.Network_Layer):
             # run
             print("~ ~ Starting Test ~ ~", end='\n\n')
             self.transmit = True
-            sleep(30)                   # run time
+            sleep(3)                   # run time
+            print(self.layer1.tb.uhd_usrp_source_0.get_gain())
+            print('setting power')
+            self.layer1.tb.uhd_usrp_source_0.set_normalized_gain(0.9,0)
+            print(self.layer1.tb.uhd_usrp_source_0.get_gain())
             trans_time = time() - start_time
             print(" \n ~ ~ Test Complete ~ ~", end='\n\n')
 
@@ -178,7 +183,7 @@ def main():
     rx_freq = [2.5e9, 2.7e9, 2.5e9]
     tx_bw = [0.5e6, 0.5e6, 0.5e6]
     rx_bw = [0.5e6, 0.5e6, 0.5e6]
-    serial_list = ["31C9261", "31C9237", "318D2A3"]
+    serial_list = ["318D2A3", "31C9237", "318D2A3"]
 
     nodes = {}
     for ii in range(len(id_list)):

@@ -23,7 +23,7 @@ def kill(proc_pid):
         proc.kill()
     process.kill()
 
-class Emane_Node(Simple_Node):
+class UAV_Node(Simple_Node):
     def __init__(self, my_config, l1_debug=False, l2_debug=False, l3_debug=False, l4_debug=False, control_port=9000, controller_address='192.168.10.2', controller_feedback_port=9001):
         '''
         Emane Node class for network stack
@@ -69,7 +69,7 @@ class Emane_Node(Simple_Node):
         '''
         kill(self.subproccesses["USRP"].pid)
         sleep(1)
-        self.subproccesses['USRP'] = Popen('python3 LayerStack/L1_protocols/TRX_ODFM_USRP.py '+str(self.my_config.get_tranceiver_args()), stdout=DEVNULL, stderr=DEVNULL, shell=True)
+        self.subproccesses['USRP'] = Popen('python3 LayerStack/L1_protocols/TRX_ODFM_USRP.py '+str(self.my_config.get_tranceiver_args()), stdout=PIPE, stderr=PIPE, shell=True)
         sleep(10)
 
         
@@ -117,9 +117,9 @@ def main():
     nodes['src2'].configure_hops(nodes['src2'], nodes['dest2'], nodes['rly2'], None)
 
     
-    emane_node = Emane_Node(nodes[id_list[int(options.index)]], l1_debug=(options.l1=='y' or options.l1 == 'Y'), l2_debug=(options.l2=='y' or options.l2 == 'Y'), l3_debug=(options.l3=='y' or options.l3 == 'Y'), l4_debug=(options.l4=='y' or options.l4 == 'Y'))
+    uav_node = UAV_Node(nodes[id_list[int(options.index)]], l1_debug=(options.l1=='y' or options.l1 == 'Y'), l2_debug=(options.l2=='y' or options.l2 == 'Y'), l3_debug=(options.l3=='y' or options.l3 == 'Y'), l4_debug=(options.l4=='y' or options.l4 == 'Y'))
     try:
-        emane_node.run()
+        uav_node.run()
     except:
-        emane_node.close_threads()
+        uav_node.close_threads()
         exit(0)
