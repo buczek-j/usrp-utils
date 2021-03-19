@@ -76,7 +76,8 @@ class Control_Plane():
 
             elif control_code == CP_Codes.L4_ACK.value:
                 (ack,)=struct.unpack('l', packet[0:8])
-                l4_recv_ack(ack)
+                (time_sent,) = struct.unpack('d', packet[8:16])
+                l4_recv_ack(ack, time_sent)
 
             elif control_code == CP_Codes.STATE.value:
                 # [node index #],[location index #],[power index #]
@@ -94,14 +95,13 @@ class Control_Plane():
         self.send_sock.sendto(ack_msg, (pc_ip.decode('utf-8'), self.port))
         # print('L2 ACK', pc_ip.decode('utf-8'), self.port, ack_msg)
 
-    def send_l4_ack(self, pktno, pc_ip):
+    def send_l4_ack(self, pktno, pc_ip, time_sent):
         '''
         method to send l4 ack via wifi
         :param pktno: bytes for the packet number
         :param pc_ip: bytes for the destination wifi ip
         '''
-        ack_msg = CP_Codes.L4_ACK.value + pktno
+        ack_msg = CP_Codes.L4_ACK.value + pktno + time_sent
         self.send_sock.sendto(ack_msg, (pc_ip.decode('utf-8'), self.port))
-        # print('L4 ACK', pc_ip.decode('utf-8'), self.port, ack_msg)
 
 

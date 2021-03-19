@@ -13,7 +13,7 @@ l4_ack = Event()
 l4_down_access = Lock()     
 
 class Layer4(Network_Layer):
-    def __init__(self, my_config, send_ack, num_frames=1, num_blocks=2, l2_header=42, l2_block_size=128, timeout=1, n_retrans=3, debug=False, l4_header=56):
+    def __init__(self, my_config, send_ack, num_frames=1, num_blocks=2, l2_header=42, l2_block_size=128, timeout=1, n_retrans=3, debug=False, l4_header=56, l4_log_base_name="../Logs/l4_acks_"):
         '''
         Layer 4 Transport layer object
         :param my_config: Node_Config object for the current node
@@ -27,8 +27,17 @@ class Layer4(Network_Layer):
         :param debug: bool for debug outputs or not
         :param l4_header: int for the l4 packet header length
         '''
-        Network_Layer.__init__(self, "layer_4", debug=debug)
+        Network_Layer.__init__(self, "layer_4", debug=debug log=True)
         self.my_pc = bytes(my_config.pc_ip, "utf-8")
+
+        # Setup Log File
+        self.log = log
+        if self.log:
+            self.l4_csv_name = log_base_name + str(round(time()))
+            row_list = ["Ack Number", "Time Sent", "Time RCVD", "RTT", "Throughput"]
+            self.file = open(self.l4_csv_name, 'a', newline='')
+            self.writer = csv.writer(file)
+            self.writer.writerow(row_list)
   
         self.send_ack_wifi = send_ack
 
@@ -38,33 +47,40 @@ class Layer4(Network_Layer):
         self.n_retrans = n_retrans
         self.unacked_packet = 0
         
-        self.time_sent = 0
         self.l4_size = num_blocks*l2_block_size*num_frames
         self.l4_header = l4_header
 
         # Measurements
-        self.rtt = 0
         self.n_recv = 0
         self.n_sent = 0
+        self.n_ack = 0  # number of acks recvd
 
-    def send_ack(self, pktno, dest):
+    def send_ack(self, pktno, dest, time_stamp):
         '''
         Method to send an acknoledgement with the specified packet number to the specified destination
         :param pktno: bytes for packet number that ack is for
         :param dest: bytes for the destination pc address
         '''
         # use wifi to send acks
-        self.send_ack_wifi(pktno, dest)
+        self.send_ack_wifi(pktno, dest, time_stamp)
 
-    def recv_ack(self, pktno):
+    def recv_ack(self, pktno, time_sent):
         '''
         Method to signal that a packet has been ack'd 
         :param pktno: int for the packet number that has been acked
         '''
         if pktno == self.unacked_packet:
             globals()["l4_ack"].set()
-            rtt = time() - self.time_sent 
-            self.rtt = 0.99*self.rtt + 0.01*rtt
+            n_ack += 1
+            if self.log:
+                ack_time = time()
+                rtt = ack_time - time_sent 
+                self.writer.writerow([pktno, time_sent, ack_time, rtt, 8.0*self.l4_size/rtt])
+
+
+            
+
+            
 
     def pass_up(self, stop):
         '''
@@ -76,16 +92,17 @@ class Layer4(Network_Layer):
                 
             packet_source = self.unpad(l4_packet[8:28])
             packet_destination = self.unpad(l4_packet[28:48])
-            (timestamp,) = struct.unpack('d', l4_packet[48:56])
-            (pktno_l4,) = struct.unpack('l', l4_packet[:8])	
+            
             self.n_recv = self.n_recv + len(l4_packet)
 
             if self.debug:
+                (timestamp,) = struct.unpack('d', l4_packet[48:56])
+                (pktno_l4,) = struct.unpack('l', l4_packet[:8])	
                 print('l4', pktno_l4, packet_source, packet_destination, timestamp)
 
             if packet_destination == self.my_pc:    # if this is the destination, then pass payload to the application layer
                 self.up_queue.put(l4_packet[56:], True)
-                self.send_ack(l4_packet[:8], packet_source)  # send l4 ack
+                self.send_ack(l4_packet[:8], packet_source, l4_packet[48:56])  # send l4 ack
                 l4_packet = b''
 
             else:   # relay/forward message
@@ -104,9 +121,6 @@ class Layer4(Network_Layer):
             packet_source = self.unpad(l4_packet[8:28])
             self.n_sent = self.n_sent + len(l4_packet)      # record number of bytes
             
-
-            if packet_source == self.my_pc: # record l4 sent time if pkt source
-                (self.time_sent, ) = struct.unpack('d', l4_packet[48:56])
 
             try:
                 self.unacked_packet = struct.unpack('h', l4_packet[0:8])

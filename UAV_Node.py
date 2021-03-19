@@ -1,23 +1,22 @@
 #!/usr/bin/env python3
 
 '''
-Emane experiment node object
+DQN experiment node object
 '''
 # Global Libraries
 from threading import Thread
 from argparse import ArgumentParser
-from socket import socket, AF_INET, SOCK_DGRAM, SOL_SOCKET, SO_REUSEADDR, SO_BROADCAST
 from time import time, sleep
 
 # User Libraries
 from LayerStack import Control_Plane, Layer1, Layer2, Layer3, Layer4, Layer5
 from Utils.Node_Config import Node_Config
 from BasicArducopter import BasicArdu, Frames
-from DQN import DQN, DQN_Config
+from Utils.DQN import DQN, DQN_Config
 
 
 class UAV_Node():
-    def __init__(self, my_config, l1_debug=False, l2_debug=False, l3_debug=False, l4_debug=False, l5_debug=False, dqn_config=None, alt=5, num_nodes=6, min_iteration_time=5, loc_index=None, pow_index=None, node_index=0):
+    def __init__(self, my_config, l1_debug=False, l2_debug=False, l3_debug=False, l4_debug=False, l5_debug=False, dqn_config=None, alt=5, num_nodes=6, min_iteration_time=5, loc_index=None, pow_index=None, node_index=0, log_base_name="Logs/log_"):
         '''
         Emane Node class for network stack
         :param my_config: Node_Config class object
@@ -26,9 +25,24 @@ class UAV_Node():
         :param l3_debug: bool for layer 3 debug outputs
         :param l4_debug: bool for layer 4 debug outputs
         :param l5_debug: bool for layer 5 debug outputs
-        #TODO
+        :param dqn_config: DQN_Config class object 
+        :param alt: float for the altitude (meters) that the UAV should fly at
+        :param num_nodes: int for the number of Nodes to get states from
+        :param min_iteration_time: float for the time to test each iteration (s)
+        :param loc_index: int for the starting location state index
+        :param pow_index: int for the startng tx power state index
+        :param node_index: int for the node index number
+        :param log_base_name: string for the directory and base name to save log files
         '''
         
+        # Setup Log File
+        self.csv_name = log_base_name + str(round(time()))
+        row_list = ["Iteration Number","Node0 Loc", "Node1 Loc", "Node2 Loc", "Node3 Loc", "Node4 Loc", "Node5 Loc", "Node0 Tx Gain", "Node1 Tx Gain", "Node2 Tx Gain", "Node3 Tx Gain", "Node4 Tx Gain", "Node5 Tx Gain", "Number L4 Acks"]
+        self.file = open(self.csv_name, 'a', newline='')
+        self.writer = csv.writer(file)
+        self.writer.writerow(row_list)
+
+
         self.my_config = my_config
         self.stop_threads = False
         self.threads = {}
@@ -129,6 +143,7 @@ class UAV_Node():
             self.my_drone.wait_for_target()
 
             # iterate
+            iteration_num = 0
             while not self.stop_threads:
                 
                 # Goto State
@@ -152,10 +167,11 @@ class UAV_Node():
                 self.action = self.neural_net.run(self.state_buf)       # TODO Update the NN run method 
 
                 # Log Data
-                # TODO
+                self.writer.writerow([iteration_num]+self.state_buf+[self.layer4.num_acks])
 
                 # Reset State Buffer
                 self.state_buf = [None]*(2*self.num_nodes)
+                iteration_num += 1
                    
         except:
             self.stop_threads=True
@@ -247,23 +263,19 @@ username_list = ['wines-nuc1', 'wines-nuc2', 'wines-nuc3', 'wines-nuc4', 'wines-
 pwrd_list = ['wnesl', 'wnesl', 'wnesl', 'wnesl', 'wnesl', 'wnesl']
 def main():
     '''
+    Main Method
     '''
-    id_list = ['dest1','rly1', 'src1', 'dest2', 'rly2', 'src2'] 
-    role_list = ['rx', 'rly','tx', 'rx', 'rly', 'tx']
-    usrp_ip_list = ['192.170.10.101', '192.170.10.102', '192.170.10.103', '192.170.10.104', '192.170.10.105', '192.170.10.106']
-    tx_freq = [2.7e9, 2.5e9, 2.7e9]     # TODO
-    rx_freq = [2.5e9, 2.7e9, 2.5e9]
+    freq1 = 2.4e9
+    freq2 = 2.5e9
+    freq3 = 2.6e9
 
-    nodes = {}
-    for ii in range(len(id_list)):
-        nodes[id_list[ii]] = Node_Config(
-            pc_ip=wifi_ip_list[ii],
-            usrp_ip=usrp_ip_list[ii],
-            my_id=id_list[ii],
-            role=role_list[ii],
-            rx_freq=rx_freq[ii],
-            tx_freq=tx_freq[ii]
-        )
+    dest1= Node_Config(pc_ip='192.168.10.101', usrp_ip='192.170.10.101', my_id='dest1', role='rx', tx_freq=freq3, rx_freq=freq2)
+    rly1 = Node_Config(pc_ip='192.168.10.102', usrp_ip='192.170.10.102', my_id='rly1', role='rly', tx_freq=freq2, rx_freq=freq1)
+    src1 = Node_Config(pc_ip='192.168.10.103', usrp_ip='192.170.10.103', my_id='src1' , role='tx', tx_freq=freq1, rx_freq=freq3)
+
+    dest2= Node_Config(pc_ip='192.168.10.104', usrp_ip='192.170.10.104', my_id='dest2', role='rx', tx_freq=freq3, rx_freq=freq2)
+    rly2 = Node_Config(pc_ip='192.168.10.105', usrp_ip='192.170.10.105', my_id='rly2', role='rly', tx_freq=freq2, rx_freq=freq1)
+    src2 = Node_Config(pc_ip='192.168.10.106', usrp_ip='192.170.10.106', my_id='src2' , role='tx', tx_freq=freq1, rx_freq=freq3)
 
     parser = ArgumentParser()
     parser.add_argument('--index', type=int, default='', help='node index number')
@@ -274,17 +286,33 @@ def main():
     options = parser.parse_args()
 
     # Configure hops for route 1
-    nodes['dest1'].configure_hops(nodes['src1'], nodes['dest1'], None, nodes['rly1'])
-    nodes['rly1'].configure_hops(nodes['src1'], nodes['dest1'], nodes['dest1'], nodes['src1'])
-    nodes['src1'].configure_hops(nodes['src1'], nodes['dest1'], nodes['rly1'], None)
+    dest1.configure_hops(src=src1, dest=dest1, next_hop=None,  prev_hop=rly1)
+    rly1.configure_hops( src=src1, dest=dest1, next_hop=dest1, prev_hop=src1)
+    src1.configure_hops( src=src1, dest=dest1, next_hop=rly1,  prev_hop=None)
 
     # Configure hops for route 2
-    nodes['dest2'].configure_hops(nodes['src2'], nodes['dest2'], None, nodes['rly2'])
-    nodes['rly2'].configure_hops(nodes['src2'], nodes['dest2'], nodes['dest2'], nodes['src2'])
-    nodes['src2'].configure_hops(nodes['src2'], nodes['dest2'], nodes['rly2'], None)
+    dest2.configure_hops(src=src2, dest=dest2, next_hop=None,  prev_hop=rly2)
+    rly2.configure_hops( src=src2, dest=dest2, next_hop=dest2, prev_hop=src2)
+    src2.configure_hops( src=src2, dest=dest2, next_hop=rly2,  prev_hop=None)
 
     
-    uav_node = UAV_Node(nodes[id_list[int(options.index)]], l1_debug=(options.l1=='y' or options.l1 == 'Y'), l2_debug=(options.l2=='y' or options.l2 == 'Y'), l3_debug=(options.l3=='y' or options.l3 == 'Y'), l4_debug=(options.l4=='y' or options.l4 == 'Y'))
+    if int(options.index) == 0:
+        my_config = dest1
+    elif int(options.index) == 1:
+        my_config = rly1
+    elif int(options.index) == 2:
+        my_config = src1
+    elif int(options.index) == 3:
+        my_config = dest2
+    elif int(options.index) == 4:
+        my_config = rly2
+    elif int(options.index) == 5:
+        my_config = src2
+    else:
+        print('INVALID INDEX')
+        exit(0)
+    
+    uav_node = UAV_Node(my_config, node_index=int(options.index), l1_debug=(options.l1=='y' or options.l1 == 'Y'), l2_debug=(options.l2=='y' or options.l2 == 'Y'), l3_debug=(options.l3=='y' or options.l3 == 'Y'), l4_debug=(options.l4=='y' or options.l4 == 'Y'))
     try:
         uav_node.run()
     except:
