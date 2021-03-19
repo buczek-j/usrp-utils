@@ -5,9 +5,6 @@
 from threading import Thread
 from time import sleep, time
 from math import ceil
-from subprocess import Popen, PIPE, DEVNULL
-from signal import SIGTERM
-from os import killpg, _exit, getpgid
 from argparse import ArgumentParser
 
 import random, string, struct
@@ -32,14 +29,13 @@ class Simple_Node(Network_Layer.Network_Layer):
         self.transmit = False
 
         self.threads = {}
-        self.subproccesses = {}
 
         # Initalize Network Stack
         self.control_plane = Control_Plane.Control_Plane(my_config.pc_ip, self.my_config.listen_port)
         self.layer4 = Layer4.Layer4(self.my_config, self.control_plane.send_l4_ack, debug=l4_debug)
         self.layer3 = Layer3.Layer3(self.my_config, debug=l3_debug)
         self.layer2 = Layer2.Layer2(self.my_config.usrp_ip, send_ack=self.control_plane.send_l2_ack, debug=l2_debug)
-        self.layer1 = Layer1.Layer1(debug=l1_debug)
+        self.layer1 = Layer1.Layer1(self.my_config,debug=l1_debug)
         
         # Link layers together
         self.layer1.init_layers(upper=self.layer2, lower=None)
@@ -93,8 +89,6 @@ class Simple_Node(Network_Layer.Network_Layer):
             self.threads[layer.layer_name + "_pass_down"] = Thread(target=layer.pass_down, args=(lambda : self.stop_threads,))
             self.threads[layer.layer_name + "_pass_up"].start()
             self.threads[layer.layer_name + "_pass_down"].start() 
-
-        # self.subproccesses['USRP'] = Popen('python3 LayerStack/L1_protocols/TRX_ODFM_USRP.py '+str(self.my_config.get_tranceiver_args()), stdout=PIPE, shell=True)
         
 
         if self.my_config.role == 'tx':
@@ -119,13 +113,7 @@ class Simple_Node(Network_Layer.Network_Layer):
             except Exception as e:
                 print(e)
                 pass
-
-        for proc in self.subproccesses:
-            try:
-                killpg(getpgid(self.subproccesses[proc].pid), SIGTERM)
-            except Exception as e:
-                print(e)
-                pass
+            
         exit(0)
         
     def run(self):
@@ -142,10 +130,6 @@ class Simple_Node(Network_Layer.Network_Layer):
             print("~ ~ Starting Test ~ ~", end='\n\n')
             self.transmit = True
             sleep(3)                   # run time
-            print(self.layer1.tb.uhd_usrp_source_0.get_gain())
-            print('setting power')
-            self.layer1.tb.uhd_usrp_source_0.set_normalized_gain(0.9,0)
-            print(self.layer1.tb.uhd_usrp_source_0.get_gain())
             trans_time = time() - start_time
             print(" \n ~ ~ Test Complete ~ ~", end='\n\n')
 

@@ -4,19 +4,15 @@
 Control Plane object: Runs alongside layer stack to receive l2 and l4 acks and cc commands
 '''
 
-from socket import socket, AF_INET, SOCK_DGRAM
+from socket import socket, AF_INET, SOCK_DGRAM, SOL_SOCKET, SO_REUSEADDR, SO_BROADCAST
 from enum import Enum
 import struct
 
 class CP_Codes(Enum):
     L2_ACK=struct.pack('ss', b'-', b'2')        # layer 2 ack message
     L4_ACK=struct.pack('ss', b'-', b'4')        # layer 4 ack message
-    CC_ACK=-3       # layer 2 code rate signalling ack
-    CC_MESS=-2      # layer 2 code rate signalling message 
-    GPS=-5          # gps signal received
-    DISC=-10        # neighborhood discovery message
-    ROUTE=-7        # signal the next hop of the session
-    GEN = -3        # generic signalling message
+ 
+    STATE=struct.pack('ss', b'-', b'2')         # application layer state message
     
 
 def get_post_ip(ip):
@@ -34,26 +30,39 @@ def get_post_ip(ip):
 
 
 class Control_Plane():
-    def __init__(self, ip, port_recv=55557, wifi_ip_pre=b'192.168.10.'):
+    def __init__(self, ip, port_recv=55557, wifi_ip_pre=b'192.168.10.', num_nodes=6):
         '''
         Object to send and recieve control plane messages (outside of layer stack)
         :param ip: string for the wifi ip address
         :param port_recv: int for the udp message listener port
+        :param num_nodes: int for the number of nodes to wait for states from
         '''
+        # Setup Sockets
         self.send_sock = socket(AF_INET, SOCK_DGRAM)
         self.recv_sock = socket(AF_INET, SOCK_DGRAM)
-        # print(ip, port_recv)
+
+        self.broadcast_socket = socket(AF_INET, SOCK_DGRAM)
+        self.broadcast_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+        self.broadcast_socket.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
+
         self.recv_sock.bind((ip, port_recv))
         self.ip = ip
         self.port = port_recv
         self.wifi_ip_pre = wifi_ip_pre
 
+    def broadcast_state(self, message):
+        '''
+        Method to broadcast message to all nodes
+        :param message: string or convertable to string to broadcast
+        '''
+        self.broadcast_socket.sendto((CP_Codes.STATE.value + str(message).encode('utf-8')), ('255.255.255.255', self.port))
 
-    def listening_socket(self, l2_recv_ack, l4_recv_ack, stop):
+    def listening_socket(self, l2_recv_ack, l4_recv_ack, state_recv, stop):
         '''
         Method to listen to the control plane udp socket, parse data, and perform cooresponding actions
         :param l2_recv_ack: l2 method for a recived packet ack
         :param l4_recv_ack: l4 method for a recived packet ack
+        :param state_recv: method to handle state messages
         :param stop: method returning true/false to stop the thread
         '''
         while not stop():
@@ -68,7 +77,11 @@ class Control_Plane():
             elif control_code == CP_Codes.L4_ACK.value:
                 (ack,)=struct.unpack('l', packet[0:8])
                 l4_recv_ack(ack)
-            
+
+            elif control_code == CP_Codes.STATE.value:
+                # [node index #],[location index #],[power index #]
+                msg = packet.decode('utf-8').split(',')
+                state_recv(int(msg[0]), int(msg[1]), int(msg[2]))
 
     def send_l2_ack(self, pktno, mac_ip):
         '''
@@ -80,7 +93,6 @@ class Control_Plane():
         ack_msg = CP_Codes.L2_ACK.value + pktno
         self.send_sock.sendto(ack_msg, (pc_ip.decode('utf-8'), self.port))
         # print('L2 ACK', pc_ip.decode('utf-8'), self.port, ack_msg)
-
 
     def send_l4_ack(self, pktno, pc_ip):
         '''
