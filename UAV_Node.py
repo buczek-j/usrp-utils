@@ -7,6 +7,7 @@ DQN experiment node object
 from threading import Thread
 from argparse import ArgumentParser
 from time import time, sleep
+import csv
 
 # User Libraries
 from LayerStack import Control_Plane, Layer1, Layer2, Layer3, Layer4, Layer5
@@ -39,7 +40,7 @@ class UAV_Node():
         self.csv_name = log_base_name + str(round(time()))
         row_list = ["Iteration Number","Node0 Loc", "Node1 Loc", "Node2 Loc", "Node3 Loc", "Node4 Loc", "Node5 Loc", "Node0 Tx Gain", "Node1 Tx Gain", "Node2 Tx Gain", "Node3 Tx Gain", "Node4 Tx Gain", "Node5 Tx Gain", "Number L4 Acks"]
         self.file = open(self.csv_name, 'a', newline='')
-        self.writer = csv.writer(file)
+        self.writer = csv.writer(self.file)
         self.writer.writerow(row_list)
 
         # csv_input
@@ -175,7 +176,7 @@ class UAV_Node():
                     self.action = self.neural_net.run(self.state_buf)       # TODO Update the NN run method 
 
                     # Log Data
-                    self.writer.writerow([iteration_num]+self.state_buf+[self.layer4.num_acks])
+                    self.writer.writerow([iteration_num]+self.state_buf+[self.layer4.n_ack])
 
                     # Reset State Buffer
                     self.state_buf = [None]*(2*self.num_nodes)
@@ -203,7 +204,7 @@ class UAV_Node():
                         sleep(0.01)
 
                     # Log Data
-                    self.writer.writerow([iteration_num]+self.state_buf+[self.layer4.num_acks])
+                    self.writer.writerow([iteration_num]+self.state_buf+[self.layer4.n_ack])
 
                     # Reset State Buffer
                     self.state_buf = [None]*(2*self.num_nodes)
@@ -211,7 +212,7 @@ class UAV_Node():
                    
         except Exception as e:
             print(e)
-            
+
             self.stop_threads=True
             self.close_threads()
             self.my_drone.handle_landing()
