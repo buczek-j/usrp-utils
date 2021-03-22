@@ -190,8 +190,9 @@ class UAV_Node():
             else: # actions from CSV
                 print('~ ~ READING FROM CSV ~ ~')
                 for action in self.action_reader:
+                    print("action list",action)
                     self.action = [int(self.node_index), int(self.node_index+self.num_nodes)]    # read in action array and cast as ints
-
+                    print("my action", self.action)
                     # goto state
                     self.handle_action()
                     print(" - handle action")
