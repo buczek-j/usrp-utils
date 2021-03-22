@@ -205,6 +205,7 @@ class TRX_ODFM_USRP(gr.top_block):
         loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
         for logger in loggers:
             logger.setLevel(logging.CRITICAL)
+            logger.propagate = False
 
     def get_input_port_num(self):
         return self.input_port_num

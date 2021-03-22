@@ -90,6 +90,7 @@ class UAV_Node():
         loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
         for logger in loggers:
             logger.setLevel(logging.CRITICAL)
+            logger.propagate = False
 
     def start_threads(self):
         '''
