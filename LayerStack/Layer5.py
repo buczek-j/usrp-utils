@@ -45,7 +45,7 @@ class Layer5(Network_Layer):
                 for counter_packet in range(int(max_pkt_per_sec)):
                     time_stamp = time()
                     packet = struct.pack('l', pktno_l4)  + self.pad(bytes(self.my_config.pc_ip, "utf-8")) + self.pad(bytes(self.my_config.dest.pc_ip, "utf-8")) +  struct.pack('d', time_stamp) + payload # 56 bytes added + payload
-                    
+                    print(packet)
                     self.down_queue.put(packet, True)
                     pktno_l4 += 1
                     sleep(1.0/max_pkt_per_sec)
