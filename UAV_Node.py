@@ -89,7 +89,7 @@ class UAV_Node():
         self.num_nodes = num_nodes
 
         print("~ ~ Initialization Complete ~ ~", end='\n\n')
-        logging.getLogger('packet_headerparser_b0').info("$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+        
        
 
     def start_threads(self):
