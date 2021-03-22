@@ -215,7 +215,7 @@ class UAV_Node():
 
             self.stop_threads=True
             self.close_threads()
-            self.my_drone.handle_landing()
+            # self.my_drone.handle_landing()    # TODO
 
             #sleep(5)
             #self.my_drone.handle_kill()
