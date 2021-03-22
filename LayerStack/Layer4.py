@@ -33,7 +33,7 @@ class Layer4(Network_Layer):
         # Setup Log File
         self.log = log
         if self.log:
-            self.l4_csv_name = l4_log_base_name + str(round(time()))
+            self.l4_csv_name = l4_log_base_name + str(round(time())) + '.csv'
             row_list = ["Ack Number", "Time Sent", "Time RCVD", "RTT", "Throughput"]
             self.file = open(self.l4_csv_name, 'a', newline='')
             self.writer = csv.writer(self.file)
