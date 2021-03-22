@@ -124,6 +124,9 @@ class UAV_Node():
         Method to close all of the threads and subprocesses
         '''
         self.stop_threads = True
+        self.file.close()
+        self.layer4.file.close()
+        
         print("\n ~ ~ Closing Threads ~ ~", end='\n\n')
         for thread in self.threads:
             try:
