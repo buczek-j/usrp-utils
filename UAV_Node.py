@@ -89,7 +89,7 @@ class UAV_Node():
         print("~ ~ Initialization Complete ~ ~", end='\n\n')
         loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
         for logger in loggers:
-            logger.setLevel(logging.INFO)
+            logger.setLevel(logging.CRITICAL)
 
     def start_threads(self):
         '''
