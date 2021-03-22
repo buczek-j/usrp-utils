@@ -39,7 +39,10 @@ class Control_Plane():
         '''
         # Setup Sockets
         self.send_sock = socket(AF_INET, SOCK_DGRAM)
+
         self.recv_sock = socket(AF_INET, SOCK_DGRAM)
+        self.recv_sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+        self.recv_sock.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
 
         self.broadcast_socket = socket(AF_INET, SOCK_DGRAM)
         self.broadcast_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
