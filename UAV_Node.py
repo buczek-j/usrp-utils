@@ -39,7 +39,7 @@ class UAV_Node():
         # Setup Log File
         self.csv_name = log_base_name + str(round(time())) + '.csv'
         row_list = ["Iteration Number","Node0 Loc", "Node1 Loc", "Node2 Loc", "Node3 Loc", "Node4 Loc", "Node5 Loc", "Node0 Tx Gain", "Node1 Tx Gain", "Node2 Tx Gain", "Node3 Tx Gain", "Node4 Tx Gain", "Node5 Tx Gain", "Number L4 Acks"]
-        self.file = open(self.csv_name, 'w', newline='')
+        self.file = open(self.csv_name, 'a', newline='')
         self.writer = csv.writer(self.file)
         self.writer.writerow(row_list)
 
