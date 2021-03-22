@@ -190,15 +190,17 @@ class UAV_Node():
             else: # actions from CSV
                 print('~ ~ READING FROM CSV ~ ~')
                 for action in self.action_reader:
-                    self.action = [int(ii) for ii in action]    # read in action array and cast as ints
+                    self.action = [int(self.node_index), int(self.node_index+self.num_nodes)]    # read in action array and cast as ints
 
                     # goto state
                     self.handle_action()
+                    print(" - handle action")
 
                     # Broadcast State
                     self.control_plane.broadcast_state(self.node_index + ',' + self.loc_index + ',' + self.pow_index)
                     self.state_buf[self.node_index] = self.loc_index
                     self.state_buf[self.num_nodes + self.node_index] = self.pow_index
+                    print(" - broadcast state")
 
                     # Wait for all to broadcast state
                     while None in self.state_buf:
@@ -211,10 +213,12 @@ class UAV_Node():
 
                     # Log Data
                     self.writer.writerow([iteration_num]+self.state_buf+[self.layer4.n_ack])
+                    print(" - log data")
 
                     # Reset State Buffer
                     self.state_buf = [None]*(2*self.num_nodes)
                     iteration_num += 1
+                    print(" - reset")
                    
         except Exception as e:
             print(e)
