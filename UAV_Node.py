@@ -91,6 +91,7 @@ class UAV_Node():
         for logger in loggers:
             logger.setLevel(logging.CRITICAL)
             logger.propagate = False
+            logger.disable=True
 
     def start_threads(self):
         '''

@@ -206,6 +206,7 @@ class TRX_ODFM_USRP(gr.top_block):
         for logger in loggers:
             logger.setLevel(logging.CRITICAL)
             logger.propagate = False
+            logger.disable=True
 
     def get_input_port_num(self):
         return self.input_port_num
