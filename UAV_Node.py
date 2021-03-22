@@ -126,7 +126,7 @@ class UAV_Node():
         self.stop_threads = True
         self.file.close()
         self.layer4.file.close()
-        
+
         print("\n ~ ~ Closing Threads ~ ~", end='\n\n')
         for thread in self.threads:
             try:
@@ -216,6 +216,7 @@ class UAV_Node():
 
                     # Reset State Buffer
                     self.state_buf = [None]*(2*self.num_nodes)
+                    self.layer4.file.writerow(["Iteration Number: " +str(iteration_num)])
                     iteration_num += 1
                     print(" - reset")
                 
