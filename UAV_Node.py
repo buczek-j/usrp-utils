@@ -255,7 +255,7 @@ class UAV_Node():
             elif loc_action == 1: # left
                 self.loc_index = self.loc_index + 1
             
-            if loc_action == 9: # down
+            elif loc_action == 9: # down
                 self.loc_index = self.loc_index + 6
             
             else:
