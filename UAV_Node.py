@@ -361,3 +361,6 @@ def main():
         print(e)
         uav_node.close_threads()
         exit(0)
+
+if __name__ == '__main__':
+    main()
