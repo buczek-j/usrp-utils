@@ -209,7 +209,9 @@ class UAV_Node():
                     self.state_buf = [None]*(2*self.num_nodes)
                     iteration_num += 1
                    
-        except:
+        except Exception as e:
+            print(e)
+            
             self.stop_threads=True
             self.close_threads()
             self.my_drone.handle_landing()
@@ -354,6 +356,7 @@ def main():
     uav_node = UAV_Node(my_config, node_index=int(options.index), l1_debug=(options.l1=='y' or options.l1 == 'Y'), l2_debug=(options.l2=='y' or options.l2 == 'Y'), l3_debug=(options.l3=='y' or options.l3 == 'Y'), l4_debug=(options.l4=='y' or options.l4 == 'Y'), csv_in=True)
     try:
         uav_node.run()
-    except:
+    except Exception as e:
+        print(e)
         uav_node.close_threads()
         exit(0)
