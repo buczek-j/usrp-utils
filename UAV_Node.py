@@ -7,7 +7,7 @@ DQN experiment node object
 from threading import Thread
 from argparse import ArgumentParser
 from time import time, sleep
-import csv, logging
+import csv, logging, os
 
 # User Libraries
 from LayerStack import Control_Plane, Layer1, Layer2, Layer3, Layer4, Layer5
@@ -127,12 +127,12 @@ class UAV_Node():
         print("\n ~ ~ Closing Threads ~ ~", end='\n\n')
         for thread in self.threads:
             try:
-                self.threads[thread].join(0.1)
+                self.threads[thread].join(0.5)
             except Exception as e:
                 print(e)
                 pass
             
-        exit(0)
+        os._exit(0)
 
     def handle_state(self, node_index, loc_index, pow_index):
         '''

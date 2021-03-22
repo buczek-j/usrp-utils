@@ -39,7 +39,7 @@ class Layer1(Network_Layer):
             self.tb.stop()
             self.tb.wait()
 
-            os._exit(0)
+            sys.exit(0)
         signal.signal(signal.SIGINT, sig_handler)
         signal.signal(signal.SIGTERM, sig_handler)
 
