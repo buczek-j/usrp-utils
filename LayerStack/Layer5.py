@@ -58,5 +58,5 @@ class Layer5(Network_Layer):
         while not stop():
             msg = self.prev_up_queue.get(True)
             # print(msg)
-            print('...')
+            # print('...')
 
