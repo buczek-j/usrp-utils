@@ -198,14 +198,11 @@ class UAV_Node():
                     print(" - handle action", )
 
                     # Broadcast State
-                    self.control_plane.broadcast_state(str(self.node_index) + ',' + str(self.loc_index) + ',' + str(self.pow_index))
-                    self.state_buf[self.node_index] = self.loc_index
-                    self.state_buf[self.num_nodes + self.node_index] = self.pow_index
                     print(" - broadcast state")
-
-                    # Wait for all to broadcast state
                     while None in self.state_buf:
-                        sleep(0.01)
+                        self.control_plane.broadcast_state(str(self.node_index) + ',' + str(self.loc_index) + ',' + str(self.pow_index))
+                        sleep(1)
+                        print(self.state_buf)
 
                     start_time = time()
                     # Wait for desired min iteration time to pass
