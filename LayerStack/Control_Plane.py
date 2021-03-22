@@ -65,6 +65,7 @@ class Control_Plane():
         :param state_recv: method to handle state messages
         :param stop: method returning true/false to stop the thread
         '''
+        print("LISTENNING SOCKET")
         while not stop():
             packet, addr = self.recv_sock.recvfrom(1024)
             control_code = packet[0:2] 
