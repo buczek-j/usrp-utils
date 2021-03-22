@@ -170,6 +170,7 @@ class Layer2(Network_Layer):
                     act_rt += 1
                     self.n_sent = self.n_sent + len(down_packet)
                     self.down_queue.put(down_packet, True)
+                    print(len(down_packet))
                     self.unacked_packet = pktno_mac
 
                 else:
