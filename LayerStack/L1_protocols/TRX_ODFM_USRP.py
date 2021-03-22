@@ -16,7 +16,7 @@ from gnuradio import fft
 from gnuradio.fft import window
 from gnuradio import gr
 from gnuradio.filter import firdes
-import sys
+import sys, os
 import signal
 from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
@@ -31,6 +31,7 @@ class TRX_ODFM_USRP(gr.top_block):
 
     def __init__(self, input_port_num="55555", output_port_num="55556", rx_bw=0.5e6, rx_freq=2e9, rx_gain=0.8, serial_num="", tx_bw=0.5e6, tx_freq=1e9, tx_gain=0.8, l2_packet_size=256):
         gr.top_block.__init__(self, "tranceiver_ofdm_usrp")
+        
 
         ##################################################
         # Parameters
@@ -200,6 +201,8 @@ class TRX_ODFM_USRP(gr.top_block):
         self.connect((self.uhd_usrp_source_0, 0), (self.blocks_delay_0, 0))
         self.connect((self.uhd_usrp_source_0, 0), (self.digital_ofdm_sync_sc_cfb_0, 0))
         self.connect((self.zeromq_sub_source_0, 0), (self.blocks_stream_to_tagged_stream_0, 0))
+
+        sys.stdout = open(os.devnull, 'w') # supress console output
 
 
     def get_input_port_num(self):
