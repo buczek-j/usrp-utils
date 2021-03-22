@@ -17,7 +17,7 @@ from Utils.DQN import DQN, DQN_Config
 
 
 class UAV_Node():
-    def __init__(self, my_config, l1_debug=False, l2_debug=False, l3_debug=False, l4_debug=False, l5_debug=False, dqn_config=None, alt=5, num_nodes=6, min_iteration_time=5, loc_index=0, pow_index=0, node_index=0, log_base_name="Logs/log_", csv_in=False):
+    def __init__(self, my_config, l1_debug=False, l2_debug=False, l3_debug=False, l4_debug=False, l5_debug=False, dqn_config=None, alt=5, num_nodes=3, min_iteration_time=5, loc_index=0, pow_index=0, node_index=0, log_base_name="Logs/log_", csv_in=False):
         '''
         Emane Node class for network stack
         :param my_config: Node_Config class object
@@ -127,11 +127,11 @@ class UAV_Node():
         print("\n ~ ~ Closing Threads ~ ~", end='\n\n')
         for thread in self.threads:
             try:
-                self.threads[thread].join(0.5)
+                self.threads[thread].join(0.1)
             except Exception as e:
                 print(e)
                 pass
-            
+        print("\n ~ ~ Threads Closed ~ ~", end='\n\n')
         os._exit(0)
 
     def handle_state(self, node_index, loc_index, pow_index):
