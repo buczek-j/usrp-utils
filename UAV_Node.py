@@ -200,10 +200,12 @@ class UAV_Node():
                         self.control_plane.broadcast_state(str(self.node_index) + ',' + str(self.loc_index) + ',' + str(self.pow_index))
                         sleep(0.01)
 
+                    self.layer5.transmit=True
                     start_time = time()
                     # Wait for desired min iteration time to pass
                     while time()-start_time<self.min_time:
                         sleep(0.01)
+                    self.layer5.transmit=False
 
                     # Log Data
                     self.writer.writerow([iteration_num]+self.state_buf+[self.layer4.n_ack])
