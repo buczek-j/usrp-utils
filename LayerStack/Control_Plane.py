@@ -68,7 +68,6 @@ class Control_Plane():
         :param state_recv: method to handle state messages
         :param stop: method returning true/false to stop the thread
         '''
-        print("LISTENNING SOCKET")
         while not stop():
             packet, addr = self.recv_sock.recvfrom(1024)
             control_code = packet[0:2] 
@@ -86,8 +85,9 @@ class Control_Plane():
             elif control_code == CP_Codes.STATE.value:
                 # [node index #],[location index #],[power index #]
                 msg = packet.decode('utf-8').split(',')
-                state_recv(int(msg[0]), int(msg[1]), int(msg[2]))
                 print('RCVD STATE:', int(msg[0]), int(msg[1]), int(msg[2]))
+                state_recv(int(msg[0]), int(msg[1]), int(msg[2]))
+                
 
     def send_l2_ack(self, pktno, mac_ip):
         '''
