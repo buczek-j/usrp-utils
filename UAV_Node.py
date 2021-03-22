@@ -35,6 +35,8 @@ class UAV_Node():
         :param node_index: int for the node index number
         :param log_base_name: string for the directory and base name to save log files
         '''
+        root_logger = logging.getLogger()
+        root_logger.disabled = True
         
         # Setup Log File
         self.csv_name = log_base_name + str(round(time())) + '.csv'
@@ -87,13 +89,7 @@ class UAV_Node():
         self.num_nodes = num_nodes
 
         print("~ ~ Initialization Complete ~ ~", end='\n\n')
-        loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
-        for logger in loggers:
-            logger.setLevel(logging.CRITICAL)
-            logger.propagate = False
-            logger.disable=True
-
-        logging.basicConfig(level=logging.CRITICAL)
+       
 
     def start_threads(self):
         '''
