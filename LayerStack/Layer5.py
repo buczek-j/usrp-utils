@@ -32,7 +32,6 @@ class Layer5(Network_Layer):
         payload = bytes((self.layer4.l4_size - self.layer4.l4_header) * random.choice(string.digits), "utf-8")
         pktno_l4 = 0
         l4_pkts_to_send = 10000
-        print(" - - - - -LAYER 5")
 
         l4_maximum_rate = tspt_rate/8 	    # bps -> [Bps]
         max_pkt_per_sec = max(1,int(ceil(l4_maximum_rate/self.layer4.l4_size)))
@@ -46,7 +45,6 @@ class Layer5(Network_Layer):
                 for counter_packet in range(int(max_pkt_per_sec)):
                     time_stamp = time()
                     packet = struct.pack('l', pktno_l4)  + self.pad(bytes(self.my_config.pc_ip, "utf-8")) + self.pad(bytes(self.my_config.dest.pc_ip, "utf-8")) +  struct.pack('d', time_stamp) + payload # 56 bytes added + payload
-                    print(packet)
                     self.down_queue.put(packet, True)
                     pktno_l4 += 1
                     sleep(1.0/max_pkt_per_sec)
