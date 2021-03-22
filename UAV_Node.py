@@ -193,6 +193,8 @@ class UAV_Node():
             else: # actions from CSV
                 print('~ ~ READING FROM CSV ~ ~')
                 for action in self.action_reader:
+                    self.layer4.writer.writerow(["Iteration Number: " +str(iteration_num)])
+
                     self.action = [int(action[self.node_index]), int(action[self.node_index+self.num_nodes])]    # read in action array and cast as ints
                     print("my action", self.action)
                     # goto state
@@ -201,7 +203,8 @@ class UAV_Node():
                     # Broadcast State
                     while None in self.state_buf:
                         self.control_plane.broadcast_state(str(self.node_index) + ',' + str(self.loc_index) + ',' + str(self.pow_index))
-                        sleep(0.01)
+                        sleep(0.5)
+                        print('Waiting for state buffer. . .')
 
                     self.layer5.transmit=True
                     start_time = time()
@@ -216,7 +219,7 @@ class UAV_Node():
 
                     # Reset State Buffer
                     self.state_buf = [None]*(2*self.num_nodes)
-                    self.layer4.writer.writerow(["Iteration Number: " +str(iteration_num)])
+                    
                     iteration_num += 1
                     print(" - reset")
                 
