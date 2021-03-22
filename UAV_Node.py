@@ -213,6 +213,9 @@ class UAV_Node():
                     self.state_buf = [None]*(2*self.num_nodes)
                     iteration_num += 1
                     print(" - reset")
+                
+                print("~ ~ Finished Successfully ~ ~")
+                self.close_threads()
                    
         except Exception as e:
             print(e)
