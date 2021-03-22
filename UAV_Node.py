@@ -203,14 +203,16 @@ class UAV_Node():
                     self.state_buf[self.num_nodes + self.node_index] = self.pow_index
                     print(" - broadcast state")
 
-                    # Wait for all to broadcast state
-                    while None in self.state_buf:
-                        sleep(0.01)
+                    # Wait for all to broadcast state TODO
+                    # while None in self.state_buf:
+                    #     sleep(0.01)
 
                     start_time = time()
                     # Wait for desired min iteration time to pass
                     while time()-start_time<self.min_time:
                         sleep(0.01)
+
+                    print(' - time reached')
 
                     # Log Data
                     self.writer.writerow([iteration_num]+self.state_buf+[self.layer4.n_ack])
