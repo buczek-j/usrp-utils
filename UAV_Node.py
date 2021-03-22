@@ -216,7 +216,7 @@ class UAV_Node():
 
                     # Reset State Buffer
                     self.state_buf = [None]*(2*self.num_nodes)
-                    self.layer4.file.writerow(["Iteration Number: " +str(iteration_num)])
+                    self.layer4.writer.writerow(["Iteration Number: " +str(iteration_num)])
                     iteration_num += 1
                     print(" - reset")
                 
