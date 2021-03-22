@@ -16,7 +16,7 @@ from Utils.DQN import DQN, DQN_Config
 
 
 class UAV_Node():
-    def __init__(self, my_config, l1_debug=False, l2_debug=False, l3_debug=False, l4_debug=False, l5_debug=False, dqn_config=None, alt=5, num_nodes=6, min_iteration_time=5, loc_index=None, pow_index=None, node_index=0, log_base_name="Logs/log_"):
+    def __init__(self, my_config, l1_debug=False, l2_debug=False, l3_debug=False, l4_debug=False, l5_debug=False, dqn_config=None, alt=5, num_nodes=6, min_iteration_time=5, loc_index=None, pow_index=None, node_index=0, log_base_name="Logs/log_", csv_in=False):
         '''
         Emane Node class for network stack
         :param my_config: Node_Config class object
@@ -42,6 +42,12 @@ class UAV_Node():
         self.writer = csv.writer(file)
         self.writer.writerow(row_list)
 
+        # csv_input
+        if csv_in:
+            self.csv_in = True
+            self.action_csv = open('actions.csv', 'r',  newline='')
+            self.action_reader = csv.reader(self.action_csv)
+
 
         self.my_config = my_config
         self.stop_threads = False
@@ -63,7 +69,7 @@ class UAV_Node():
         self.layer5.init_layers(upper=None, lower=self.layer4)
 
         # Drone parameters
-        self.my_drone = BasicArdu(rame=Frames.NED, connection_string='/dev/ttyACM0', global_home=[42.47777625687639,-71.19357940183706,174.0])
+        #self.my_drone = BasicArdu(rame=Frames.NED, connection_string='/dev/ttyACM0', global_home=[42.47777625687639,-71.19357940183706,174.0]) # TODO
         self.my_location = None
         self.my_alt = alt
 
@@ -139,39 +145,69 @@ class UAV_Node():
             sleep(10)   # wait 10 sec for usrp to init
 
             # takeoff 
-            self.my_drone.handle_takeoff(abs(self.my_alt))
-            self.my_drone.wait_for_target()
+            # self.my_drone.handle_takeoff(abs(self.my_alt))
+            # self.my_drone.wait_for_target()   # TODO
 
             # iterate
             iteration_num = 0
-            while not self.stop_threads:
-                
-                # Goto State
-                self.handle_action()
 
-                # Broadcast State
-                self.control_plane.broadcast_state(self.node_index + ',' + self.loc_index + ',' + self.pow_index)
-                self.state_buf[self.node_index] = self.loc_index
-                self.state_buf[self.num_nodes + self.node_index] = self.pow_index
+            if not self.csv_in: # run NN
+                while not self.stop_threads:
+                    
+                    # Goto State
+                    self.handle_action()
 
-                # Wait for all to broadcast state
-                while None in self.state_buf:
-                    sleep(0.01)
+                    # Broadcast State
+                    self.control_plane.broadcast_state(self.node_index + ',' + self.loc_index + ',' + self.pow_index)
+                    self.state_buf[self.node_index] = self.loc_index
+                    self.state_buf[self.num_nodes + self.node_index] = self.pow_index
 
-                start_time = time()
-                # Wait for desired min iteration time to pass
-                while time()-start_time<self.min_time:
-                    sleep(0.01)
-                
-                # Run Neural Network
-                self.action = self.neural_net.run(self.state_buf)       # TODO Update the NN run method 
+                    # Wait for all to broadcast state
+                    while None in self.state_buf:
+                        sleep(0.01)
 
-                # Log Data
-                self.writer.writerow([iteration_num]+self.state_buf+[self.layer4.num_acks])
+                    start_time = time()
+                    # Wait for desired min iteration time to pass
+                    while time()-start_time<self.min_time:
+                        sleep(0.01)
+                    
+                    # Run Neural Network
+                    self.action = self.neural_net.run(self.state_buf)       # TODO Update the NN run method 
 
-                # Reset State Buffer
-                self.state_buf = [None]*(2*self.num_nodes)
-                iteration_num += 1
+                    # Log Data
+                    self.writer.writerow([iteration_num]+self.state_buf+[self.layer4.num_acks])
+
+                    # Reset State Buffer
+                    self.state_buf = [None]*(2*self.num_nodes)
+                    iteration_num += 1
+            
+            else: # actions from CSV
+                for action in self.action_reader:
+                    self.action = action
+
+                    # goto state
+                    self.handle_action()
+
+                    # Broadcast State
+                    self.control_plane.broadcast_state(self.node_index + ',' + self.loc_index + ',' + self.pow_index)
+                    self.state_buf[self.node_index] = self.loc_index
+                    self.state_buf[self.num_nodes + self.node_index] = self.pow_index
+
+                    # Wait for all to broadcast state
+                    while None in self.state_buf:
+                        sleep(0.01)
+
+                    start_time = time()
+                    # Wait for desired min iteration time to pass
+                    while time()-start_time<self.min_time:
+                        sleep(0.01)
+
+                    # Log Data
+                    self.writer.writerow([iteration_num]+self.state_buf+[self.layer4.num_acks])
+
+                    # Reset State Buffer
+                    self.state_buf = [None]*(2*self.num_nodes)
+                    iteration_num += 1
                    
         except:
             self.stop_threads=True
@@ -240,8 +276,10 @@ class UAV_Node():
         Method to perform a movement action on the drone
         :param coords: array of floats for the ned NED location
         '''
-        self.my_drone.handle_waypoint(Frames.NED, coords[0], coords[1], -1.0*abs(self.my_alt), 0)
-        self.my_drone.wait_for_target()
+        # self.my_drone.handle_waypoint(Frames.NED, coords[0], coords[1], -1.0*abs(self.my_alt), 0)
+        # self.my_drone.wait_for_target()
+        print('Move:', coords[0], coords[1])
+        sleep(1)
 
     def action_rx_gain(self, gain):
         '''
@@ -256,6 +294,7 @@ class UAV_Node():
         :param gain: float for the new gain (0.0-1.0)
         '''
         self.layer1.set_tx_gain(gain)
+        print('TX Gain:', gain)
 
 
 wifi_ip_list = ['192.168.10.101', '192.168.10.102', '192.168.10.103', '192.168.10.104', '192.168.10.105', '192.168.10.106']
@@ -269,13 +308,13 @@ def main():
     freq2 = 2.5e9
     freq3 = 2.6e9
 
-    dest1= Node_Config(pc_ip='192.168.10.101', usrp_ip='192.170.10.101', my_id='dest1', role='rx', tx_freq=freq3, rx_freq=freq2)
-    rly1 = Node_Config(pc_ip='192.168.10.102', usrp_ip='192.170.10.102', my_id='rly1', role='rly', tx_freq=freq2, rx_freq=freq1)
-    src1 = Node_Config(pc_ip='192.168.10.103', usrp_ip='192.170.10.103', my_id='src1' , role='tx', tx_freq=freq1, rx_freq=freq3)
+    dest1= Node_Config(pc_ip='192.168.10.101', usrp_ip='192.170.10.101', my_id='dest1', role='rx', tx_freq=freq3, rx_freq=freq2, serial='31C9261')
+    rly1 = Node_Config(pc_ip='192.168.10.102', usrp_ip='192.170.10.102', my_id='rly1', role='rly', tx_freq=freq2, rx_freq=freq1, serial='31C924C')
+    src1 = Node_Config(pc_ip='192.168.10.103', usrp_ip='192.170.10.103', my_id='src1' , role='tx', tx_freq=freq1, rx_freq=freq3, serial='31C9237')
 
-    dest2= Node_Config(pc_ip='192.168.10.104', usrp_ip='192.170.10.104', my_id='dest2', role='rx', tx_freq=freq3, rx_freq=freq2)
-    rly2 = Node_Config(pc_ip='192.168.10.105', usrp_ip='192.170.10.105', my_id='rly2', role='rly', tx_freq=freq2, rx_freq=freq1)
-    src2 = Node_Config(pc_ip='192.168.10.106', usrp_ip='192.170.10.106', my_id='src2' , role='tx', tx_freq=freq1, rx_freq=freq3)
+    dest2= Node_Config(pc_ip='192.168.10.104', usrp_ip='192.170.10.104', my_id='dest2', role='rx', tx_freq=freq3, rx_freq=freq2, serial=None)
+    rly2 = Node_Config(pc_ip='192.168.10.105', usrp_ip='192.170.10.105', my_id='rly2', role='rly', tx_freq=freq2, rx_freq=freq1, serial=None)
+    src2 = Node_Config(pc_ip='192.168.10.106', usrp_ip='192.170.10.106', my_id='src2' , role='tx', tx_freq=freq1, rx_freq=freq3, serial=None)
 
     parser = ArgumentParser()
     parser.add_argument('--index', type=int, default='', help='node index number')
@@ -312,7 +351,7 @@ def main():
         print('INVALID INDEX')
         exit(0)
     
-    uav_node = UAV_Node(my_config, node_index=int(options.index), l1_debug=(options.l1=='y' or options.l1 == 'Y'), l2_debug=(options.l2=='y' or options.l2 == 'Y'), l3_debug=(options.l3=='y' or options.l3 == 'Y'), l4_debug=(options.l4=='y' or options.l4 == 'Y'))
+    uav_node = UAV_Node(my_config, node_index=int(options.index), l1_debug=(options.l1=='y' or options.l1 == 'Y'), l2_debug=(options.l2=='y' or options.l2 == 'Y'), l3_debug=(options.l3=='y' or options.l3 == 'Y'), l4_debug=(options.l4=='y' or options.l4 == 'Y'), csv_in=True)
     try:
         uav_node.run()
     except:
