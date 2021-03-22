@@ -7,13 +7,13 @@ Layer 4 object: Transport layer
 from LayerStack.Network_Layer import Network_Layer
 from threading import  Event, Lock
 from time import time
-import struct
+import struct, csv
 
 l4_ack = Event()
 l4_down_access = Lock()     
 
 class Layer4(Network_Layer):
-    def __init__(self, my_config, send_ack, num_frames=1, num_blocks=2, l2_header=42, l2_block_size=128, timeout=1, n_retrans=3, debug=False, l4_header=56, l4_log_base_name="../Logs/l4_acks_"):
+    def __init__(self, my_config, send_ack, num_frames=1, num_blocks=2, l2_header=42, l2_block_size=128, timeout=1, n_retrans=3, debug=False, l4_header=56, l4_log_base_name="../Logs/l4_acks_",  log=True):
         '''
         Layer 4 Transport layer object
         :param my_config: Node_Config object for the current node
@@ -27,16 +27,16 @@ class Layer4(Network_Layer):
         :param debug: bool for debug outputs or not
         :param l4_header: int for the l4 packet header length
         '''
-        Network_Layer.__init__(self, "layer_4", debug=debug log=True)
+        Network_Layer.__init__(self, "layer_4", debug=debug)
         self.my_pc = bytes(my_config.pc_ip, "utf-8")
 
         # Setup Log File
         self.log = log
         if self.log:
-            self.l4_csv_name = log_base_name + str(round(time()))
+            self.l4_csv_name = l4_log_base_name + str(round(time()))
             row_list = ["Ack Number", "Time Sent", "Time RCVD", "RTT", "Throughput"]
             self.file = open(self.l4_csv_name, 'a', newline='')
-            self.writer = csv.writer(file)
+            self.writer = csv.writer(self.file)
             self.writer.writerow(row_list)
   
         self.send_ack_wifi = send_ack
