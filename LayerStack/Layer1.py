@@ -43,8 +43,6 @@ class Layer1(Network_Layer):
         signal.signal(signal.SIGINT, sig_handler)
         signal.signal(signal.SIGTERM, sig_handler)
 
-        sys.stdout = open(os.devnull, 'w') # supress console output
-        sys.stderr = open(os.devnull, 'w') # supress console output
         self.tb.start()
     
 

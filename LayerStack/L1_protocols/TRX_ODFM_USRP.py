@@ -202,7 +202,8 @@ class TRX_ODFM_USRP(gr.top_block):
         self.connect((self.uhd_usrp_source_0, 0), (self.digital_ofdm_sync_sc_cfb_0, 0))
         self.connect((self.zeromq_sub_source_0, 0), (self.blocks_stream_to_tagged_stream_0, 0))
 
-        
+        log = gr.logger('USRP')
+        log.set_level("ERROR")
 
 
     def get_input_port_num(self):
