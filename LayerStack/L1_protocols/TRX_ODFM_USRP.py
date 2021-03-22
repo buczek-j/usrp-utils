@@ -203,7 +203,7 @@ class TRX_ODFM_USRP(gr.top_block):
         self.connect((self.zeromq_sub_source_0, 0), (self.blocks_stream_to_tagged_stream_0, 0))
 
         log = gr.logger(__name__)
-        log.debug("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+        log.info("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
         log.set_level("INFO")
 
     def get_input_port_num(self):
