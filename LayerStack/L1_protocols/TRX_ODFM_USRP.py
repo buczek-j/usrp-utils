@@ -205,6 +205,9 @@ class TRX_ODFM_USRP(gr.top_block):
         log = gr.logger('packet_headerparser_b0')
         log.crit("$$$$$$$$$$$$$$$$$$$$$$$$$$")
 
+        print(gr.logger_get_names())
+        print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+
     def get_input_port_num(self):
         return self.input_port_num
 
