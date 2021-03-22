@@ -48,7 +48,7 @@ class Control_Plane():
         self.broadcast_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
         self.broadcast_socket.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
 
-        self.recv_sock.bind((' ', port_recv))
+        self.recv_sock.bind(('', port_recv))
         self.ip = ip
         self.port = port_recv
         self.wifi_ip_pre = wifi_ip_pre
