@@ -204,6 +204,7 @@ class UAV_Node():
                     while None in self.state_buf:
                         self.control_plane.broadcast_state(str(self.node_index) + ',' + str(self.loc_index) + ',' + str(self.pow_index))
                         sleep(0.5)
+                        self.control_plane.broadcast_state(str(self.node_index) + ',' + str(self.loc_index) + ',' + str(self.pow_index))
                         print('Waiting for state buffer. . .')
 
                     self.layer5.transmit=True
