@@ -6,7 +6,7 @@ Layer 1 object: Physical layer
 
 from LayerStack.L1_protocols.TRX_ODFM_USRP import TRX_ODFM_USRP
 from LayerStack.Network_Layer import Network_Layer
-import signal, time, sys, pmt, zmq
+import signal, time, sys, pmt, zmq, os
 from numpy import byte, frombuffer
 
    
@@ -42,7 +42,7 @@ class Layer1(Network_Layer):
             sys.exit(0)
         signal.signal(signal.SIGINT, sig_handler)
         signal.signal(signal.SIGTERM, sig_handler)
-        
+
         sys.stdout = open(os.devnull, 'w') # supress console output
         sys.stderr = open(os.devnull, 'w') # supress console output
         self.tb.start()
