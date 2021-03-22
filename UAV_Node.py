@@ -195,10 +195,10 @@ class UAV_Node():
                     print("my action", self.action)
                     # goto state
                     self.handle_action()
-                    print(" - handle action")
+                    print(" - handle action", )
 
                     # Broadcast State
-                    self.control_plane.broadcast_state(self.node_index + ',' + self.loc_index + ',' + self.pow_index)
+                    self.control_plane.broadcast_state(str(self.node_index) + ',' + str(self.loc_index) + ',' + str(self.pow_index))
                     self.state_buf[self.node_index] = self.loc_index
                     self.state_buf[self.num_nodes + self.node_index] = self.pow_index
                     print(" - broadcast state")
