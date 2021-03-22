@@ -12,7 +12,7 @@ class CP_Codes(Enum):
     L2_ACK=struct.pack('ss', b'-', b'2')        # layer 2 ack message
     L4_ACK=struct.pack('ss', b'-', b'4')        # layer 4 ack message
  
-    STATE=struct.pack('ss', b'-', b'2')         # application layer state message
+    STATE=struct.pack('ss', b'-', b'3')         # application layer state message
     
 
 def get_post_ip(ip):
