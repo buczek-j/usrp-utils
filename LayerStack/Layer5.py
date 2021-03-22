@@ -12,7 +12,7 @@ from LayerStack.Network_Layer import Network_Layer
 
 
 class Layer5(Network_Layer):
-    def __init__(self, my_config, debug=False):
+    def __init__(self, my_config, layer4, debug=False):
         '''
         Layer 5 Application layer object
         # TODO
@@ -20,6 +20,7 @@ class Layer5(Network_Layer):
         Network_Layer.__init__(self, "layer_5", debug=debug)
 
         self.my_config = my_config
+        self.layer4 = layer4
         self.transmit = False
 
     def pass_down(self, stop):

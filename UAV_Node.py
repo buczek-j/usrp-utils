@@ -56,11 +56,12 @@ class UAV_Node():
 
         # Initalize Network Stack
         self.control_plane = Control_Plane.Control_Plane(my_config.pc_ip, self.my_config.listen_port)
-        self.layer5 = Layer5.Layer5(self.my_config, debug=l5_debug)
+        
         self.layer4 = Layer4.Layer4(self.my_config, self.control_plane.send_l4_ack, debug=l4_debug)
         self.layer3 = Layer3.Layer3(self.my_config, debug=l3_debug)
         self.layer2 = Layer2.Layer2(self.my_config.usrp_ip, send_ack=self.control_plane.send_l2_ack, debug=l2_debug)
         self.layer1 = Layer1.Layer1(self.my_config, debug=l1_debug)
+        self.layer5 = Layer5.Layer5(self.my_config, self.layer4, debug=l5_debug)
 
         # Link layers together
         self.layer1.init_layers(upper=self.layer2, lower=None)
