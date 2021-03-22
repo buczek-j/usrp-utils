@@ -16,7 +16,7 @@ from gnuradio import fft
 from gnuradio.fft import window
 from gnuradio import gr
 from gnuradio.filter import firdes
-import sys, os, logging
+import sys
 import signal
 from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
@@ -201,9 +201,6 @@ class TRX_ODFM_USRP(gr.top_block):
         self.connect((self.uhd_usrp_source_0, 0), (self.blocks_delay_0, 0))
         self.connect((self.uhd_usrp_source_0, 0), (self.digital_ofdm_sync_sc_cfb_0, 0))
         self.connect((self.zeromq_sub_source_0, 0), (self.blocks_stream_to_tagged_stream_0, 0))
-
-        logger = logging.getLogger(__name__)
-        logger.setLevel("ERROR")
 
     def get_input_port_num(self):
         return self.input_port_num

@@ -7,7 +7,7 @@ DQN experiment node object
 from threading import Thread
 from argparse import ArgumentParser
 from time import time, sleep
-import csv
+import csv, logging
 
 # User Libraries
 from LayerStack import Control_Plane, Layer1, Layer2, Layer3, Layer4, Layer5
@@ -87,6 +87,9 @@ class UAV_Node():
         self.num_nodes = num_nodes
 
         print("~ ~ Initialization Complete ~ ~", end='\n\n')
+        loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
+        for logger in loggers:
+            logger.setLevel(logging.INFO)
 
     def start_threads(self):
         '''
