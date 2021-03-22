@@ -71,7 +71,7 @@ class Layer4(Network_Layer):
         '''
         if pktno == self.unacked_packet:
             globals()["l4_ack"].set()
-            n_ack += 1
+            self.n_ack += 1
             if self.log:
                 ack_time = time()
                 rtt = ack_time - time_sent 

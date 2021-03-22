@@ -184,7 +184,7 @@ class UAV_Node():
             
             else: # actions from CSV
                 for action in self.action_reader:
-                    self.action = action
+                    self.action = [int(ii) for ii in action]    # read in action array and cast as ints
 
                     # goto state
                     self.handle_action()
