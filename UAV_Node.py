@@ -93,6 +93,8 @@ class UAV_Node():
             logger.propagate = False
             logger.disable=True
 
+        logging.basicConfig(level=logging.CRITICAL)
+
     def start_threads(self):
         '''
         Method to start all of the threads 
