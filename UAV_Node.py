@@ -12,12 +12,12 @@ import csv, logging, os
 # User Libraries
 from LayerStack import Control_Plane, Layer1, Layer2, Layer3, Layer4, Layer5
 from Utils.Node_Config import Node_Config
-# from BasicArducopter import BasicArdu, Frames
+from BasicArducopter import BasicArdu, Frames
 from Utils.DQN import DQN, DQN_Config
 
 
 class UAV_Node():
-    def __init__(self, my_config, l1_debug=False, l2_debug=False, l3_debug=False, l4_debug=False, l5_debug=False, dqn_config=None, alt=5, num_nodes=6, min_iteration_time=5, loc_index=0, pow_index=0, node_index=0, log_base_name="Logs/log_", csv_in=False):
+    def __init__(self, my_config, l1_debug=False, l2_debug=False, l3_debug=False, l4_debug=False, l5_debug=False, dqn_config=None, alt=5, num_nodes=3, min_iteration_time=5, pow_index=0, node_index=0, log_base_name="Logs/log_", csv_in=False):
         '''
         Emane Node class for network stack
         :param my_config: Node_Config class object
@@ -73,13 +73,14 @@ class UAV_Node():
         self.layer5.init_layers(upper=None, lower=self.layer4)
 
         # Drone parameters
-        #self.my_drone = BasicArdu(rame=Frames.NED, connection_string='/dev/ttyACM0', global_home=[42.47777625687639,-71.19357940183706,174.0]) # TODO
+        # self.my_drone = BasicArdu(rame=Frames.NED, connection_string='/dev/ttyACM0', global_home=[42.47777625687639,-71.19357940183706,174.0]) 
+        self.my_drone = BasicArdu(rame=Frames.NED, connection_string='tcp:10.215.164.249:'+str(5762+10*node_index), global_home=[42.47777625687639,-71.19357940183706,174.0]) 
         self.my_location = None
         self.my_alt = alt
 
         # Neural Ned params
         self.node_index = node_index    # 0 to num_nodes
-        self.loc_index = loc_index   # [0 - 54] ~ 6 x 9 (x,y) coordinate locaiton (2 meter incriments)
+        self.loc_index = self.my_config.location_index   # [0 - 54] ~ 6 x 9 (x,y) coordinate locaiton (2 meter incriments)
         self.pow_index = pow_index      # [-1, 0, 1]        # TODO Confirm
         self.action = None
 
@@ -154,8 +155,8 @@ class UAV_Node():
             sleep(10)   # wait 10 sec for usrp to init
 
             # takeoff 
-            # self.my_drone.handle_takeoff(abs(self.my_alt))
-            # self.my_drone.wait_for_target()   # TODO
+            self.my_drone.handle_takeoff(abs(self.my_alt))
+            self.my_drone.wait_for_target()   
 
             # iterate
             iteration_num = 0
@@ -232,7 +233,7 @@ class UAV_Node():
 
             self.stop_threads=True
             self.close_threads()
-            # self.my_drone.handle_landing()    # TODO
+            self.my_drone.handle_landing()
 
             #sleep(5)
             #self.my_drone.handle_kill()
@@ -296,8 +297,8 @@ class UAV_Node():
         Method to perform a movement action on the drone
         :param coords: array of floats for the ned NED location
         '''
-        # self.my_drone.handle_waypoint(Frames.NED, coords[0], coords[1], -1.0*abs(self.my_alt), 0)
-        # self.my_drone.wait_for_target()
+        self.my_drone.handle_waypoint(Frames.NED, coords[0], coords[1], -1.0*abs(self.my_alt), 0)
+        self.my_drone.wait_for_target()
         print('Move:', coords[0], coords[1])
         sleep(1)
 
@@ -326,9 +327,9 @@ def main():
     freq2 = 2.5e9
     freq3 = 2.6e9
 
-    dest1= Node_Config(pc_ip='192.168.10.101', usrp_ip='192.170.10.101', my_id='dest1', role='rx', tx_freq=freq3, rx_freq=freq2, serial="")
-    rly1 = Node_Config(pc_ip='192.168.10.102', usrp_ip='192.170.10.102', my_id='rly1', role='rly', tx_freq=freq2, rx_freq=freq1, serial="")
-    src1 = Node_Config(pc_ip='192.168.10.103', usrp_ip='192.170.10.103', my_id='src1' , role='tx', tx_freq=freq1, rx_freq=freq3, serial="")
+    dest1= Node_Config(pc_ip='192.168.10.101', usrp_ip='192.170.10.101', my_id='dest1', role='rx', tx_freq=freq3, rx_freq=freq2, serial="", location_index=0)
+    rly1 = Node_Config(pc_ip='192.168.10.102', usrp_ip='192.170.10.102', my_id='rly1', role='rly', tx_freq=freq2, rx_freq=freq1, serial="", location_index=1)
+    src1 = Node_Config(pc_ip='192.168.10.103', usrp_ip='192.170.10.103', my_id='src1' , role='tx', tx_freq=freq1, rx_freq=freq3, serial="", location_index=2)
 
     dest2= Node_Config(pc_ip='192.168.10.104', usrp_ip='192.170.10.104', my_id='dest2', role='rx', tx_freq=freq3, rx_freq=freq2, serial="")
     rly2 = Node_Config(pc_ip='192.168.10.105', usrp_ip='192.170.10.105', my_id='rly2', role='rly', tx_freq=freq2, rx_freq=freq1, serial="")
