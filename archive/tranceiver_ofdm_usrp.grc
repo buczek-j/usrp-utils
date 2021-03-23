@@ -136,7 +136,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '"frame_len"'
+    value: '"packet_len"'
   states:
     bus_sink: false
     bus_source: false
@@ -479,7 +479,7 @@ blocks:
     bus_structure: null
     coordinate: [460, 314]
     rotation: 0
-    state: true
+    state: disabled
 - name: digital_chunks_to_symbols_xx_0
   id: digital_chunks_to_symbols_xx
   parameters:
@@ -1330,7 +1330,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1215, 750]
+    coordinate: [1214, 749]
     rotation: 0
     state: enabled
 - name: uhd_usrp_source_0
@@ -1913,9 +1913,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [461, 219]
+    coordinate: [480, 179]
     rotation: 0
-    state: disabled
+    state: enabled
 
 connections:
 - [analog_frequency_modulator_fc_0, '0', blocks_multiply_xx_0, '0']

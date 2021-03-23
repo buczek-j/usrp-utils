@@ -34,16 +34,16 @@ class Layer1(Network_Layer):
         self.n_recv = 0
 
         # USRP Object
-        self.tb = TRX_ODFM_USRP(input_port_num=str(input_port), serial_num=str(mynode.serial), output_port_num=str(output_port), rx_bw=int(mynode.rx_bw), rx_freq=int(mynode.rx_freq), rx_gain=mynode.rx_gain, tx_bw=int(mynode.tx_bw), tx_freq=int(mynode.tx_freq), tx_gain=mynode.tx_gain)
-        def sig_handler(sig=None, frame=None):
-            self.tb.stop()
-            self.tb.wait()
+        # self.tb = TRX_ODFM_USRP(input_port_num=str(input_port), serial_num=str(mynode.serial), output_port_num=str(output_port), rx_bw=int(mynode.rx_bw), rx_freq=int(mynode.rx_freq), rx_gain=mynode.rx_gain, tx_bw=int(mynode.tx_bw), tx_freq=int(mynode.tx_freq), tx_gain=mynode.tx_gain)
+        # def sig_handler(sig=None, frame=None):
+        #     self.tb.stop()
+        #     self.tb.wait()
 
-            sys.exit(0)
-        signal.signal(signal.SIGINT, sig_handler)
-        signal.signal(signal.SIGTERM, sig_handler)
+        #     sys.exit(0)
+        # signal.signal(signal.SIGINT, sig_handler)
+        # signal.signal(signal.SIGTERM, sig_handler)
 
-        self.tb.start()
+        # self.tb.start()
     
 
     def set_rx_gain(self, gain):
