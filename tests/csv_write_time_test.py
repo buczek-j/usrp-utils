@@ -1,10 +1,10 @@
-import csv
+import csv, os
 from time import time
 
 row_list = ["Iteration Number","Node0 Loc", "Node1 Loc", "Node2 Loc", "Node3 Loc", "Node4 Loc", "Node5 Loc", "Node0 Tx Gain", "Node1 Tx Gain", "Node2 Tx Gain", "Node3 Tx Gain", "Node4 Tx Gain", "Node5 Tx Gain", "Number L4 Acks"]
 class Writer():
     def __init__(self):
-        self.f =  open('test_csv.csv', 'a', newline='') 
+        self.f =  open(os.path.expanduser('~/test_csv.csv'), 'a', newline='')
         self.writer = csv.writer(self.f)
         self.writer.writerow(row_list)
 
