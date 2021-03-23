@@ -20,7 +20,7 @@ def main():
     '''
     Main execution method
     '''
-    CMD = 'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/Utils/UAV_Node.py --index '
+    CMD = 'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index '
     ssh_connections = []
     threads = []
 
