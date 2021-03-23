@@ -76,7 +76,7 @@ class TRX_ODFM_USRP(gr.top_block):
 
         if self.serial_num == "" or self.serial_num==None or self.serial_num=="None":
             self.uhd_usrp_source_0 = uhd.usrp_source(
-                ",",
+                "",
                 uhd.stream_args(
                     cpu_format="fc32",
                     args='',
