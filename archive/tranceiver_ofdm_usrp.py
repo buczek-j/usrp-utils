@@ -9,6 +9,7 @@
 # Author: bucz
 # GNU Radio version: v3.8.2.0-67-ge7bb5eda
 
+from gnuradio import analog
 from gnuradio import blocks
 from gnuradio import digital
 from gnuradio import fft
@@ -68,7 +69,22 @@ class tranceiver_ofdm_usrp(gr.top_block):
         ##################################################
         # Blocks
         ##################################################
-        self.zeromq_sub_source_0 = zeromq.sub_source(gr.sizeof_char, 1, "tcp://127.0.0.1:55555", 100, False, -1)
+        self.zeromq_sub_source_0 = zeromq.sub_source(gr.sizeof_char, 1, "tcp://127.0.0.1:"+input_port_num, 100, False, -1, '')
+        self.zeromq_pub_sink_0 = zeromq.pub_sink(gr.sizeof_char, 1, "tcp://127.0.0.1:"+output_port_num, 100, False, -1, '')
+        self.uhd_usrp_source_0 = uhd.usrp_source(
+            ",".join(("serial="+serial_num, "")),
+            uhd.stream_args(
+                cpu_format="fc32",
+                args='',
+                channels=list(range(0,1)),
+            ),
+        )
+        self.uhd_usrp_source_0.set_samp_rate(rx_bw)
+        self.uhd_usrp_source_0.set_time_now(uhd.time_spec(time.time()), uhd.ALL_MBOARDS)
+
+        self.uhd_usrp_source_0.set_center_freq(rx_freq, 0)
+        self.uhd_usrp_source_0.set_antenna('RX2', 0)
+        self.uhd_usrp_source_0.set_gain(rx_gain, 0)
         self.uhd_usrp_sink_0 = uhd.usrp_sink(
             ",".join(("", "")),
             uhd.stream_args(
@@ -84,40 +100,89 @@ class tranceiver_ofdm_usrp(gr.top_block):
         self.uhd_usrp_sink_0.set_center_freq(tx_freq, 0)
         self.uhd_usrp_sink_0.set_antenna('TX/RX', 0)
         self.uhd_usrp_sink_0.set_gain(tx_gain, 0)
+        self.fft_vxx_1 = fft.fft_vcc(fft_len, True, (), True, 1)
         self.fft_vxx_0_0 = fft.fft_vcc(fft_len, False, (), True, 1)
+        self.fft_vxx_0 = fft.fft_vcc(fft_len, True, (), True, 1)
         self.digital_protocol_formatter_bb_0 = digital.protocol_formatter_bb(hdr_format, packet_length_tag_key)
+        self.digital_packet_headerparser_b_0 = digital.packet_headerparser_b(header_formatter.base())
+        self.digital_ofdm_sync_sc_cfb_0 = digital.ofdm_sync_sc_cfb(fft_len, fft_len//4, False, 0.9)
+        self.digital_ofdm_serializer_vcc_payload = digital.ofdm_serializer_vcc(fft_len, occupied_carriers, length_tag_key, packet_length_tag_key, 1, '', True)
+        self.digital_ofdm_serializer_vcc_header = digital.ofdm_serializer_vcc(fft_len, occupied_carriers, length_tag_key, '', 0, '', True)
+        self.digital_ofdm_frame_equalizer_vcvc_1 = digital.ofdm_frame_equalizer_vcvc(payload_equalizer.base(), fft_len//4, length_tag_key, True, 0)
+        self.digital_ofdm_frame_equalizer_vcvc_0 = digital.ofdm_frame_equalizer_vcvc(header_equalizer.base(), fft_len//4, length_tag_key, True, 1)
         self.digital_ofdm_cyclic_prefixer_0 = digital.ofdm_cyclic_prefixer(
             fft_len,
             fft_len + fft_len//4,
             rolloff,
             packet_length_tag_key)
+        self.digital_ofdm_chanest_vcvc_0 = digital.ofdm_chanest_vcvc(sync_word1, sync_word2, 1, 0, 3, False)
         self.digital_ofdm_carrier_allocator_cvc_0 = digital.ofdm_carrier_allocator_cvc( fft_len, occupied_carriers, pilot_carriers, pilot_symbols, (sync_word1, sync_word2), packet_length_tag_key, True)
+        self.digital_header_payload_demux_0 = digital.header_payload_demux(
+            3,
+            fft_len,
+            fft_len//4,
+            length_tag_key,
+            "",
+            True,
+            gr.sizeof_gr_complex,
+            "rx_time",
+            samp_rate,
+            (),
+            0)
         self.digital_crc32_bb_0_0 = digital.crc32_bb(False, packet_length_tag_key, True)
+        self.digital_crc32_bb_0 = digital.crc32_bb(True, packet_length_tag_key, True)
+        self.digital_constellation_decoder_cb_1 = digital.constellation_decoder_cb(payload_mod.base())
+        self.digital_constellation_decoder_cb_0 = digital.constellation_decoder_cb(header_mod.base())
         self.digital_chunks_to_symbols_xx_0_0 = digital.chunks_to_symbols_bc(payload_mod.points(), 1)
         self.digital_chunks_to_symbols_xx_0 = digital.chunks_to_symbols_bc(header_mod.points(), 1)
         self.blocks_tagged_stream_mux_0 = blocks.tagged_stream_mux(gr.sizeof_gr_complex*1, packet_length_tag_key, 0)
         self.blocks_stream_to_tagged_stream_0 = blocks.stream_to_tagged_stream(gr.sizeof_char, 1, packet_len, packet_length_tag_key)
         self.blocks_repack_bits_bb_0_1 = blocks.repack_bits_bb(8, payload_mod.bits_per_symbol(), packet_length_tag_key, False, gr.GR_LSB_FIRST)
         self.blocks_repack_bits_bb_0_0 = blocks.repack_bits_bb(8, 1, packet_length_tag_key, False, gr.GR_LSB_FIRST)
+        self.blocks_repack_bits_bb_0 = blocks.repack_bits_bb(payload_mod.bits_per_symbol(), 8, packet_length_tag_key, True, gr.GR_LSB_FIRST)
+        self.blocks_multiply_xx_0 = blocks.multiply_vcc(1)
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_cc(0.05)
+        self.blocks_delay_0 = blocks.delay(gr.sizeof_gr_complex*1, fft_len+fft_len//4)
+        self.analog_frequency_modulator_fc_0 = analog.frequency_modulator_fc(-2.0/fft_len)
 
 
         ##################################################
         # Connections
         ##################################################
+        self.msg_connect((self.digital_packet_headerparser_b_0, 'header_data'), (self.digital_header_payload_demux_0, 'header_data'))
+        self.connect((self.analog_frequency_modulator_fc_0, 0), (self.blocks_multiply_xx_0, 0))
+        self.connect((self.blocks_delay_0, 0), (self.blocks_multiply_xx_0, 1))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.uhd_usrp_sink_0, 0))
+        self.connect((self.blocks_multiply_xx_0, 0), (self.digital_header_payload_demux_0, 0))
+        self.connect((self.blocks_repack_bits_bb_0, 0), (self.digital_crc32_bb_0, 0))
         self.connect((self.blocks_repack_bits_bb_0_0, 0), (self.digital_chunks_to_symbols_xx_0, 0))
         self.connect((self.blocks_repack_bits_bb_0_1, 0), (self.digital_chunks_to_symbols_xx_0_0, 0))
         self.connect((self.blocks_stream_to_tagged_stream_0, 0), (self.digital_crc32_bb_0_0, 0))
         self.connect((self.blocks_tagged_stream_mux_0, 0), (self.digital_ofdm_carrier_allocator_cvc_0, 0))
         self.connect((self.digital_chunks_to_symbols_xx_0, 0), (self.blocks_tagged_stream_mux_0, 0))
         self.connect((self.digital_chunks_to_symbols_xx_0_0, 0), (self.blocks_tagged_stream_mux_0, 1))
+        self.connect((self.digital_constellation_decoder_cb_0, 0), (self.digital_packet_headerparser_b_0, 0))
+        self.connect((self.digital_constellation_decoder_cb_1, 0), (self.blocks_repack_bits_bb_0, 0))
+        self.connect((self.digital_crc32_bb_0, 0), (self.zeromq_pub_sink_0, 0))
         self.connect((self.digital_crc32_bb_0_0, 0), (self.blocks_repack_bits_bb_0_1, 0))
         self.connect((self.digital_crc32_bb_0_0, 0), (self.digital_protocol_formatter_bb_0, 0))
+        self.connect((self.digital_header_payload_demux_0, 0), (self.fft_vxx_0, 0))
+        self.connect((self.digital_header_payload_demux_0, 1), (self.fft_vxx_1, 0))
         self.connect((self.digital_ofdm_carrier_allocator_cvc_0, 0), (self.fft_vxx_0_0, 0))
+        self.connect((self.digital_ofdm_chanest_vcvc_0, 0), (self.digital_ofdm_frame_equalizer_vcvc_0, 0))
         self.connect((self.digital_ofdm_cyclic_prefixer_0, 0), (self.blocks_multiply_const_vxx_0, 0))
+        self.connect((self.digital_ofdm_frame_equalizer_vcvc_0, 0), (self.digital_ofdm_serializer_vcc_header, 0))
+        self.connect((self.digital_ofdm_frame_equalizer_vcvc_1, 0), (self.digital_ofdm_serializer_vcc_payload, 0))
+        self.connect((self.digital_ofdm_serializer_vcc_header, 0), (self.digital_constellation_decoder_cb_0, 0))
+        self.connect((self.digital_ofdm_serializer_vcc_payload, 0), (self.digital_constellation_decoder_cb_1, 0))
+        self.connect((self.digital_ofdm_sync_sc_cfb_0, 0), (self.analog_frequency_modulator_fc_0, 0))
+        self.connect((self.digital_ofdm_sync_sc_cfb_0, 1), (self.digital_header_payload_demux_0, 1))
         self.connect((self.digital_protocol_formatter_bb_0, 0), (self.blocks_repack_bits_bb_0_0, 0))
+        self.connect((self.fft_vxx_0, 0), (self.digital_ofdm_chanest_vcvc_0, 0))
         self.connect((self.fft_vxx_0_0, 0), (self.digital_ofdm_cyclic_prefixer_0, 0))
+        self.connect((self.fft_vxx_1, 0), (self.digital_ofdm_frame_equalizer_vcvc_1, 0))
+        self.connect((self.uhd_usrp_source_0, 0), (self.blocks_delay_0, 0))
+        self.connect((self.uhd_usrp_source_0, 0), (self.digital_ofdm_sync_sc_cfb_0, 0))
         self.connect((self.zeromq_sub_source_0, 0), (self.blocks_stream_to_tagged_stream_0, 0))
 
 
@@ -138,18 +203,21 @@ class tranceiver_ofdm_usrp(gr.top_block):
 
     def set_rx_bw(self, rx_bw):
         self.rx_bw = rx_bw
+        self.uhd_usrp_source_0.set_samp_rate(self.rx_bw)
 
     def get_rx_freq(self):
         return self.rx_freq
 
     def set_rx_freq(self, rx_freq):
         self.rx_freq = rx_freq
+        self.uhd_usrp_source_0.set_center_freq(self.rx_freq, 0)
 
     def get_rx_gain(self):
         return self.rx_gain
 
     def set_rx_gain(self, rx_gain):
         self.rx_gain = rx_gain
+        self.uhd_usrp_source_0.set_gain(self.rx_gain, 0)
 
     def get_serial_num(self):
         return self.serial_num
@@ -238,6 +306,8 @@ class tranceiver_ofdm_usrp(gr.top_block):
         self.fft_len = fft_len
         self.set_header_equalizer(digital.ofdm_equalizer_simpledfe(self.fft_len, header_mod.base(), self.occupied_carriers, self.pilot_carriers, self.pilot_symbols))
         self.set_payload_equalizer(digital.ofdm_equalizer_simpledfe(self.fft_len, payload_mod.base(), self.occupied_carriers, self.pilot_carriers, self.pilot_symbols, 1))
+        self.analog_frequency_modulator_fc_0.set_sensitivity(-2.0/self.fft_len)
+        self.blocks_delay_0.set_dly(self.fft_len+self.fft_len//4)
 
     def get_sync_word2(self):
         return self.sync_word2
