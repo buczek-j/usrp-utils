@@ -76,13 +76,24 @@ class TRX_ODFM_USRP(gr.top_block):
 
         if self.serial_num == "" or self.serial_num==None or self.serial_num=="None":
             self.uhd_usrp_source_0 = uhd.usrp_source(
-                ",serial=''",
+                ",".join(("", "")),
                 uhd.stream_args(
                     cpu_format="fc32",
                     args='',
                     channels=list(range(0,1)),
                 ),
             )
+
+            self.uhd_usrp_sink_0 = uhd.usrp_sink(
+                ",".join(("", "")),
+                uhd.stream_args(
+                    cpu_format="fc32",
+                    args='',
+                    channels=list(range(0,1)),
+                ),
+                '',
+            )
+
         else:
             self.uhd_usrp_source_0 = uhd.usrp_source(
                 ",".join(("serial="+serial_num, "")),
@@ -92,21 +103,23 @@ class TRX_ODFM_USRP(gr.top_block):
                     channels=list(range(0,1)),
                 ),
             )
+
+            self.uhd_usrp_sink_0 = uhd.usrp_sink(
+                ",".join(("serial="+serial_num, "")),
+                uhd.stream_args(
+                    cpu_format="fc32",
+                    args='',
+                    channels=list(range(0,1)),
+                ),
+                '',
+            )
         self.uhd_usrp_source_0.set_samp_rate(rx_bw)
         self.uhd_usrp_source_0.set_time_now(uhd.time_spec(time.time()), uhd.ALL_MBOARDS)
 
         self.uhd_usrp_source_0.set_center_freq(rx_freq, 0)
         self.uhd_usrp_source_0.set_antenna('RX2', 0)
         self.uhd_usrp_source_0.set_normalized_gain(rx_gain, 0)
-        self.uhd_usrp_sink_0 = uhd.usrp_sink(
-            ",".join(("serial="+serial_num, "")),
-            uhd.stream_args(
-                cpu_format="fc32",
-                args='',
-                channels=list(range(0,1)),
-            ),
-            '',
-        )
+        
         self.uhd_usrp_sink_0.set_samp_rate(tx_bw)
         self.uhd_usrp_sink_0.set_time_now(uhd.time_spec(time.time()), uhd.ALL_MBOARDS)
 
