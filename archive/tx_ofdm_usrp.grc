@@ -249,7 +249,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [344, 228.0]
+    coordinate: [358, 230]
     rotation: 0
     state: disabled
 - name: blocks_multiply_const_vxx_0
@@ -343,7 +343,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [616, 236.0]
+    coordinate: [565, 205]
     rotation: 0
     state: enabled
 - name: blocks_tag_debug_1_0
@@ -365,25 +365,6 @@ blocks:
     coordinate: [904, 284.0]
     rotation: 0
     state: disabled
-- name: blocks_tag_gate_0
-  id: blocks_tag_gate
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    propagate_tags: 'False'
-    single_key: '""'
-    type: complex
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [403, 680]
-    rotation: 0
-    state: enabled
 - name: blocks_tagged_stream_mux_0
   id: blocks_tagged_stream_mux
   parameters:
@@ -965,13 +946,12 @@ blocks:
 
 connections:
 - [analog_random_source_x_0, '0', blocks_stream_to_tagged_stream_0, '0']
-- [blocks_multiply_const_vxx_0, '0', blocks_tag_gate_0, '0']
+- [blocks_multiply_const_vxx_0, '0', uhd_usrp_sink_0, '0']
 - [blocks_pdu_to_tagged_stream_0, '0', digital_crc32_bb_0, '0']
 - [blocks_repack_bits_bb_0, '0', virtual_sink_0_0, '0']
 - [blocks_repack_bits_bb_0_0, '0', header_bits, '0']
 - [blocks_stream_to_tagged_stream_0, '0', blocks_tag_debug_1_0, '0']
 - [blocks_stream_to_tagged_stream_0, '0', digital_crc32_bb_0, '0']
-- [blocks_tag_gate_0, '0', uhd_usrp_sink_0, '0']
 - [blocks_tagged_stream_mux_0, '0', virtual_sink_0_0_0, '0']
 - [digital_chunks_to_symbols_xx_0, '0', blocks_tagged_stream_mux_0, '0']
 - [digital_chunks_to_symbols_xx_0_0, '0', blocks_tagged_stream_mux_0, '1']
