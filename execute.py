@@ -20,7 +20,7 @@ def main():
     '''
     Main execution method
     '''
-    CMD = 'python3 ~/Documents/usrp-utils/UAV_Node.py --index '
+    CMD = 'source ~/.bashrc ; python3 ~/Documents/usrp-utils/UAV_Node.py --index '
     ssh_connections = []
     threads = []
 
