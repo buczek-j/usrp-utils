@@ -136,7 +136,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '"packet_len"'
+    value: '"frame_len"'
   states:
     bus_sink: false
     bus_source: false

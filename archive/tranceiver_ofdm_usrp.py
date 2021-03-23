@@ -49,7 +49,7 @@ class tranceiver_ofdm_usrp(gr.top_block):
         self.pilot_symbols = pilot_symbols = ((1, 1, 1, -1,),)
         self.pilot_carriers = pilot_carriers = ((-21, -7, 7, 21,),)
         self.payload_mod = payload_mod = digital.constellation_qpsk()
-        self.packet_length_tag_key = packet_length_tag_key = "packet_len"
+        self.packet_length_tag_key = packet_length_tag_key = "frame_len"
         self.occupied_carriers = occupied_carriers = (list(range(-26, -21)) + list(range(-20, -7)) + list(range(-6, 0)) + list(range(1, 7)) + list(range(8, 21)) + list(range(22, 27)),)
         self.length_tag_key = length_tag_key = "frame_len"
         self.header_mod = header_mod = digital.constellation_bpsk()
