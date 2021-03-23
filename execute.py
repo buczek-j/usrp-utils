@@ -11,14 +11,16 @@ from threading import Thread
 
 # local libraries
 
-from Utils.Emane_Node import wifi_ip_list, username_list, pwrd_list
 from Utils.SSH_Connection import SSH_Connection
+wifi_ip_list = ['192.168.10.101', '192.168.10.102', '192.168.10.103', '192.168.10.104', '192.168.10.105', '192.168.10.106']
+username_list = ['wines-nuc1', 'wines-nuc2', 'wines-nuc3', 'wines-nuc4', 'wines-nuc5', 'wines-nuc6']
+pwrd_list = ['wnesl', 'wnesl', 'wnesl', 'wnesl', 'wnesl', 'wnesl']
 
 def main():
     '''
     Main execution method
     '''
-    CMD = 'python3 ~/Documents/usrp-utils/Utils/UAV_Node.py --index '
+    CMD = 'python3 ~/Documents/usrp-utils/UAV_Node.py --index '
     ssh_connections = []
     threads = []
 
@@ -34,6 +36,7 @@ def main():
 
     try:
         for connection in ssh_connections:
+            print(CMD + connection.index)
             threads.append(Thread(target=connection.run_command, args=(CMD + connection.index,)))
         
         for thread in threads:
