@@ -192,12 +192,13 @@ class UAV_Node():
                     iteration_num += 1
             
             else: # actions from CSV
-                print('~ ~ READING FROM CSV ~ ~')
+                print('~ ~ Reading From CSV ~ ~')
                 for action in self.action_reader:
+                    print()
                     self.layer4.writer.writerow(["Iteration Number: " +str(iteration_num)])
 
                     self.action = [int(action[self.node_index]), int(action[self.node_index+self.num_nodes])]    # read in action array and cast as ints
-                    print("my action", self.action)
+                    # print("my action", self.action)
                     # goto state
                     self.handle_action()
 
