@@ -48,7 +48,7 @@ class UAV_Node():
         # csv_input
         if csv_in:
             self.csv_in = True
-            self.action_csv = open('actions.csv', 'r',  newline='')
+            self.action_csv = open(os.path.expanduser('~/Documents/usrp-utils/actions.csv'), 'r',  newline='')
             self.action_reader = csv.reader(self.action_csv)
 
 
