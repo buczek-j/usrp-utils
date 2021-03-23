@@ -51,10 +51,10 @@ class Layer1(Network_Layer):
         Method to adjust the USRP rx gain
         :param gain: float for the new normalized  gain (0.0-1.0)
         '''
-        if gain <= 1.0:
-            self.tb.uhd_usrp_source_0.set_normalized_gain(gain, 0)
-        else:
-            print('Invalid Gain', gain)
+        # if gain <= 1.0:
+        #     self.tb.uhd_usrp_source_0.set_normalized_gain(gain, 0)
+        # else:
+        #     print('Invalid Gain', gain)
 
 
     def set_tx_gain(self, gain):
@@ -62,10 +62,10 @@ class Layer1(Network_Layer):
         Method to adjust the USRP tx gain
         :param gain: float for the new normalized  gain (0.0-1.0)
         '''
-        if gain <= 1.0:
-            self.tb.uhd_usrp_sink_0.set_normalized_gain(gain, 0)
-        else:
-            print('Invalid Gain', gain)
+        # if gain <= 1.0:
+        #     self.tb.uhd_usrp_sink_0.set_normalized_gain(gain, 0)
+        # else:
+        #     print('Invalid Gain', gain)
     
     
     def pass_up(self, stop):
