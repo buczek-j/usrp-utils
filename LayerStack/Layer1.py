@@ -34,16 +34,16 @@ class Layer1(Network_Layer):
         self.n_recv = 0
 
         # USRP Object
-        # self.tb = TRX_ODFM_USRP(input_port_num=str(input_port), serial_num=str(mynode.serial), output_port_num=str(output_port), rx_bw=int(mynode.rx_bw), rx_freq=int(mynode.rx_freq), rx_gain=mynode.rx_gain, tx_bw=int(mynode.tx_bw), tx_freq=int(mynode.tx_freq), tx_gain=mynode.tx_gain)
-        # def sig_handler(sig=None, frame=None):
-        #     self.tb.stop()
-        #     self.tb.wait()
+        self.tb = TRX_ODFM_USRP(input_port_num=str(input_port), serial_num=str(mynode.serial), output_port_num=str(output_port), rx_bw=int(mynode.rx_bw), rx_freq=int(mynode.rx_freq), rx_gain=mynode.rx_gain, tx_bw=int(mynode.tx_bw), tx_freq=int(mynode.tx_freq), tx_gain=mynode.tx_gain)
+        def sig_handler(sig=None, frame=None):
+            self.tb.stop()
+            self.tb.wait()
 
-        #     sys.exit(0)
-        # signal.signal(signal.SIGINT, sig_handler)
-        # signal.signal(signal.SIGTERM, sig_handler)
+            sys.exit(0)
+        signal.signal(signal.SIGINT, sig_handler)
+        signal.signal(signal.SIGTERM, sig_handler)
 
-        # self.tb.start()
+        self.tb.start()
     
 
     def set_rx_gain(self, gain):
@@ -51,10 +51,10 @@ class Layer1(Network_Layer):
         Method to adjust the USRP rx gain
         :param gain: float for the new normalized  gain (0.0-1.0)
         '''
-        # if gain <= 1.0:
-        #     self.tb.uhd_usrp_source_0.set_normalized_gain(gain, 0)
-        # else:
-        #     print('Invalid Gain', gain)
+        if gain <= 1.0:
+            self.tb.uhd_usrp_source_0.set_normalized_gain(gain, 0)
+        else:
+            print('Invalid Gain', gain)
 
 
     def set_tx_gain(self, gain):
@@ -62,10 +62,10 @@ class Layer1(Network_Layer):
         Method to adjust the USRP tx gain
         :param gain: float for the new normalized  gain (0.0-1.0)
         '''
-        # if gain <= 1.0:
-        #     self.tb.uhd_usrp_sink_0.set_normalized_gain(gain, 0)
-        # else:
-        #     print('Invalid Gain', gain)
+        if gain <= 1.0:
+            self.tb.uhd_usrp_sink_0.set_normalized_gain(gain, 0)
+        else:
+            print('Invalid Gain', gain)
     
     
     def pass_up(self, stop):
