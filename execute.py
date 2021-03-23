@@ -6,8 +6,9 @@ Program to launch Nodes
 
 # global libraries
 
-from time import sleep
+from time import sleep, time
 from threading import Thread
+from subprocess import Popen, PIPE
 
 # local libraries
 
@@ -21,44 +22,31 @@ def main():
     Main execution method
     '''
     CMD = 'bash ; python3 ~/Documents/usrp-utils/UAV_Node.py --index '
-    ssh_connections = []
-    threads = []
-
-    for ii in range(len(wifi_ip_list)):
-        ssh_connections.append(SSH_Connection(username_list[ii], wifi_ip_list[ii], pwrd_list[ii], str(ii)))
-    
-    for connection in ssh_connections:
-        if connection.connected == False:
-            print("Error in SSH conneciton")
-            exit(0)
+    processes = []
 
     sleep(1)
 
     try:
-        for connection in ssh_connections:
-            print(CMD + connection.index)
-            threads.append(Thread(target=connection.run_command, args=(CMD + connection.index,)))
+        for ii in range(len(wifi_ip_list)):
+            processes.append(Popen(['bash;', 'python3', '~/Documents/usrp-utils/UAV_Node.py', '--index', str(ii)],stdout=PIPE, stderr=PIPE))
+        print('RUNNING ALL PROCESSES')
         
-        for thread in threads:
-            thread.start()
-            sleep(0.2)
-
-        sleep(600)
+        start_time = time()
+        while time()-start_time<600:
+            for proc in processes:
+                print(proc.stdout.read())
 
     except Exception as e:
         print(e)
 
     finally:
-        for thread in threads:
+        for proc in processes:
             try:
-                thread._Thread__stop()	
+                proc.kill()
             except:
                 pass
-        print('Clossed Threads')
+        print('Clossed Processes')
 
-        for connection in ssh_connections:
-            connection.run_command('killall python3')
-        sleep(0.5)
         print("Execution Terminated")
         
 if __name__ == '__main__':
