@@ -6,9 +6,8 @@ Program to launch Nodes
 
 # global libraries
 
-from time import sleep, time
+from time import sleep
 from threading import Thread
-from subprocess import Popen, PIPE
 
 # local libraries
 
@@ -21,32 +20,44 @@ def main():
     '''
     Main execution method
     '''
-    CMD = 'bash ; python3 ~/Documents/usrp-utils/UAV_Node.py --index '
-    processes = []
+    CMD = 'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/Utils/UAV_Node.py --index '
+    ssh_connections = []
+    threads = []
+
+    for ii in range(len(wifi_ip_list)):
+        ssh_connections.append(SSH_Connection(username_list[ii], wifi_ip_list[ii], pwrd_list[ii], str(ii)))
+    
+    for connection in ssh_connections:
+        if connection.connected == False:
+            print("Error in SSH conneciton")
+            exit(0)
 
     sleep(1)
 
     try:
-        for ii in range(len(wifi_ip_list)):
-            processes.append(Popen(['source', '~/prefix-3.8/setup_env.sh;', 'python3', '~/Documents/usrp-utils/UAV_Node.py', '--index', str(ii)],stdout=PIPE, stderr=PIPE))
-        print('RUNNING ALL PROCESSES')
+        for connection in ssh_connections:
+            threads.append(Thread(target=connection.run_command, args=(CMD + connection.index,)))
         
-        start_time = time()
-        while time()-start_time<600:
-            for proc in processes:
-                print(proc.stdout.read())
+        for thread in threads:
+            thread.start()
+            sleep(0.2)
+
+        sleep(600)
 
     except Exception as e:
         print(e)
 
     finally:
-        for proc in processes:
+        for thread in threads:
             try:
-                proc.kill()
+                thread._Thread__stop()	
             except:
                 pass
-        print('Clossed Processes')
+        print('Clossed Threads')
 
+        for connection in ssh_connections:
+            connection.run_command('killall python3')
+        sleep(0.5)
         print("Execution Terminated")
         
 if __name__ == '__main__':
