@@ -76,7 +76,7 @@ class TRX_ODFM_USRP(gr.top_block):
 
         if self.serial_num == "" or self.serial_num==None or self.serial_num=="None":
             self.uhd_usrp_source_0 = uhd.usrp_source(
-                ",".join(("device_addr=b210", "")),
+                ",".join(("", "")),
                 uhd.stream_args(
                     cpu_format="fc32",
                     args='',
@@ -85,7 +85,7 @@ class TRX_ODFM_USRP(gr.top_block):
             )
 
             self.uhd_usrp_sink_0 = uhd.usrp_sink(
-                ",".join(("device_addr=b210", "")),
+                ",".join(("", "")),
                 uhd.stream_args(
                     cpu_format="fc32",
                     args='',
