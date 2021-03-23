@@ -74,7 +74,7 @@ class TRX_ODFM_USRP(gr.top_block):
         self.zeromq_sub_source_0 = zeromq.sub_source(gr.sizeof_char, 1, "tcp://127.0.0.1:"+input_port_num, 100, False, -1)
         self.zeromq_pub_sink_0 = zeromq.pub_sink(gr.sizeof_char, 1, "tcp://127.0.0.1:"+output_port_num, 100, False, -1)
 
-        if self.serial_num == "" or self.serial_num==None:
+        if self.serial_num == "" or self.serial_num==None or self.serial_num=="None":
             self.uhd_usrp_source_0 = uhd.usrp_source(
                 ",",
                 uhd.stream_args(
