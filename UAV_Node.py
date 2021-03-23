@@ -74,7 +74,7 @@ class UAV_Node():
 
         # Drone parameters
         # self.my_drone = BasicArdu(rame=Frames.NED, connection_string='/dev/ttyACM0', global_home=[42.47777625687639,-71.19357940183706,174.0]) 
-        # self.my_drone = BasicArdu(rame=Frames.NED, connection_string='tcp:10.215.164.249:'+str(5762+10*node_index), global_home=[42.47777625687639,-71.19357940183706,174.0]) 
+        self.my_drone = BasicArdu(rame=Frames.NED, connection_string='tcp:10.215.164.249:'+str(5762+10*node_index), global_home=[42.47777625687639,-71.19357940183706,174.0]) 
         self.my_location = None
         self.my_alt = alt
 

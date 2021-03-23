@@ -1,4 +1,0 @@
-[submodule "BasicArducopter"]
-	path = BasicArducopter
-	url = https://github.com/buczek-j/BasicArducopter
-	branch = emane_tests
