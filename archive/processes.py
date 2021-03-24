@@ -29,7 +29,7 @@ def main():
         for ii in range(len(wifi_ip_list)):
             # processes.append(Popen(['source', '~/prefix-3.8/setup_env.sh;', 'python3', '~/Documents/usrp-utils/UAV_Node.py', '--index', str(ii)],stdout=PIPE, stderr=PIPE))
             # cmd = ['sshpass', '-p', 'wnesl', 'ssh', str(username_list[ii])+'@'+str(wifi_ip_list[ii]), '"source ~/prefix-3.8/setup_env.sh;', 'python3', '~/Documents/usrp-utils/UAV_Node.py', '--index', str(ii), '"']
-            cmd = sshpass -p wnesl ssh '"wines-nuc'+str(ii+1)+'@192.168.10.10' + str(ii+1)+'"' ls
+            cmd = 'sshpass -p wnesl ssh "wines-nuc'+str(ii+1)+'@192.168.10.10' + str(ii+1)+'"' +' ls'
             print(cmd)
             processes.append(run(cmd))
         print('RUNNING ALL PROCESSES')
