@@ -227,13 +227,15 @@ class UAV_Node():
                     print(" - reset")
                 
                 print("~ ~ Finished Successfully ~ ~")
-                self.close_threads()
                 self.my_drone.handle_landing()
+                self.close_threads()
+                
                    
         except Exception as e:
             print(e)
-            self.close_threads()
             self.my_drone.handle_landing()
+            self.close_threads()
+            
 
             #sleep(5)
             #self.my_drone.handle_kill()
