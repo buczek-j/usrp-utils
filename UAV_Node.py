@@ -226,9 +226,9 @@ class UAV_Node():
                     iteration_num += 1
                     print(" - reset")
                 
-                print("~ ~ Finished Successfully ~ ~")
-                self.my_drone.handle_landing()
-                self.close_threads()
+            print("~ ~ Finished Successfully ~ ~")
+            self.my_drone.handle_landing()
+            self.close_threads()
                 
                    
         except Exception as e:
