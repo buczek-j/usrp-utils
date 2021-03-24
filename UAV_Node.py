@@ -228,11 +228,10 @@ class UAV_Node():
                 
                 print("~ ~ Finished Successfully ~ ~")
                 self.close_threads()
+                self.my_drone.handle_landing()
                    
         except Exception as e:
             print(e)
-
-            self.stop_threads=True
             self.close_threads()
             self.my_drone.handle_landing()
 
