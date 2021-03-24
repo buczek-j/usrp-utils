@@ -3,6 +3,7 @@
 '''
 Program to launch Nodes
 '''
+# git clone -b emane_adaption --recurse-submodules https://github.com/buczek-j/usrp-utils
 
 # global libraries
 
