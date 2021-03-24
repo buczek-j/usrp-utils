@@ -74,7 +74,7 @@ class UAV_Node():
 
         # Drone parameters
         # self.my_drone = BasicArdu(frame=Frames.NED, connection_string='/dev/ttyACM0', global_home=[42.47777625687639,-71.19357940183706,174.0]) 
-        # self.my_drone = BasicArdu(frame=Frames.NED, connection_string='tcp:10.215.164.249:'+str(5762+10*node_index), global_home=[42.47777625687639,-71.19357940183706,174.0]) 
+        self.my_drone = BasicArdu(frame=Frames.NED, connection_string='tcp:192.168.10.2:'+str(5762+10*node_index), global_home=[42.47777625687639,-71.19357940183706,174.0]) 
         self.my_location = None
         self.my_alt = alt
 
@@ -155,8 +155,8 @@ class UAV_Node():
             sleep(10)   # wait 10 sec for usrp to init
 
             # takeoff 
-            # self.my_drone.handle_takeoff(abs(self.my_alt))
-            # self.my_drone.wait_for_target()   
+            self.my_drone.handle_takeoff(abs(self.my_alt))
+            self.my_drone.wait_for_target()   
 
             # iterate
             iteration_num = 0
@@ -234,7 +234,7 @@ class UAV_Node():
 
             self.stop_threads=True
             self.close_threads()
-            # self.my_drone.handle_landing()
+            self.my_drone.handle_landing()
 
             #sleep(5)
             #self.my_drone.handle_kill()
@@ -298,8 +298,8 @@ class UAV_Node():
         Method to perform a movement action on the drone
         :param coords: array of floats for the ned NED location
         '''
-        # self.my_drone.handle_waypoint(Frames.NED, coords[0], coords[1], -1.0*abs(self.my_alt), 0)
-        # self.my_drone.wait_for_target()
+        self.my_drone.handle_waypoint(Frames.NED, coords[0], coords[1], -1.0*abs(self.my_alt), 0)
+        self.my_drone.wait_for_target()
         print('Move:', coords[0], coords[1])
         sleep(1)
 
