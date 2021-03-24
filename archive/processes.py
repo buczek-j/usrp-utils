@@ -30,13 +30,14 @@ def main():
             # processes.append(Popen(['source', '~/prefix-3.8/setup_env.sh;', 'python3', '~/Documents/usrp-utils/UAV_Node.py', '--index', str(ii)],stdout=PIPE, stderr=PIPE))
             cmd = 'sshpass -p wnesl ssh '+str(wifi_ip_list[ii])+' "source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index ' + str(ii) + '"'
             print(cmd)
-            processes.append(run([cmd], shell=True, stdout=PIPE, stderr=PIPE))
+            processes.append(run([cmd], shell=True))
         print('RUNNING ALL PROCESSES')
         
         start_time = time()
         while time()-start_time<600:
-            for proc in processes:
-                print(proc.stdout.read())
+            print('. . .')
+            sleep(5)
+
 
     except Exception as e:
         print(e)
