@@ -11,6 +11,9 @@ class DQN:
         '''
     def run(self, states):
         '''
+        :param states: array of the states
+        :return action: [movement action, tx action]
+
         '''
         return [0,0]
 
@@ -19,3 +22,11 @@ class DQN_Config:
         '''
         DQN configuration storage object to simplify the initialization
         '''
+
+def main():
+    config = DQN_Config()
+    nn = DQN(config)
+    print(nn.run([0, 9, 15, 6, 5, 5, -1, -1, -1, -1,-1, -1]))
+
+if __name__ == '__main__':
+    main()
