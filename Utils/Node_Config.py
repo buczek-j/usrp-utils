@@ -11,8 +11,16 @@ class Node_Config():
 		:param usrp_ip: string of ip address for the usrp of the node
 		:param my_id: string if the name of the node ex: 'src1'
 		:param role: string of the role of the node ex: 'tx'
-		:param listen_port: int for the port to listen for udp acks
-		#TODO
+		:param listen_port: int for the port to listen for udp acks and state messages
+		:param usrp_ports: array of strings for the usrp connection ports [tx, rx]
+		:param rx_bw: int for the receiver bandwidth in Hz
+		:param rx_rf_freq: int for the receiver center frequency in Hz
+		:param rx_gain: float for the rx normalized gain (0.0-1.0)
+		:param tx_bw: int for the transmitter bandwidth in Hz
+		:param tx_rf_freq: int for the transmitter center frequency in Hz
+		:param tx_gain: float for the tx normalized gain (0.0-1.0)
+		:param  serial: string for the USRP device serial number, if left as "" the first usrp found will be used
+		:param location_index: int for the starting location index number (UAV DRL TEST)
 		'''
 		self. pc_ip = pc_ip
 		self.usrp_ip = usrp_ip
@@ -54,6 +62,6 @@ class Node_Config():
 	def get_tranceiver_args(self):
 		'''
 		Method to return string of usrp tranceiver args
-		:return: string with usrp tranceiver args for TRX_ODFM_USRP.py
+		:return: string with usrp tranceiver args for TRX_ODFM_USRP.py 
 		'''
 		return '--serial "'+self.serial +'" --rx_bw ' + str(self.rx_bw) + ' --rx_freq ' + str(self.rx_freq) + ' --rx_gain ' + str(self.rx_gain) + ' --tx_bw ' + str(self.tx_bw)  + ' --tx_freq ' + str(self.tx_freq) + ' --tx_gain ' + str(self.tx_gain) + ' --input_port "'+self.usrp_in_port + '" --output_port "' + self.usrp_out_port + '"'

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 '''
-Control Plane object: Runs alongside layer stack to receive l2 and l4 acks and cc commands
+Control Plane object: Runs alongside layer stack to receive l2 and l4 acks and state commands
 '''
 
 from socket import socket, AF_INET, SOCK_DGRAM, SOL_SOCKET, SO_REUSEADDR, SO_BROADCAST
@@ -105,6 +105,7 @@ class Control_Plane():
         method to send l4 ack via wifi
         :param pktno: bytes for the packet number
         :param pc_ip: bytes for the destination wifi ip
+        :param time_sent: bytes for the tagged time sent on the l4 packet originating from this node
         '''
         ack_msg = CP_Codes.L4_ACK.value + pktno + time_sent
         self.send_sock.sendto(ack_msg, (pc_ip.decode('utf-8'), self.port))

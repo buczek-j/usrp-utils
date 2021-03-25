@@ -17,6 +17,7 @@ class Layer1(Network_Layer):
         :param mynode: Node_Config object for the current node USRP configuration information
         :param input_port: string for the input tcp port of the GNU radio object
         :param output_port: string for the output port of the GNU radio object 
+        :param debug: bool for debug outputs or not
         '''
         Network_Layer.__init__(self, "layer_1", debug=debug)
 

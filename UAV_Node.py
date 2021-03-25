@@ -7,7 +7,7 @@ DQN experiment node object
 from threading import Thread
 from argparse import ArgumentParser
 from time import time, sleep
-import csv, logging, os
+import csv, os
 
 # User Libraries
 from LayerStack import Control_Plane, Layer1, Layer2, Layer3, Layer4, Layer5
@@ -17,7 +17,7 @@ from Utils.DQN import DQN, DQN_Config
 
 
 class UAV_Node():
-    def __init__(self, my_config, l1_debug=False, l2_debug=False, l3_debug=False, l4_debug=False, l5_debug=False, dqn_config=None, alt=5, num_nodes=3, min_iteration_time=5, pow_index=0, node_index=0, log_base_name="~/Documents/usrp-utils/Logs/log_", csv_in=False):
+    def __init__(self, my_config, l1_debug=False, l2_debug=False, l3_debug=False, l4_debug=False, l5_debug=False, dqn_config=None, alt=5, num_nodes=3, min_iteration_time=5.0, pow_index=0, node_index=0, log_base_name="~/Documents/usrp-utils/Logs/log_", csv_in=False):
         '''
         Emane Node class for network stack
         :param my_config: Node_Config class object
@@ -34,9 +34,8 @@ class UAV_Node():
         :param pow_index: int for the startng tx power state index
         :param node_index: int for the node index number
         :param log_base_name: string for the directory and base name to save log files
+        :param csv_in: bool for if actions should be determined from the csv file or the neural network
         '''
-        root_logger = logging.getLogger()
-        root_logger.disabled = True
         
         # Setup Log File
         self.csv_name = log_base_name + str(round(time())) + '.csv'
@@ -50,7 +49,6 @@ class UAV_Node():
             self.csv_in = True
             self.action_csv = open(os.path.expanduser('~/Documents/usrp-utils/actions.csv'), 'r',  newline='')
             self.action_reader = csv.reader(self.action_csv)
-
 
         self.my_config = my_config
         self.stop_threads = False
@@ -91,11 +89,9 @@ class UAV_Node():
 
         print("~ ~ Initialization Complete ~ ~", end='\n\n')
         
-       
-
     def start_threads(self):
         '''
-        Method to start all of the threads 
+        Method to start all of the threads, passing in a lambda funciton returning the state of self.stop_threads
         '''
         self.stop_threads = False
         print("~ ~ Starting Threads ~ ~", end='\n\n')
@@ -125,8 +121,8 @@ class UAV_Node():
         Method to close all of the threads and subprocesses
         '''
         self.stop_threads = True
-        self.file.close()
-        self.layer4.file.close()
+        self.file.close()           # close node logging file
+        self.layer4.file.close()    # close l4 logging file
 
         print("\n ~ ~ Closing Threads ~ ~", end='\n\n')
         for thread in self.threads:
@@ -141,6 +137,9 @@ class UAV_Node():
     def handle_state(self, node_index, loc_index, pow_index):
         '''
         Method to handle receiving state info from another node
+        :param  node_index: int for the node index number
+        :param loc_index: int for the location index number
+        :param pow_index: int for the tx power index number
         '''
         # [loc0, loc1, loc2, ..., locn, pow0, pow1, pow2, ..., pown ]
         self.state_buf[int(node_index)] = int(loc_index)
@@ -192,7 +191,7 @@ class UAV_Node():
                     iteration_num += 1
             
             else: # actions from CSV
-                print('~ ~ Reading From CSV ~ ~')
+                print('~ ~ Reading From CSV ~ ~\n')
                 for action in self.action_reader:
                     print()
                     self.layer4.writer.writerow(["Iteration Number: " +str(iteration_num)])
@@ -236,10 +235,8 @@ class UAV_Node():
             self.my_drone.handle_landing()
             self.close_threads()
             
-
             #sleep(5)
             #self.my_drone.handle_kill()
-
 
     def handle_action(self):
         '''
@@ -297,7 +294,7 @@ class UAV_Node():
     def action_move(self, coords):
         '''
         Method to perform a movement action on the drone
-        :param coords: array of floats for the ned NED location
+        :param coords: array of floats for the ned NED location [meters north, meters east, meters down]
         '''
         self.my_drone.handle_waypoint(Frames.NED, coords[0], coords[1], -1.0*abs(self.my_alt), 0)
         self.my_drone.wait_for_target()

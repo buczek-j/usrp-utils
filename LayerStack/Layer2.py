@@ -30,9 +30,7 @@ class Layer2(Network_Layer):
         :param num_frames: int for the number of l2 frames in one l4 packet
         :param timeout: float for the time in seconds to wait for a l2 packet ack
         :param n_retrans: int for the numbre of retranmission before packet tranmssion failure
-        :param ack_recv_port: int for the layer 2 udp ack port number
-        :param ack_send_port: int for the layer 2 ack send port number 
-        
+        :param debug: bool for debug outputs or not
         '''  
         Network_Layer.__init__(self, "layer_2", debug=debug)
 
@@ -48,11 +46,7 @@ class Layer2(Network_Layer):
         self.up_pkt = {}
         self.unacked_packet = 0
 
-        self.l2_size = 0
-
-        # measurements
-        self.n_sent = 0
-        self.n_recv = 0        
+        self.l2_size = 0        
 
     def send_ack(self, pktno, dest):
         '''
@@ -96,7 +90,6 @@ class Layer2(Network_Layer):
 
             # check if destination correct (meant for this node to read)
             if mac_destination_ip == self.mac_ip:
-                self.n_recv = self.n_recv + len(mac_packet)
 
                 if pktno_mac == L2_ENUMS.MSG.value:
                     self.mac_pkt_dict[mac_source_ip] = pktno_mac        # update last received pkt number 
@@ -147,7 +140,6 @@ class Layer2(Network_Layer):
         '''
         while not stop():
             down_packet = self.prev_down_queue.get(True)
-            self.n_sent = self.n_sent + len(down_packet)
 
             if self.debug:
                 print("from l3", down_packet)
@@ -163,12 +155,10 @@ class Layer2(Network_Layer):
                 globals()["l2_ack"].wait(self.timeout)
                 if globals()["l2_ack"].isSet():     # ack received
                     globals()["l2_ack"].clear()
-                    # TODO measurements
                     break
 
                 elif act_rt < self.n_retrans:       # check num of retransmissions
                     act_rt += 1
-                    self.n_sent = self.n_sent + len(down_packet)
                     self.down_queue.put(down_packet, True)
                     self.unacked_packet = pktno_mac
 

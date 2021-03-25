@@ -15,7 +15,9 @@ class Layer5(Network_Layer):
     def __init__(self, my_config, layer4, debug=False):
         '''
         Layer 5 Application layer object
-        # TODO
+        :param my_config: Node_Config object for the current node
+        :param layer4: Layer4 object for the current node
+        :param debug: bool for debug outputs or not
         '''
         Network_Layer.__init__(self, "layer_5", debug=debug)
 

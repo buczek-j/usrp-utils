@@ -12,7 +12,7 @@ class Network_Layer():
 		'''
 		Class to define the the basic structure of a network layer
 		:param layer_name: sting for the layer name
-		:param window: int for the number of l2 windows to open TODO
+		:param window: int for the number of l2 windows to open 
 		:param debug: bool for debug console outputs 
 		'''
 		self.layer_name = layer_name

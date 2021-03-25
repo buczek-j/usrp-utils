@@ -26,6 +26,8 @@ class Layer4(Network_Layer):
         :param n_retrans: int for the number of times to retransmit a l4 message
         :param debug: bool for debug outputs or not
         :param l4_header: int for the l4 packet header length
+        :param l4_log_base_name: string for the file location and name to save l4 log files
+        :param log: bool to log or not
         '''
         Network_Layer.__init__(self, "layer_4", debug=debug)
         self.my_pc = bytes(my_config.pc_ip, "utf-8")
@@ -60,6 +62,7 @@ class Layer4(Network_Layer):
         Method to send an acknoledgement with the specified packet number to the specified destination
         :param pktno: bytes for packet number that ack is for
         :param dest: bytes for the destination pc address
+        :param time_stamp: bytes for the message time stamp
         '''
         # use wifi to send acks
         self.send_ack_wifi(pktno, dest, time_stamp)
@@ -68,6 +71,7 @@ class Layer4(Network_Layer):
         '''
         Method to signal that a packet has been ack'd 
         :param pktno: int for the packet number that has been acked
+        :param time_sent: float for the packet time sent
         '''
         if pktno == self.unacked_packet:
             globals()["l4_ack"].set()
@@ -76,11 +80,6 @@ class Layer4(Network_Layer):
                 ack_time = time()
                 rtt = ack_time - time_sent 
                 self.writer.writerow([pktno, time_sent, ack_time, rtt, 8.0*self.l4_size/rtt])
-
-
-            
-
-            
 
     def pass_up(self, stop):
         '''
@@ -172,9 +171,4 @@ class Layer4(Network_Layer):
                         except:
                             pass
                         break
-
-            
-
-
-
 
