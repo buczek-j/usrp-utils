@@ -21,8 +21,9 @@ def main():
     '''
     Main execution method
     '''
+    # need to source gnuradio pybomb lib. .bashrc isn't sourced when ssh session start
     # need to run python3 -u **file** to get unbuffered stdout over ssh connection
-    CMD = 'source ~/prefix-3.8/setup_env.sh; python3 -u ~/Documents/usrp-utils/tests.py ' #   UAV_Node.py --index '
+    CMD = 'source ~/prefix-3.8/setup_env.sh; python3 -u ~/Documents/usrp-utils/UAV_Node.py --index '
     ssh_connections = []
     threads = []
 
