@@ -42,14 +42,14 @@ class SSH_Connection():
         '''
         try:
             ssh_stdin, ssh_stdout, ssh_stderr = self.ssh.exec_command(command)
-            opt = ssh_stdout.readlines()
-            opt="".join(opt)
-            print(opt)
+
+            for line in ssh_stdout:
+                print(line)
+
         except Exception as e:
             # sys.stderr.write("SSH connection error: {0}".format(e))
             print(e)
-        # sys.stdout.write(ssh_stdout.read().decode("utf-8"))
-        # sys.stderr.write(ssh_stderr.read().decode("utf-8"))	
+        
     
     def __del__(self):
         '''
