@@ -192,26 +192,39 @@ class DQN_Config:
 def main():
 
     config = DQN_Config()
+
+    config.state_dim = 6
+    config.action_dim = 5
+    model_restore_path = "../saved_models/asym_scenarios_50container_loc/"
+    model_stage = 270
+    model_path = str(model_restore_path + "tf_model_{}-{}").format("rly11", model_stage)
+    state = [0, 9, 15, 6, 5, 5]
+
+    ############
+    # for loc & txp,  we use this config
+    ############
+    # config.state_dim = 12
+    # config.action_dim = 15
+    # model_restore_path = "../saved_models/asym_loc_fulltxp/"
+    # model_stage = 300
+    # model_path = str(model_restore_path + "tf_model_{}-{}").format("rly11", model_stage)
+    # state = [0, 9, 15, 6, 5, 5, 4, 4, 4, 4, 4, 4]
+
+
     nn = DQN(config)
 
     init = tf.global_variables_initializer()
     session = tf.InteractiveSession()
     session.run(init)
-    nn.set_session(session)
     saver = tf.train.Saver(max_to_keep=10)
 
-    model_restore_path = "../saved_models/asym_scenarios_50container_loc/"
-    model_stage = 270
-    model_path = str(model_restore_path + "tf_model_{}-{}").format("rly11", model_stage)
-
+    nn.set_session(session)
     saver.restore(nn.session, model_path)
 
-    # state = [0, 9, 15, 6, 5, 5, 4, 4, 4, 4, 4, 4]
-    state = [0, 9, 15, 6, 5, 5]
     eps = 0
     action = nn.sample_action(state, eps)
 
-    action_list = [action % 5, action // 5]
+    action_list = [action % 5, action // 5]# [loc_action, txp_action]
     print("Generated action :", action_list)
 
 if __name__ == '__main__':
