@@ -24,7 +24,6 @@ class L2_ENUMS(Enum):
     NEIGHBOR_DISCOVERY = -10
 
 L2_Header_Len=16
-L2_Num_Frames=1
 L2_Num_Blocks=2
 L2_Block_Size=128
 
@@ -42,21 +41,18 @@ class Layer2(Network_Layer):
         '''  
         Network_Layer.__init__(self, "layer_2", debug=debug)
 
-        self.mac_ip = bytes(mac_ip, "utf-8")
+        
         self.mac_ip = b''
-        for entry in self.mac_ip.split('.'):
-            self.mac_ip = self.mac_ip + struct.pad('B', int(entry))
+        for entry in mac_ip.split('.'):
+            self.mac_ip = self.mac_ip + struct.pack('B', int(entry))
 
-        self.num_frames = num_frames
         self.timeout= timeout
         self.n_retrans = n_retrans 
 
         self.mac_pkt_dict = {}
         self.up_pkt = {}
-
         self.sent_pkt_dict = {}
 
-        self.l2_size = min_size
         self.chunk_size = L2_Block_Size * L2_Num_Blocks - L2_Header_Len    
 
     def send_ack(self, pktno, dest):
@@ -111,8 +107,8 @@ class Layer2(Network_Layer):
                         self.up_pkt[mac_source_ip] += mac_packet[L2_Header_Len:]
                     mac_packet = b''
 
-                    if pktno_mac == self.num_frames:    # if last packet in l4 frame
-                        self.up_queue.put(self.up_pkt[mac_source_ip], True)
+                    if len(self.up_pkt[mac_source_ip]) >= struct.unpack('I', self.up_pkt[mac_source_ip][2:6])[0]:    # if get expected size
+                        self.up_queue.put(self.up_pkt[mac_source_ip][:(struct.unpack('I', self.up_pkt[mac_source_ip][2:6])[0])], True)
                         self.up_pkt[mac_source_ip] = b''
                         self.mac_pkt_dict[mac_source_ip] = L2_ENUMS.MSG.value
                         continue
@@ -161,10 +157,7 @@ class Layer2(Network_Layer):
                     else:
                         if self.debug:
                             print("FATAL ERROR: L2 retransmit limit reached for pktno ", struct.unpack("H", down_packet[0:2]))
-                        for ii in range(self.num_frames-struct.unpack("H", down_packet[0:2])):
-                            self.prev_down_queue.get(True)
-                            if self.debug:
-                                print("popped packet")
+                        down_packet=b''
 
                         break
                         

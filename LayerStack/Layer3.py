@@ -25,8 +25,10 @@ class Layer3(Network_Layer):
         self.src_pc = addr_to_bytes(my_config.src.pc_ip)
         self.dest_pc = addr_to_bytes(my_config.dest.pc_ip)
 
-        self.nh_usrp = addr_to_bytes(my_config.next_hop.usrp_ip)
-        self.ph_usrp = addr_to_bytes(my_config.prev_hop.usrp_ip)
+        if my_config.next_hop.usrp_ip:
+            self.nh_usrp = addr_to_bytes(my_config.next_hop.usrp_ip)
+        if my_config.prev_hop.usrp_ip:
+            self.ph_usrp = addr_to_bytes(my_config.prev_hop.usrp_ip)
 
 
         if self.debug:

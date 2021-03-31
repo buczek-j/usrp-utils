@@ -12,7 +12,6 @@ import csv, os
 # User Libraries
 from LayerStack import Control_Plane, Layer1, Layer2, Layer3, Layer4, Layer5
 from Utils.Node_Config import Node_Config
-from BasicArducopter.BasicArdu import BasicArdu, Frames
 from Utils.DQN import DQN, DQN_Config
 
 

@@ -9,15 +9,15 @@ import  struct
 from queue import Queue
 
 def addr_to_bytes(addr):
-    '''
-    method to transform a human-readable address to byte form
-    :param addr: string for the address to parse
-    :return byte array of the address
-    '''
-    temp = b''
-    for entry in addr.split('.'):
-        temp = temp + struct.pack("B", int(entry))
-    return temp
+	'''
+	method to transform a human-readable address to byte form
+	:param addr: string for the address to parse
+	:return byte array of the address
+	'''
+	temp = b''
+	for entry in addr.split('.'):
+		temp = temp + struct.pack("B", int(entry))
+	return temp
 	
 class Network_Layer():
 	def __init__(self, layer_name, window=None, debug=False):

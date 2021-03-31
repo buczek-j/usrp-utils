@@ -7,8 +7,6 @@ Layer 4 object: Transport layer
 '''
 
 from LayerStack.Network_Layer import Network_Layer, addr_to_bytes
-from LayerStack.Layer2 import L2_Header_Len, L2_Num_Frames, L2_Num_Blocks, L2_Block_Size
-from LayerStack.Layer3 import L3_Default_len
 
 from threading import  Event, Lock
 from time import time
