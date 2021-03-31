@@ -58,7 +58,7 @@ class Layer4(Network_Layer):
             msg = msg.encode("utf-8")
         if type(ack_num) != bytes:
             ack_num = struct.pack("I", ack_num)
-        length = self.l4_header + len(msg)
+        length = L4_Header_Len + len(msg)
 
         return pkt_num + self.l4_port + dest_port + struct.pack("I", length) + timestamp + ack_num + msg
  
