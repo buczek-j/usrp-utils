@@ -31,12 +31,10 @@ class Test_Node():
         self.threads = {}
 
         # Initalize Network Stack
-
         self.layer4 = Layer4.Layer4(self.my_config, debug=l4_debug)
         self.layer3 = Layer3.Layer3(self.my_config, debug=l3_debug)
         self.layer2 = Layer2.Layer2(self.my_config.usrp_ip, debug=l2_debug)
         self.layer1 = Layer1.Layer1(self.my_config, debug=l1_debug)
-
 
         # Link layers together
         self.layer1.init_layers(upper=self.layer2, lower=None)
@@ -136,16 +134,15 @@ class Test_Node():
             self.close_threads()
             
 
-
 def main():
     '''
     Main Method
     '''
-    freq1 = 2.4e9
-    freq2 = 2.4e9
+    freq1 = 2.5e9
+    freq2 = 2.3e9
 
     dest1= Node_Config(pc_ip='192.168.10.101', usrp_ip='0.0.192.170.10.101', my_id='dest1', role='rx', tx_freq=freq2, rx_freq=freq1)
-    src1 = Node_Config(pc_ip='192.168.10.103', usrp_ip='0.0.192.170.10.103', my_id='src1' , role='tx', tx_freq=freq1, rx_freq=freq2)
+    src1 = Node_Config(pc_ip='192.168.10.103', usrp_ip='0.0.192.170.10.103', my_id='src1' , role='tx', tx_freq=freq1, rx_freq=freq2, usrp_ports=['55557', '55558'])
 
     parser = ArgumentParser()
     parser.add_argument('--index', type=int, default='', help='node index number')
@@ -156,7 +153,7 @@ def main():
     options = parser.parse_args()
 
     # Configure hops for route 1
-    dest1.configure_hops(src=src1, dest=dest1, next_hop=None,  prev_hop=src1)
+    dest1.configure_hops(src=src1, dest=src1, next_hop=src1,  prev_hop=src1)
     src1.configure_hops( src=src1, dest=dest1, next_hop=dest1,  prev_hop=None)
 
     

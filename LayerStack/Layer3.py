@@ -25,14 +25,13 @@ class Layer3(Network_Layer):
         self.src_pc = addr_to_bytes(my_config.src.pc_ip)
         self.dest_pc = addr_to_bytes(my_config.dest.pc_ip)
 
-        if my_config.next_hop.usrp_ip:
+        if my_config.next_hop:
             self.nh_usrp = addr_to_bytes(my_config.next_hop.usrp_ip)
-        if my_config.prev_hop.usrp_ip:
+        if my_config.prev_hop:
             self.ph_usrp = addr_to_bytes(my_config.prev_hop.usrp_ip)
 
 
-        if self.debug:
-            print('src', self.src_pc, "dest", self.dest_pc, 'nh', self.nh_usrp, 'ph', self.ph_usrp)
+   
 
     def determine_mac(self, pc_ip):
         '''
@@ -81,7 +80,7 @@ class Layer3(Network_Layer):
             # TODO implement flags
 
             if l3_packet[12:16] == self.my_pc:
-                self.up_queue.put(l3_packet, True)
+                self.up_queue.put(l3_packet[(struct.unpack("H", l3_packet[0:2])[0]):], True)
             else: 
                 mac_addr = self.determine_mac(l3_packet[12:16])
                 self.prev_down_queue.put(struct.pack('H', 1) + mac_addr + self.my_usrp + struct.pack('H', 0) + l3_packet, True)

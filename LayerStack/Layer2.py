@@ -54,6 +54,7 @@ class Layer2(Network_Layer):
         self.sent_pkt_dict = {}
 
         self.chunk_size = L2_Block_Size * L2_Num_Blocks - L2_Header_Len    
+        
 
     def send_ack(self, pktno, dest):
         '''
@@ -72,6 +73,15 @@ class Layer2(Network_Layer):
         if pktno == self.sent_pkt_dict[addr]:
             globals()["l2_ack"].set()
 
+
+    def parse_header(self, pkt):
+        '''
+        '''
+        print("pktno: ",struct.unpack("H", pkt[0:2])[0], 
+            "Dest: ",int(pkt[2]),int(pkt[3]),int(pkt[4]),int(pkt[5]),int(pkt[6]),int(pkt[7]),
+            "SRC: " ,int(pkt[8]),int(pkt[9]),int(pkt[10]),int(pkt[11]),int(pkt[12]),int(pkt[13]),"ACK: ", struct.unpack("H", pkt[14:16])[0] )
+
+
     def pass_up(self, stop):
         '''
         Method to read pkt number, check if the destination is correct, and ensure packets are received correctly
@@ -80,8 +90,9 @@ class Layer2(Network_Layer):
         while not stop():
             mac_packet = self.prev_up_queue.get(True)
 
-            if self.debug:
-                print('from l1', mac_packet)
+            # if self.debug:
+            #     print('from l1', mac_packet)
+            print(mac_packet)
 
             pktno_mac = struct.unpack('H', mac_packet[0:2])[0]
             mac_destination_ip=mac_packet[2:8]
@@ -100,24 +111,25 @@ class Layer2(Network_Layer):
                     if ack != L2_ENUMS.ACK.value:   # check if ack message
                         self.recv_ack(ack, mac_source_ip)
                         continue
-
-                    self.mac_pkt_dict[mac_source_ip] = pktno_mac        # update last received pkt number 
-                    self.send_ack(mac_packet[0:2], mac_source_ip)  # send ack
-
-                    if pktno_mac == L2_ENUMS.MSG.value: # if first pkt of meessage, start fresh
-                        self.up_pkt[mac_source_ip] = mac_packet[L2_Header_Len:]
+                    
                     else:
-                        self.up_pkt[mac_source_ip] += mac_packet[L2_Header_Len:]
-                    mac_packet = b''
+                        self.mac_pkt_dict[mac_source_ip] = pktno_mac        # update last received pkt number 
+                        self.send_ack(mac_packet[0:2], mac_source_ip)  # send ack
 
-                    if len(self.up_pkt[mac_source_ip]) >= struct.unpack('I', self.up_pkt[mac_source_ip][2:6])[0]:    # if get expected size
-                        self.up_queue.put(self.up_pkt[mac_source_ip][:(struct.unpack('I', self.up_pkt[mac_source_ip][2:6])[0])], True)
-                        self.up_pkt[mac_source_ip] = b''
-                        self.mac_pkt_dict[mac_source_ip] = L2_ENUMS.MSG.value
-                        continue
+                        if pktno_mac == L2_ENUMS.MSG.value: # if first pkt of meessage, start fresh
+                            self.up_pkt[mac_source_ip] = mac_packet[L2_Header_Len:]
+                        else:
+                            self.up_pkt[mac_source_ip] += mac_packet[L2_Header_Len:]
+                        mac_packet = b''
 
-                    else:
-                        continue
+                        if len(self.up_pkt[mac_source_ip]) >= struct.unpack('I', self.up_pkt[mac_source_ip][2:6])[0]:    # if get expected size
+                            self.up_queue.put(self.up_pkt[mac_source_ip][:(struct.unpack('I', self.up_pkt[mac_source_ip][2:6])[0])], True)
+                            self.up_pkt[mac_source_ip] = b''
+                            self.mac_pkt_dict[mac_source_ip] = L2_ENUMS.MSG.value
+                            continue
+
+                        else:
+                            continue
 
                 else:   # if unexpected packet number
                     # self.send_ack(struct.pack('h', self.mac_pkt_dict[mac_source_ip]), mac_source_ip)  # send last known pkt num
@@ -134,7 +146,7 @@ class Layer2(Network_Layer):
             down_packet = self.prev_down_queue.get(True)
 
             pkno = 1
-            for ii in range(len(down_packet[L2_Header_Len:])%self.chunk_size):  # pad to next chunk size
+            for ii in range(self.chunk_size - (len(down_packet[L2_Header_Len:])%self.chunk_size)):  # pad to next chunk size
                 down_packet = down_packet+struct.pack('x')
 
             if self.debug:

@@ -83,6 +83,7 @@ class Layer4(Network_Layer):
         :param time_sent: float for the packet time sent
         '''
         if pktno == self.unacked_packet:
+
             globals()["l4_ack"].set()
             self.n_ack += 1
 
@@ -119,7 +120,7 @@ class Layer4(Network_Layer):
             if ack_num !=0:
                 self.recv_ack(ack_num, struct.unpack("d", l4_packet[12:20])[0])
             else:
-                self.up_queue.put(l4_packet[self.l4_header:], True)
+                self.up_queue.put(l4_packet[L4_Header_Len:], True)
                 self.send_ack(l4_packet[0:4], l4_packet[4:6], l4_packet[12:20])  # send l4 ack
                 l4_packet = b''
 
@@ -147,6 +148,7 @@ class Layer4(Network_Layer):
                 if globals()["l4_ack"].isSet(): # ack received
                     globals()["l4_ack"].clear()
                     # TODO measurements
+                    print("~~~ L4 ACK")
                     break
 
                 elif act_rt < self.n_retrans:       # check num of retransmissions

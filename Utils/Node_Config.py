@@ -48,12 +48,12 @@ class Node_Config():
 		self.dest = dest
 
 		if next_hop == None:	# if node, set to all '-1'
-			self.next_hop = Node_Config()
+			self.next_hop = None
 		else:
 			self.next_hop = next_hop
 
 		if prev_hop == None:
-			self.prev_hop = Node_Config()
+			self.prev_hop = None
 		else:
 			self.prev_hop = prev_hop
 
