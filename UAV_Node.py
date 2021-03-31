@@ -271,6 +271,10 @@ class UAV_Node():
 
         # Change Tx power
         power_lookup = [0.5, 0.6, 0.7]      # TODO Calculate power level
+        """
+        power_lookup = [-20, -15, -10] dBm
+        power state 2, 3, 4
+        """
 
         new_gain = None
         if self.pow_index == -1:
