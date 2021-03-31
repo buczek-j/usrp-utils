@@ -42,7 +42,7 @@ class Network_Layer():
 		if upper:
 			self.prev_down_queue = upper.down_queue
 		else:
-			self.prev_down_queue = None
+			self.prev_down_queue = Queue(1024*1000)
 		
 		if lower:
 			self.prev_up_queue = lower.up_queue
