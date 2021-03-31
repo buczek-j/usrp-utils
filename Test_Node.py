@@ -16,7 +16,7 @@ from BasicArducopter.BasicArdu import BasicArdu, Frames
 from Utils.DQN import DQN, DQN_Config
 
 
-class UAV_Node():
+class Test_Node():
     def __init__(self, my_config, l1_debug=False, l2_debug=False, l3_debug=False, l4_debug=False, l5_debug=False, dqn_config=None):
         '''
         Emane Node class for network stack
