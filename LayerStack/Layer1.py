@@ -77,6 +77,7 @@ class Layer1(Network_Layer):
         while not stop():
             if self.recv_socket.poll(10) != 0:      # check if msg in socket
                 msg = self.recv_socket.recv()
+                print(msg)
                 received_pkt = frombuffer(msg, dtype=byte, count=-1)
                 self.up_queue.put(received_pkt.tobytes(), True)
                 self.n_recv = self.n_recv + len(received_pkt.tobytes())
