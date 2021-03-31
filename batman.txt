@@ -1,7 +1,7 @@
 sudo apt-get install batctl bridge-utils
-modprobe batman-adv
+sudo modprobe batman-adv
 batctl -v
-batctl if add wlp1s0
+sudo batctl if add wlp1s0
 batctl if
 
 sudo iw dev wlp1s0 del
