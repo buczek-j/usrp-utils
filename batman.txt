@@ -1,0 +1,25 @@
+sudo apt-get install batctl bridge-utils
+sudo modprobe batman-adv
+batctl -v
+sudo batctl if add wlp1s0
+batctl if
+
+sudo iw dev wlp1s0 del
+sudo iw phy phy0 interface add wlp1s0 type ibss
+sudo ip link set up mtu 1532 dev wlp1s0
+sudo iw dev wlp1s0 ibss join my-mesh-network 2412 HT20 fixed-freq 02:12:34:56:78:9A
+
+batctl if add wlp1s0
+ip link set up dev bat0
+
+ip addr add 192.168.123.x/24 dev bat0
+
+ip link add name mesh-bridge type bridge
+ip link set dev eth0 master mesh-bridge
+ip link set dev bat0 master mesh-bridge
+ip link set up dev eth0
+ip link set up dev bat0
+ip link set up dev mesh-bridge
+
+
+https://www.open-mesh.org/doc/batman-adv/Debian_batman-adv_AutoStartup.html
