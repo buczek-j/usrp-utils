@@ -80,6 +80,9 @@ class Layer2(Network_Layer):
         while not stop():
             mac_packet = self.prev_up_queue.get(True)
 
+            if self.debug:
+                print('from l1', mac_packet)
+
             pktno_mac = struct.unpack('H', mac_packet[0:2])[0]
             mac_destination_ip=mac_packet[2:8]
             mac_source_ip=mac_packet[8:14]
