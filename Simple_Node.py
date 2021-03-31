@@ -11,7 +11,7 @@ import random, string, struct
 
 # user made libraries
 from LayerStack import Control_Plane, Layer1, Layer2, Layer3, Layer4, Network_Layer
-from Node_Config import Node_Config
+from Utils.Node_Config import Node_Config
 
 class Simple_Node(Network_Layer.Network_Layer):
     def __init__(self, my_config, l1_debug=False, l2_debug=False, l3_debug=False, l4_debug=False):
