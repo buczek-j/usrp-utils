@@ -100,6 +100,6 @@ class Layer3(Network_Layer):
             if self.debug:
                 print('from l4', l3_packet)
 
-            mac_addr = self.determine_mac(l3_packet[12:16]) # determine and replace pc address with mac address then pass to l2
-            self.down_queue.put( struct.pack('H', 1) + mac_addr + self.my_usrp + struct.pack('H', 0) +  self.make_l3_pkt(self.my_pc, self.dest_pc), True) # TODO make better
+            mac_addr = self.determine_mac(self.dest_pc) # determine and replace pc address with mac address then pass to l2
+            self.down_queue.put( struct.pack('H', 1) + mac_addr + self.my_usrp + struct.pack('H', 0) +  self.make_l3_pkt(self.my_pc, self.dest_pc, payload=l4_packet), True) # TODO make better
 
