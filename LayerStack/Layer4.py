@@ -129,16 +129,9 @@ class Layer4(Network_Layer):
         while not stop():
             act_rt=0 # retransmission counter
             msg = self.prev_down_queue.get(True)
-            self.n_sent = self.n_sent + len(msg)      # record number of bytes
             
-            for ii in range(len(msg)%self.chunk_size):  # pad message so it is n*chunk_size
-                msg = msg + ' '
-
-            try:
-                self.unacked_packet = l4_pktno
-            except:
-                pass
-                       
+            self.unacked_packet = l4_pktno
+                 
             l4_down_access.acquire()
             # pass l2 packets down to l3
             self.down_queue.put(self.make_l4_pkt(pkt_num=l4_pktno, dest_port=self.dest_port, msg=msg), True)   
