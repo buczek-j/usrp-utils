@@ -36,8 +36,11 @@ class Layer4(Network_Layer):
 
         self.timeout=timeout
         self.n_retrans = n_retrans
-        self.unacked_packet = 0        
+        self.unacked_packet = 0    
+
+        #TODO    
         self.dest_port = 0
+        self.l4_port = struct.pack("H", 0)
 
         # Measurements
         self.n_recv = 0
