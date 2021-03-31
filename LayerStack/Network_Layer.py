@@ -16,7 +16,7 @@ def addr_to_bytes(addr):
     '''
     temp = b''
     for entry in addr.split('.'):
-        temp = temp + struct.pack("B", entry)
+        temp = temp + struct.pack("B", int(entry))
     return temp
 	
 class Network_Layer():
