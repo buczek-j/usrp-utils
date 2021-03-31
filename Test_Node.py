@@ -71,9 +71,7 @@ class Test_Node():
         print("~ ~ Starting Threads ~ ~", end='\n\n')
 
         # Initialize threads
-        self.threads["control_layer"] = Thread(target=self.control_plane.listening_socket, args=(self.layer2.recv_ack, self.layer4.recv_ack, self.handle_state, lambda : self.stop_threads, ))
-        self.threads["control_layer"].start()
-
+        
         for layer in [self.layer1, self.layer2, self.layer3, self.layer4]:
             self.threads[layer.layer_name + "_pass_up"] = Thread(target=layer.pass_up, args=(lambda : self.stop_threads,))
             self.threads[layer.layer_name + "_pass_up"].start()
@@ -95,9 +93,7 @@ class Test_Node():
         Method to close all of the threads and subprocesses
         '''
         self.stop_threads = True
-        self.file.close()           # close node logging file
-        self.layer4.file.close()    # close l4 logging file
-
+        
         print("\n ~ ~ Closing Threads ~ ~", end='\n\n')
         for thread in self.threads:
             try:
