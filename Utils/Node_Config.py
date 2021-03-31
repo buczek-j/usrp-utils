@@ -5,7 +5,7 @@ Node_Config object
 '''
 
 class Node_Config():
-	def __init__(self, pc_ip='', usrp_ip='', my_id='src0', role='tx', listen_port=55557, usrp_ports=['55555', '55556'], rx_bw=500e3, rx_freq=2e9, rx_gain=0.5, tx_bw=500e3, tx_freq=2.1e9, tx_gain=0.5, serial="", location_index=0):
+	def __init__(self, pc_ip='', usrp_ip='', my_id='src0', role='tx', listen_port=55557, usrp_ports=['55555', '55556'], rx_bw=500e3, rx_freq=2e9, rx_gain=0.5, tx_bw=500e3, tx_freq=2.1e9, tx_gain=0.5, serial=""):
 		'''
 		:param pc_ip: string of ip address of the pc for the node
 		:param usrp_ip: string of ip address for the usrp of the node
@@ -20,7 +20,6 @@ class Node_Config():
 		:param tx_rf_freq: int for the transmitter center frequency in Hz
 		:param tx_gain: float for the tx normalized gain (0.0-1.0)
 		:param  serial: string for the USRP device serial number, if left as "" the first usrp found will be used
-		:param location_index: int for the starting location index number (UAV DRL TEST)
 		'''
 		self. pc_ip = pc_ip
 		self.usrp_ip = usrp_ip
@@ -36,7 +35,6 @@ class Node_Config():
 		self.tx_freq = int(tx_freq)
 		self.tx_gain = tx_gain
 		self.serial = serial
-		self.location_index = location_index
 
 	def configure_hops(self, src, dest, next_hop, prev_hop):
 		'''

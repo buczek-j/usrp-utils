@@ -23,7 +23,6 @@ class Layer5(Network_Layer):
 
         self.my_config = my_config
         self.layer4 = layer4
-        self.transmit = False
 
     def pass_down(self, stop):
         '''

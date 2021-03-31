@@ -2,9 +2,13 @@
 
 '''
 Layer 2 object: Mac address layer (Datalink)
+
+[L2 Pkt Num], [MAC Dest], [MAC Src], [ACK Num], [Payload]
+[  2 bytes ], [6 bytes ], [6 bytes], [2 bytes], [0-X bytes]
 '''
 
 from LayerStack.Network_Layer import Network_Layer
+
 from enum import Enum 
 from threading import  Event
 from time import time
@@ -15,13 +19,17 @@ l2_control = Event()
 
 class L2_ENUMS(Enum):
     MSG = 1
-    ACK = -2
+    ACK = 0
     CNTRL = -3
     NEIGHBOR_DISCOVERY = -10
 
+L2_Header_Len=16
+L2_Num_Frames=1
+L2_Num_Blocks=2
+L2_Block_Size=128
 
 class Layer2(Network_Layer):
-    def __init__(self, mac_ip, send_ack=None, udp_acks=True, num_frames=1, timeout=0.025, n_retrans=5, debug=False):
+    def __init__(self, mac_ip, num_frames=1, timeout=0.025, n_retrans=5, debug=False):
         '''
         Layer 2 network layer object
         :param mac_ip: string for the usrp mac address fo the current node
@@ -35,38 +43,37 @@ class Layer2(Network_Layer):
         Network_Layer.__init__(self, "layer_2", debug=debug)
 
         self.mac_ip = bytes(mac_ip, "utf-8")
+        self.mac_ip = b''
+        for entry in self.mac_ip.split('.'):
+            self.mac_ip = self.mac_ip + struct.pad('B', int(entry))
+
         self.num_frames = num_frames
         self.timeout= timeout
         self.n_retrans = n_retrans 
 
-        self.send_ack_wifi = send_ack
-        self.udp_acks = udp_acks
-
         self.mac_pkt_dict = {}
         self.up_pkt = {}
-        self.unacked_packet = 0
 
-        self.l2_size = 0        
+        self.sent_pkt_dict = {}
+
+        self.l2_size = min_size
+        self.chunk_size = L2_Block_Size * L2_Num_Blocks - L2_Header_Len    
 
     def send_ack(self, pktno, dest):
         '''
         Method to send an acknoledgement with the specified packet number to the specified destination
-        [ack_flag source_ip dest_ip ack_pkt_num]
         :param pktno: bytes for packet number that ack is for
         :param dest: bytes for the destination mac address
         '''
-        if not self.udp_acks:   # use usrp for l2 acks
-            pkt = struct.pack('h', L2_ENUMS.ACK.value) + self.pad(self.mac_ip) + self.pad(dest) + pktno
-            self.down_queue.put(pkt, True)
-        else:                   # use wifi to send acks
-            self.send_ack_wifi(pktno, dest)
+        pkt = struct.pack("H", L2_ENUMS.MSG.value) + dest + self.mac_ip + pktno
+        self.down_queue.put(pkt, True)
         
-    def recv_ack(self, pktno):
+    def recv_ack(self, pktno, addr):
         '''
         Method to signal that a packet has been ack'd (needed for usrp and wifi ack messages)
         :param pktno: int for the packet number that has been acked
         '''
-        if pktno == self.unacked_packet:
+        if pktno == self.sent_pkt_dict[addr]:
             globals()["l2_ack"].set()
 
     def pass_up(self, stop):
@@ -77,24 +84,31 @@ class Layer2(Network_Layer):
         while not stop():
             mac_packet = self.prev_up_queue.get(True)
 
-            (pktno_mac,) = struct.unpack('h', mac_packet[0:2])	
-            mac_destination_ip =   self.unpad(mac_packet[22:42]) 
-            mac_source_ip =   self.unpad(mac_packet[2:22])
-
-            if self.debug:
-                print(pktno_mac, mac_source_ip, mac_destination_ip, mac_destination_ip == self.mac_ip)
+            pktno_mac = struct.unpack('H', mac_packet[0:2])[0]
+            mac_destination_ip=mac_packet[2:8]
+            mac_source_ip=mac_packet[8:14]
+            ack = struct.unpack('H', mac_packet[14:L2_Header_Len])[0]
 
             if not (mac_source_ip in self.mac_pkt_dict.keys()):
                 self.mac_pkt_dict[mac_source_ip] = L2_ENUMS.MSG.value
+                self.sent_pkt_dict[mac_source_ip] = L2_ENUMS.ACK.value
                 self.up_pkt[mac_source_ip] = b''
 
             # check if destination correct (meant for this node to read)
             if mac_destination_ip == self.mac_ip:
+                
+                if pktno_mac == L2_ENUMS.MSG.value or pktno_mac == (self.mac_pkt_dict[mac_source_ip]+1):
+                    if ack != L2_ENUMS.ACK.value:   # check if ack message
+                        self.recv_ack(ack, mac_source_ip)
+                        continue
 
-                if pktno_mac == L2_ENUMS.MSG.value:
                     self.mac_pkt_dict[mac_source_ip] = pktno_mac        # update last received pkt number 
                     self.send_ack(mac_packet[0:2], mac_source_ip)  # send ack
-                    self.up_pkt[mac_source_ip] = mac_packet[42:]
+
+                    if pktno_mac == L2_ENUMS.MSG.value: # if first pkt of meessage, start fresh
+                        self.up_pkt[mac_source_ip] = mac_packet[L2_Header_Len:]
+                    else:
+                        self.up_pkt[mac_source_ip] += mac_packet[L2_Header_Len:]
                     mac_packet = b''
 
                     if pktno_mac == self.num_frames:    # if last packet in l4 frame
@@ -105,27 +119,6 @@ class Layer2(Network_Layer):
 
                     else:
                         continue
-
-
-                elif pktno_mac == (self.mac_pkt_dict[mac_source_ip]+1):  # next sequential message 
-                    self.mac_pkt_dict[mac_source_ip] = pktno_mac        # update last received pkt number 
-                    self.send_ack(mac_packet[0:2], mac_source_ip)  # send ack
-                    self.up_pkt[mac_source_ip] += mac_packet[42:]
-                    mac_packet = b''
-
-                    if pktno_mac == self.num_frames:    # if last packet in l4 frame
-                        self.up_queue.put(self.up_pkt[mac_source_ip], True)
-                        self.up_pkt[mac_source_ip] = b''
-                        self.mac_pkt_dict[mac_source_ip] = L2_ENUMS.MSG.value
-                        continue
-
-                    else:
-                        continue
-
-                elif pktno_mac == L2_ENUMS.ACK.value:
-                    (mac_ack_pktno,) = struct.unpack('h', mac_packet[42:44])
-                    self.recv_ack(mac_ack_pktno)
-                    continue
 
                 else:   # if unexpected packet number
                     # self.send_ack(struct.pack('h', self.mac_pkt_dict[mac_source_ip]), mac_source_ip)  # send last known pkt num
@@ -141,34 +134,37 @@ class Layer2(Network_Layer):
         while not stop():
             down_packet = self.prev_down_queue.get(True)
 
+            pkno = 1
+            for ii in range(len(down_packet[L2_Header_Len:])%self.chunk_size):  # pad to next chunk size
+                down_packet = down_packet+struct.pack('x')
+
             if self.debug:
                 print("from l3", down_packet)
 
-            act_rt = 0  # retransmission counter
+            while len(down_packet[(L2_Header_Len+(self.chunk_size*(pkno-1))):]) / (self.chunk_size)>0:   #while chunks left
+                chunk = down_packet[(L2_Header_Len+(self.chunk_size*(pkno-1))):(L2_Header_Len+(self.chunk_size*(pkno)))]
+                self.down_queue.put(down_packet[0:L2_Header_Len] + chunk, True)
+                self.sent_pkt_dict[mac_packet[2:8]]= pkno
+                pkno += 1
 
-            (pktno_mac,) = struct.unpack('h', down_packet[0:2]) 
+                act_rt = 0  # retransmission counter
+                while not stop():
+                    globals()["l2_ack"].wait(self.timeout)
+                    if globals()["l2_ack"].isSet():     # ack received
+                        globals()["l2_ack"].clear()
+                        break
 
-            self.down_queue.put(down_packet, True)
-            self.unacked_packet = pktno_mac
+                    elif act_rt < self.n_retrans:       # check num of retransmissions
+                        act_rt += 1
+                        self.down_queue.put(down_packet[0:L2_Header_Len] + chunk, True)
 
-            while not stop():
-                globals()["l2_ack"].wait(self.timeout)
-                if globals()["l2_ack"].isSet():     # ack received
-                    globals()["l2_ack"].clear()
-                    break
-
-                elif act_rt < self.n_retrans:       # check num of retransmissions
-                    act_rt += 1
-                    self.down_queue.put(down_packet, True)
-                    self.unacked_packet = pktno_mac
-
-                else:
-                    if self.debug:
-                        print("FATAL ERROR: L2 retransmit limit reached for pktno ", self.unacked_packet)
-                    for ii in range(self.num_frames-self.unacked_packet):
-                        self.prev_down_queue.get(True)
+                    else:
                         if self.debug:
-                            print("popped packet")
+                            print("FATAL ERROR: L2 retransmit limit reached for pktno ", struct.unpack("H", down_packet[0:2]))
+                        for ii in range(self.num_frames-struct.unpack("H", down_packet[0:2])):
+                            self.prev_down_queue.get(True)
+                            if self.debug:
+                                print("popped packet")
 
-                    break
+                        break
                         
