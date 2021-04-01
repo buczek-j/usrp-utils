@@ -160,34 +160,30 @@ class DQN:
       X = np.atleast_2d(x)
       return np.argmax(self.predict(X)[0])
 
-"""
-class DQN:
-    def __init__(self, dqn_config):
-        '''
-        '''
-    def run(self, states):
-        '''
-        :param states: array of the states
-        :return action: [movement action, tx action]
+  def run(self, state):
+    '''
+    Method to take in a state and return the desired action
+    :param state: list of ints for location and tx power indices ex [loc1,loc2,loc3,tx1,tx2,tx3]
+    :return: list of ints for the actions to take [location action, tx action] 
+    '''
+    action = self.sample_action(state, eps=0)
+    return [action % 5, action // 5]
 
-        '''
-        return [0,0]
-"""
 
 class DQN_Config:
-    def __init__(self):
+    def __init__(self, state_dim=6, action_dim=5, hidden_layer_sizes=[50, 50], gamma=0.99, max_experiences=10000, min_experiences=1000, batch_sz=528, lr=1e-3, doubleDQN=True):
         '''
         DQN configuration storage object to simplify the initialization
         '''
-        self.state_dim = 6#12
-        self.action_dim = 5#15
-        self.hidden_layer_sizes = [50, 50]
-        self.gamma = 0.99
-        self.max_experiences = 10000
-        self.min_experiences = 1000
-        self.batch_sz = 528
-        self.lr = 1e-3
-        self.doubleDQN = True
+        self.state_dim = state_dim #6#12
+        self.action_dim = action_dim #5#15
+        self.hidden_layer_sizes = hidden_layer_sizes#[50, 50]
+        self.gamma = gamma#0.99
+        self.max_experiences = max_experiences#10000
+        self.min_experiences = min_experiences#1000
+        self.batch_sz =batch_sz #528
+        self.lr = lr#1e-3
+        self.doubleDQN = doubleDQN#True
 
 def main():
 
@@ -198,7 +194,7 @@ def main():
     model_restore_path = "../saved_models/asym_scenarios_50container_loc/"
     model_stage = 270
     model_path = str(model_restore_path + "tf_model_{}-{}").format("rly11", model_stage)
-    state = [0, 9, 15, 6, 5, 5]
+    state = [0, 7, 15, 6, 5, 5]
 
     ############
     # for loc & txp,  we use this config

@@ -1,6 +1,9 @@
 # usrp-utils
 
 ## GNU-Radio and UHD Python3 install 
+Either install GNU Radio via Pybomb or PPA Installation:
+
+### Pybmob Route
 Install instructions were taken from from [here](https://github.com/gnuradio/pybombs#pybombs)
 ```
 sudo apt-get install python3-pip
@@ -19,6 +22,19 @@ python3 ~/prefix-3.8/lib/uhd/examples/python/curses_fft.py -f 2.4e9
 Note that you will need to source the setup_env.sh everytime you open a terminal. So it is recommended to copy the command `source ~/prefix-3.8/setup_env.sh` into your ~/.bashrc with the command:
 ```
 echo "source ~/prefix-3.8/setup_env.sh" >> ~/.bashrc
+```
+### Ubuntu PPA Installation
+Install instructions were taken from [here](https://wiki.gnuradio.org/index.php/InstallingGR)
+```
+sudo add-apt-repository ppa:gnuradio/gnuradio-releases-3.8
+sudo apt-get update
+sudo apt install gnuradio
+```
+
+## Clone this Repo/Branch
+Use the following command to clone this repo at this specific branch and setup BasicArducopter as a submodule:
+```
+git clone -b emane_adaption --recurse-submodules https://github.com/buczek-j/usrp-utils
 ```
 
 ## Useful commands:

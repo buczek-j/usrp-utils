@@ -2,22 +2,31 @@
 
 '''
 DQN experiment node object
+
+TODO:
+- Determine Normalized power levels
+- Implement safety land / kill scripts
+- Debug
 '''
+
+
 # Global Libraries
 from threading import Thread
 from argparse import ArgumentParser
 from time import time, sleep
+import tensorflow.compat.v1 as tf
 import csv, os
 
 # User Libraries
 from LayerStack import Control_Plane, Layer1, Layer2, Layer3, Layer4, Layer5
 from Utils.Node_Config import Node_Config
+from Utils.Transforms import global_to_subframe, global_to_NED, subframe_to_global
 from BasicArducopter.BasicArdu import BasicArdu, Frames
 from Utils.DQN import DQN, DQN_Config
 
 
 class UAV_Node():
-    def __init__(self, my_config, l1_debug=False, l2_debug=False, l3_debug=False, l4_debug=False, l5_debug=False, dqn_config=None, alt=5, num_nodes=3, min_iteration_time=5.0, pow_index=0, node_index=0, log_base_name="~/Documents/usrp-utils/Logs/log_", csv_in=False):
+    def __init__(self, my_config, l1_debug=False, l2_debug=False, l3_debug=False, l4_debug=False, l5_debug=False, dqn_config=None, alt=5, num_nodes=3, min_iteration_time=5.0, pow_index=4, node_index=0, log_base_name="~/Documents/usrp-utils/Logs/log_", csv_in=False, model_path='~/Documents/usrp-utils/saved_models/asym_scenarios_50container_loc/', model_stage=270):
         '''
         Emane Node class for network stack
         :param my_config: Node_Config class object
@@ -30,11 +39,11 @@ class UAV_Node():
         :param alt: float for the altitude (meters) that the UAV should fly at
         :param num_nodes: int for the number of Nodes to get states from
         :param min_iteration_time: float for the time to test each iteration (s)
-        :param loc_index: int for the starting location state index
         :param pow_index: int for the startng tx power state index
         :param node_index: int for the node index number
         :param log_base_name: string for the directory and base name to save log files
         :param csv_in: bool for if actions should be determined from the csv file or the neural network
+        :param model_path: string for the directory for the neural network model
         '''
         
         # Setup Log File
@@ -76,16 +85,27 @@ class UAV_Node():
         self.my_location = None
         self.my_alt = alt
 
-        # Neural Ned params
+        # Neural Net params
         self.node_index = node_index    # 0 to num_nodes
-        self.loc_index = self.my_config.location_index   # [0 - 54] ~ 6 x 9 (x,y) coordinate locaiton (2 meter incriments)
-        self.pow_index = pow_index      # [-1, 0, 1]        # TODO Confirm
+        self.global_loc_index = self.my_config.location_index
+        self.loc_index = global_to_subframe(self.global_loc_index, self.my_config.id)  # relative coordinate system location state index
+        self.pow_index = pow_index      # [2,3,4]
         self.action = None
 
-        self.neural_net = DQN(dqn_config)
+        if 'rly' in self.my_config.id:  # only run NN for relays
+            self.neural_net = DQN(dqn_config)
+            self.init = tf.global_variables_initializer()
+            self.session = tf.InteractiveSession()
+            self.session.run(self.init)
+            self.saver = tf.train.Saver(max_to_keep=10)
+
+
         self.min_time = min_iteration_time
         self.state_buf = [None]*(2*num_nodes)
         self.num_nodes = num_nodes
+        self.neural_net.set_session(self.session)
+        self.saver.restore(self.neural_net.session, os.path.expanduser(str(model_path + "tf_model_{}-{}") ).format("rly11", model_stage))
+
 
         print("~ ~ Initialization Complete ~ ~", end='\n\n')
         
@@ -162,26 +182,29 @@ class UAV_Node():
 
             if not self.csv_in: # run NN
                 while not self.stop_threads:
-                    
+                    if self.layer4.log:
+                        self.layer4.writer.writerow(["Iteration Number: " +str(iteration_num)])
                     # Goto State
                     self.handle_action()
 
                     # Broadcast State
-                    self.control_plane.broadcast_state(self.node_index + ',' + self.loc_index + ',' + self.pow_index)
-                    self.state_buf[self.node_index] = self.loc_index
-                    self.state_buf[self.num_nodes + self.node_index] = self.pow_index
-
-                    # Wait for all to broadcast state
                     while None in self.state_buf:
-                        sleep(0.01)
+                        self.control_plane.broadcast_state(str(self.node_index) + ',' + str(self.loc_index) + ',' + str(self.pow_index))
+                        sleep(0.5)
+                        self.control_plane.broadcast_state(str(self.node_index) + ',' + str(self.loc_index) + ',' + str(self.pow_index))
+                        print('Waiting for state buffer. . .')
 
+                    # Begin Test
+                    self.layer5.transmit=True
                     start_time = time()
                     # Wait for desired min iteration time to pass
                     while time()-start_time<self.min_time:
                         sleep(0.01)
+                    self.layer5.transmit=False
                     
                     # Run Neural Network
-                    self.action = self.neural_net.run(self.state_buf)       # TODO Update the NN run method 
+                    if 'rly' in self.my_config.id:  # only run NN for relays
+                        self.action = self.neural_net.run(self.state_buf)
 
                     # Log Data
                     self.writer.writerow([iteration_num]+self.state_buf+[self.layer4.n_ack])
@@ -193,11 +216,11 @@ class UAV_Node():
             else: # actions from CSV
                 print('~ ~ Reading From CSV ~ ~\n')
                 for action in self.action_reader:
-                    print()
-                    self.layer4.writer.writerow(["Iteration Number: " +str(iteration_num)])
+                    if self.layer4.log:
+                        self.layer4.writer.writerow(["Iteration Number: " +str(iteration_num)])
 
                     self.action = [int(action[self.node_index]), int(action[self.node_index+self.num_nodes])]    # read in action array and cast as ints
-                    # print("my action", self.action)
+
                     # goto state
                     self.handle_action()
 
@@ -244,9 +267,8 @@ class UAV_Node():
         '''
         # Parse action into state index
         if self.action:
-            # self.loc_index = self.loc_index + self.action[0] # TODO
 
-            loc_action = self.action[0]    
+            loc_action = self.action[0]    # [-9, -1, 0, 1, 9]
             if loc_action == -9:# down
                 self.loc_index = self.loc_index - 6
 
@@ -263,9 +285,24 @@ class UAV_Node():
                 self.loc_index = self.loc_index + 6
             
             else:
-                print('UNEXPECTED ACTION', self.action)
+                print('ERROR: UNEXPECTED ACTION', self.action)
 
-            self.pow_index = self.action[1]     # [-1, 0, 1] ~ [low, med, high]
+            pow_action = self.action[1]     # [-1, 0, 1] 
+            if pow_action == -1:    # decrease
+                if self.pow_index >2:   # if can decrease
+                    self.pow_index = self.pow_index -1 
+                else:
+                    print("ERROR: INVALID POWER ACTION")
+            elif pow_action == 0:
+                self.pow_index = self.pow_index # no change
+            
+            elif pow_action == 1: # increase
+                if self.pow_index < 4: # if can increase
+                    self.pow_index = self.pow_index + 1
+                else:
+                    print("ERROR: INVALID POWER ACTION")
+            else:
+                print('ERROR: UNEXPECTED ACTION', self.action)
 
             self.action = None
 
@@ -277,23 +314,18 @@ class UAV_Node():
         """
 
         new_gain = None
-        if self.pow_index == -1:
+        if self.pow_index == 2:
             new_gain = power_lookup[0]
-        elif self.pow_index == 0:
+        elif self.pow_index == 3:
             new_gain = power_lookup[1]
-        elif self.pow_index == -1:
+        elif self.pow_index == 4:
             new_gain = power_lookup[2]
 
         self.action_tx_gain(new_gain)   # set power
 
         # Change Location
-        x = 2.0 * (self.loc_index % 6)
-        y = 2.0 * (int(self.loc_index / 6) + 1)
-
-        # x = 2.0 * (self.loc_index / 9)
-        # y = 2.0 * (int(self.loc_index % 9) + 1)   # TODO
-
-        self.action_move([y, x])
+        self.global_loc_index = subframe_to_global(self.loc_index, self.my_config.id)   # update global location from local state index
+        self.action_move(global_to_NED(self.global_loc_index))  # move to new location
 
     def action_move(self, coords):
         '''
@@ -330,13 +362,13 @@ def main():
     freq2 = 2.5e9
     freq3 = 2.6e9
 
-    dest1= Node_Config(pc_ip='192.168.10.101', usrp_ip='192.170.10.101', my_id='dest1', role='rx', tx_freq=freq3, rx_freq=freq2, serial="", location_index=0)
-    rly1 = Node_Config(pc_ip='192.168.10.102', usrp_ip='192.170.10.102', my_id='rly1', role='rly', tx_freq=freq2, rx_freq=freq1, serial="", location_index=1)
-    src1 = Node_Config(pc_ip='192.168.10.103', usrp_ip='192.170.10.103', my_id='src1' , role='tx', tx_freq=freq1, rx_freq=freq3, serial="", location_index=2)
+    dest1= Node_Config(pc_ip='192.168.10.101', usrp_ip='192.170.10.101', my_id='dest1', role='rx', tx_freq=freq3, rx_freq=freq2, serial="", location_index=110)
+    rly1 = Node_Config(pc_ip='192.168.10.102', usrp_ip='192.170.10.102', my_id='rly1', role='rly', tx_freq=freq2, rx_freq=freq1, serial="", location_index=55)
+    src1 = Node_Config(pc_ip='192.168.10.103', usrp_ip='192.170.10.103', my_id='src1' , role='tx', tx_freq=freq1, rx_freq=freq3, serial="", location_index=0)
 
-    dest2= Node_Config(pc_ip='192.168.10.104', usrp_ip='192.170.10.104', my_id='dest2', role='rx', tx_freq=freq3, rx_freq=freq2, serial="")
-    rly2 = Node_Config(pc_ip='192.168.10.105', usrp_ip='192.170.10.105', my_id='rly2', role='rly', tx_freq=freq2, rx_freq=freq1, serial="")
-    src2 = Node_Config(pc_ip='192.168.10.106', usrp_ip='192.170.10.106', my_id='src2' , role='tx', tx_freq=freq1, rx_freq=freq3, serial="")
+    dest2= Node_Config(pc_ip='192.168.10.104', usrp_ip='192.170.10.104', my_id='dest2', role='rx', tx_freq=freq3, rx_freq=freq2, serial="", location_index=120)
+    rly2 = Node_Config(pc_ip='192.168.10.105', usrp_ip='192.170.10.105', my_id='rly2', role='rly', tx_freq=freq2, rx_freq=freq1, serial="", location_index=54)
+    src2 = Node_Config(pc_ip='192.168.10.106', usrp_ip='192.170.10.106', my_id='src2' , role='tx', tx_freq=freq1, rx_freq=freq3, serial="", location_index=10)
 
     parser = ArgumentParser()
     parser.add_argument('--index', type=int, default='', help='node index number')
