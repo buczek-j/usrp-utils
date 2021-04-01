@@ -12,7 +12,8 @@ import numpy as np
 import tensorflow.compat.v1 as tf
 tf.disable_v2_behavior()
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '4' 
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1' 
 
 # a version of HiddenLayer that keeps track of params
 class HiddenLayer:
@@ -194,7 +195,7 @@ def main():
     model_restore_path = "../saved_models/asym_scenarios_50container_loc/"
     model_stage = 270
     model_path = str(model_restore_path + "tf_model_{}-{}").format("rly11", model_stage)
-    state = [0, 7, 15, 6, 5, 5]
+    state = [0, 9, 10, 6, 5, 5]
 
     ############
     # for loc & txp,  we use this config
@@ -206,6 +207,14 @@ def main():
     # model_path = str(model_restore_path + "tf_model_{}-{}").format("rly11", model_stage)
     # state = [0, 9, 15, 6, 5, 5, 4, 4, 4, 4, 4, 4]
 
+    # 
+    # return          [0, 1, 2, 3, 4]
+    # correspond      [-9, -1, 0, 1, 9]
+    # location state  [0 - XX]
+
+    # power actions [0, 1, 2]
+    # correspomd    [-1, 0, 1]
+    # power states  [2, 3, 4]
 
     nn = DQN(config)
 
