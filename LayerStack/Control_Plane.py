@@ -13,6 +13,7 @@ class CP_Codes(Enum):
     L4_ACK=struct.pack('ss', b'-', b'4')        # layer 4 ack message
  
     STATE=struct.pack('ss', b'-', b'3')         # application layer state message
+    GET_STATE=struct.pack('ss', b'-', b'5')     # application layer state message prompt message
     
 
 def get_post_ip(ip):
@@ -60,7 +61,13 @@ class Control_Plane():
         '''
         self.broadcast_socket.sendto((CP_Codes.STATE.value + str(message).encode('utf-8')), ('255.255.255.255', self.port))
 
-    def listening_socket(self, l2_recv_ack, l4_recv_ack, state_recv, stop):
+    def get_state_msgs(self):
+        '''
+        Method to propmt other nodes to send state messages
+        '''
+        self.broadcast_socket.sendto((CP_Codes.GET_STATE.value), ('255.255.255.255', self.port))
+
+    def listening_socket(self, l2_recv_ack, l4_recv_ack, state_recv, handle_get_state, stop):
         '''
         Method to listen to the control plane udp socket, parse data, and perform cooresponding actions
         :param l2_recv_ack: l2 method for a recived packet ack
@@ -83,6 +90,11 @@ class Control_Plane():
                 l4_recv_ack(ack, time_sent)
 
             elif control_code == CP_Codes.STATE.value:
+                # [node index #],[location index #],[power index #]
+                msg = packet.decode('utf-8').split(',')
+                # print('RCVD STATE:', int(msg[0]), int(msg[1]), int(msg[2]))
+                state_recv(int(msg[0]), int(msg[1]), int(msg[2]))
+            elif control_code == CP_Codes.GET_STATE.value:
                 # [node index #],[location index #],[power index #]
                 msg = packet.decode('utf-8').split(',')
                 # print('RCVD STATE:', int(msg[0]), int(msg[1]), int(msg[2]))

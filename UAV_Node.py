@@ -9,6 +9,7 @@ TODO:
 - Debug
 - SSH copy script
 - state message iteration num
+- runtime of 5min once last action, stay until runtime finishes, then land
 '''
 
 
@@ -106,6 +107,7 @@ class UAV_Node():
         self.min_time = min_iteration_time
         self.state_buf = [None]*(2*num_nodes)
         self.num_nodes = num_nodes
+        self.get_state_msg = False
         
 
 
@@ -119,7 +121,7 @@ class UAV_Node():
         print("~ ~ Starting Threads ~ ~", end='\n\n')
 
         # Initialize threads
-        self.threads["control_layer"] = Thread(target=self.control_plane.listening_socket, args=(self.layer2.recv_ack, self.layer4.recv_ack, self.handle_state, lambda : self.stop_threads, ))
+        self.threads["control_layer"] = Thread(target=self.control_plane.listening_socket, args=(self.layer2.recv_ack, self.layer4.recv_ack, self.handle_state, self.handle_get_state, lambda : self.stop_threads, ))
         self.threads["control_layer"].start()
 
         for layer in [self.layer1, self.layer2, self.layer3, self.layer4]:
@@ -166,7 +168,14 @@ class UAV_Node():
         # [loc0, loc1, loc2, ..., locn, pow0, pow1, pow2, ..., pown ]
         self.state_buf[int(node_index)] = int(loc_index)
         self.state_buf[int(node_index) + self.num_nodes] = int(pow_index)
-        print(node_index, loc_index, pow_index)
+        # print(node_index, loc_index, pow_index)
+
+    def handle_get_state(self):
+        '''
+        Method to handle receiving "I need a state message" message
+        '''
+        self.get_state_msg = True
+
 
     def run(self):
         '''
@@ -219,6 +228,7 @@ class UAV_Node():
             else: # actions from CSV
                 print('~ ~ Reading From CSV ~ ~\n')
                 for action in self.action_reader:
+                    print('~~ Iteration', iteration_num, ' ~~')
                     if self.layer4.log:
                         self.layer4.writer.writerow(["Iteration Number: " +str(iteration_num)])
 
@@ -226,10 +236,22 @@ class UAV_Node():
                     self.handle_action()
 
                     # Broadcast State
-                    while None in self.state_buf:
-                        self.control_plane.broadcast_state(str(self.node_index) + ',' + str(self.loc_index) + ',' + str(self.pow_index))
+                    state_loop = True
+                    state_timeout = time()
+                    while state_loop:
+                        if None in self.state_buf:
+                          self.control_plane.get_state_msgs()  
+                        
+                        if self.get_state_msg == True:
+                            self.get_state_msg = False
+                            self.control_plane.broadcast_state(str(self.node_index) + ',' + str(self.loc_index) + ',' + str(self.pow_index))
+                            state_timeout = time()
+                        
+                        if time() - state_timeout > 5:
+                            state_loop = False
+                            
                         sleep(0.5)
-                        self.control_plane.broadcast_state(str(self.node_index) + ',' + str(self.loc_index) + ',' + str(self.pow_index))
+                        
                         print('Waiting for state buffer. . .')
 
                     self.layer5.transmit=True
