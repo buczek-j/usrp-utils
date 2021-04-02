@@ -117,14 +117,14 @@ class TRX_ODFM_USRP(gr.top_block):
 
         self.uhd_usrp_source_0.set_center_freq(rx_freq, 0)
         self.uhd_usrp_source_0.set_antenna('RX2', 0)
-        self.uhd_usrp_source_0.set_gain(rx_gain, 0)
+        self.uhd_usrp_source_0.set_normalized_gain(rx_gain, 0)
 
         self.uhd_usrp_sink_0.set_samp_rate(tx_bw)
         self.uhd_usrp_sink_0.set_time_now(uhd.time_spec(time.time()), uhd.ALL_MBOARDS)
 
         self.uhd_usrp_sink_0.set_center_freq(tx_freq, 0)
         self.uhd_usrp_sink_0.set_antenna('TX/RX', 0)
-        self.uhd_usrp_sink_0.set_gain(tx_gain, 0)
+        self.uhd_usrp_sink_0.set_normalized_gain(tx_gain, 0)
         self.fft_vxx_1 = fft.fft_vcc(fft_len, True, (), True, 1)
         self.fft_vxx_0_0 = fft.fft_vcc(fft_len, False, (), True, 1)
         self.fft_vxx_0 = fft.fft_vcc(fft_len, True, (), True, 1)
@@ -244,7 +244,7 @@ class TRX_ODFM_USRP(gr.top_block):
 
     def set_rx_gain(self, rx_gain):
         self.rx_gain = rx_gain
-        self.uhd_usrp_source_0.set_gain(self.rx_gain, 0)
+        self.uhd_usrp_source_0.set_normalized_gain(self.rx_gain, 0)
 
     def get_serial_num(self):
         return self.serial_num
@@ -271,7 +271,7 @@ class TRX_ODFM_USRP(gr.top_block):
 
     def set_tx_gain(self, tx_gain):
         self.tx_gain = tx_gain
-        self.uhd_usrp_sink_0.set_gain(self.tx_gain, 0)
+        self.uhd_usrp_sink_0.set_normalized_gain(self.tx_gain, 0)
 
     def get_pilot_symbols(self):
         return self.pilot_symbols
