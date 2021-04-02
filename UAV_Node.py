@@ -228,7 +228,7 @@ class UAV_Node():
             else: # actions from CSV
                 print('~ ~ Reading From CSV ~ ~\n')
                 for action in self.action_reader:
-                    print('~~ Iteration', iteration_num, ' ~~')
+                    print('\n~~ Iteration', iteration_num, ' ~~')
                     if self.layer4.log:
                         self.layer4.writer.writerow(["Iteration Number: " +str(iteration_num)])
 

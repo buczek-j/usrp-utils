@@ -1,1 +1,1 @@
-rm Logs/*.csv
+rm ../Logs/*.csv
