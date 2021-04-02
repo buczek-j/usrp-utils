@@ -22,7 +22,7 @@ def main():
     '''
     Main execution method
     '''
-    CMD = 'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/tests.py ' #   UAV_Node.py --index '
+    CMD = 'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index '
     ssh_connections = []
     threads = []
 
@@ -38,7 +38,7 @@ def main():
 
     try:
         for connection in ssh_connections:
-            threads.append(Thread(target=connection.run_command, args=(CMD + connection.index,)))
+            threads.append(Thread(target=connection.run_command, args=(CMD + str(connection.index),)))
         
         for thread in threads:
             thread.start()
