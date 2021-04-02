@@ -8,6 +8,7 @@ TODO:
 - Implement safety land / kill scripts
 - Debug
 - SSH copy script
+- state message iteration num
 '''
 
 
@@ -165,6 +166,7 @@ class UAV_Node():
         # [loc0, loc1, loc2, ..., locn, pow0, pow1, pow2, ..., pown ]
         self.state_buf[int(node_index)] = int(loc_index)
         self.state_buf[int(node_index) + self.num_nodes] = int(pow_index)
+        print(node_index, loc_index, pow_index)
 
     def run(self):
         '''
