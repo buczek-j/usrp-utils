@@ -295,7 +295,7 @@ class UAV_Node():
 
             loc_action = self.action[0]    # [-9, -1, 0, 1, 9]
             if loc_action == 0:# west
-                self.loc_index = self.loc_index - 9
+                self.loc_index = self.loc_index - 11
 
             elif loc_action == 1:# north
                 self.loc_index = self.loc_index - 1
@@ -307,7 +307,7 @@ class UAV_Node():
                 self.loc_index = self.loc_index + 1
             
             elif loc_action == 4: # east
-                self.loc_index = self.loc_index + 9
+                self.loc_index = self.loc_index + 11
             
             else:
                 print('ERROR: UNEXPECTED LOC ACTION', self.action)
