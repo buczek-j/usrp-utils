@@ -238,6 +238,7 @@ class UAV_Node():
                     # Broadcast State
                     state_loop = True
                     state_timeout = time()
+                    print('Waiting for state buffer. . .')
                     while state_loop:
                         if None in self.state_buf:
                           self.control_plane.get_state_msgs()  
@@ -252,8 +253,6 @@ class UAV_Node():
                             state_loop = False
 
                         sleep(0.1)
-                        
-                        print('Waiting for state buffer. . .')
 
                     self.layer5.transmit=True
                     start_time = time()
