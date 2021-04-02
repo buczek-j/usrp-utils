@@ -27,7 +27,7 @@ def main():
     threads = []
 
     for ii in range(len(wifi_ip_list)):
-        ssh_connections.append(SSH_Connection(username_list[ii], wifi_ip_list[ii], pwrd_list[ii]))
+        ssh_connections.append(SSH_Connection(username_list[ii], wifi_ip_list[ii], pwrd_list[ii], ii))
     
     for connection in ssh_connections:
         if connection.connected == False:

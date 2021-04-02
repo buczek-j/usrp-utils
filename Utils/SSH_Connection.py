@@ -8,7 +8,7 @@ import sys
 from paramiko import SSHClient, AutoAddPolicy
 
 class SSH_Connection():
-    def __init__(self, user, host, password):
+    def __init__(self, user, host, password, index):
         '''
         Object to facilitate SSH Connections 
         :param user: string for username to connect to via ssh
@@ -21,6 +21,7 @@ class SSH_Connection():
         self.ssh = SSHClient()
         self.ssh.set_missing_host_key_policy(AutoAddPolicy())
         self.connected = True   # bool for if connection is successful
+        self.index = index
 
         try:
             print("trying connect ", self.host, self.user, self.password)

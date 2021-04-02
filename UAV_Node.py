@@ -7,6 +7,7 @@ TODO:
 - Determine Normalized power levels
 - Implement safety land / kill scripts
 - Debug
+- SSH copy script
 '''
 
 
@@ -97,13 +98,14 @@ class UAV_Node():
             self.session = tf.InteractiveSession()
             self.session.run(self.init)
             self.saver = tf.train.Saver(max_to_keep=10)
+            self.neural_net.set_session(self.session)
+            self.saver.restore(self.neural_net.session, os.path.expanduser(str(model_path + "tf_model_{}-{}") ).format("rly11", model_stage))
 
 
         self.min_time = min_iteration_time
         self.state_buf = [None]*(2*num_nodes)
         self.num_nodes = num_nodes
-        self.neural_net.set_session(self.session)
-        self.saver.restore(self.neural_net.session, os.path.expanduser(str(model_path + "tf_model_{}-{}") ).format("rly11", model_stage))
+        
 
 
         print("~ ~ Initialization Complete ~ ~", end='\n\n')
