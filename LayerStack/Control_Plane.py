@@ -95,10 +95,7 @@ class Control_Plane():
                 # print('RCVD STATE:', int(msg[0]), int(msg[1]), int(msg[2]))
                 state_recv(int(msg[0]), int(msg[1]), int(msg[2]))
             elif control_code == CP_Codes.GET_STATE.value:
-                # [node index #],[location index #],[power index #]
-                msg = packet.decode('utf-8').split(',')
-                # print('RCVD STATE:', int(msg[0]), int(msg[1]), int(msg[2]))
-                state_recv(int(msg[0]), int(msg[1]), int(msg[2]))
+                handle_get_state()
                 
 
     def send_l2_ack(self, pktno, mac_ip):
