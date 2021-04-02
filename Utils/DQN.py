@@ -186,6 +186,26 @@ class DQN_Config:
         self.lr = lr#1e-3
         self.doubleDQN = doubleDQN#True
 
+def handle_action(state, action, index=1):
+  '''
+  '''
+  loc_action = action[0]
+  if loc_action == 0:
+    state[index] = state[index] -9
+  elif loc_action == 1:
+    state[index] = state[index] - 1
+  elif loc_action == 2:
+    state[index] = state[index] 
+  elif loc_action == 3:
+    state[index] = state[index] + 1
+  elif loc_action == 4:
+    state[index] = state[index] + 9
+  else:
+    print("UNKNOWN LOC ACTION")
+
+  return state
+
+
 def main():
 
     config = DQN_Config()
@@ -195,7 +215,7 @@ def main():
     model_restore_path = "../saved_models/asym_scenarios_50container_loc/"
     model_stage = 270
     model_path = str(model_restore_path + "tf_model_{}-{}").format("rly11", model_stage)
-    state = [0, 9, 10, 6, 5, 5]
+    state = [44, 46, 10, 0, 4, 33]
 
     ############
     # for loc & txp,  we use this config
@@ -227,10 +247,15 @@ def main():
     saver.restore(nn.session, model_path)
 
     eps = 0
-    action = nn.sample_action(state, eps)
 
-    action_list = [action % 5, action // 5]# [loc_action, txp_action]
-    print("Generated action :", action_list)
+    for ii in range(25):
+
+      action = nn.sample_action(state, eps)
+      
+      action_list = [action % 5, action // 5]# [loc_action, txp_action]
+      print("Generated action :", action_list, state)
+      state = handle_action(state, action_list)
+
 
 if __name__ == '__main__':
     main()

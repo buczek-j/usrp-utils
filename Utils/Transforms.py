@@ -83,7 +83,7 @@ def global_to_NED(global_index, scalar=2.0):
     :param scalar: float for distance between points
     :return: list of floats for NED [meters north, meters east] 
     '''
-    return [scalar*(global_index//11), scalar*(global_index%11)]
+    return [scalar*(global_index%11), scalar*(global_index//11) ]
 
 def main():
     '''

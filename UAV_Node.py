@@ -20,13 +20,13 @@ import csv, os
 # User Libraries
 from LayerStack import Control_Plane, Layer1, Layer2, Layer3, Layer4, Layer5
 from Utils.Node_Config import Node_Config
-from Utils.Transforms import global_to_subframe, global_to_NED, subframe_to_global
+from Utils.Transforms import global_to_NED
 from BasicArducopter.BasicArdu import BasicArdu, Frames
 from Utils.DQN import DQN, DQN_Config
 
 
 class UAV_Node():
-    def __init__(self, my_config, l1_debug=False, l2_debug=False, l3_debug=False, l4_debug=False, l5_debug=False, dqn_config=None, alt=5, num_nodes=3, min_iteration_time=5.0, pow_index=4, node_index=0, log_base_name="~/Documents/usrp-utils/Logs/log_", csv_in=False, model_path='~/Documents/usrp-utils/saved_models/asym_scenarios_50container_loc/', model_stage=270):
+    def __init__(self, my_config, l1_debug=False, l2_debug=False, l3_debug=False, l4_debug=False, l5_debug=False, dqn_config=None, alt=5, num_nodes=3, min_iteration_time=5.0, pow_index=3, node_index=0, log_base_name="~/Documents/usrp-utils/Logs/log_", csv_in=False, model_path='~/Documents/usrp-utils/saved_models/asym_scenarios_50container_loc/', model_stage=270):
         '''
         Emane Node class for network stack
         :param my_config: Node_Config class object
@@ -87,12 +87,11 @@ class UAV_Node():
 
         # Neural Net params
         self.node_index = node_index    # 0 to num_nodes
-        self.global_loc_index = self.my_config.location_index
-        self.loc_index = global_to_subframe(self.global_loc_index, self.my_config.id)  # relative coordinate system location state index
+        self.loc_index = self.my_config.location_index  # 11x11 maxtix index (x,y) 0:(0,0), 1:(0,1), 11:(1,0), 12:(1,1)...
         self.pow_index = pow_index      # [2,3,4]
         self.action = None
 
-        if 'rly' in self.my_config.id:  # only run NN for relays
+        if csv_in==False and 'rly' in self.my_config.id:  # only run NN for relays
             self.neural_net = DQN(dqn_config)
             self.init = tf.global_variables_initializer()
             self.session = tf.InteractiveSession()
@@ -219,8 +218,6 @@ class UAV_Node():
                     if self.layer4.log:
                         self.layer4.writer.writerow(["Iteration Number: " +str(iteration_num)])
 
-                    self.action = [int(action[self.node_index]), int(action[self.node_index+self.num_nodes])]    # read in action array and cast as ints
-
                     # goto state
                     self.handle_action()
 
@@ -237,6 +234,8 @@ class UAV_Node():
                     while time()-start_time<self.min_time:
                         sleep(0.01)
                     self.layer5.transmit=False
+
+                    self.action = [int(action[self.node_index]), int(action[self.node_index+self.num_nodes])]    # read in action array and cast as ints
 
                     # Log Data
                     self.writer.writerow([iteration_num]+self.state_buf+[self.layer4.n_ack])
@@ -269,40 +268,40 @@ class UAV_Node():
         if self.action:
 
             loc_action = self.action[0]    # [-9, -1, 0, 1, 9]
-            if loc_action == -9:# down
-                self.loc_index = self.loc_index - 6
+            if loc_action == 0:# west
+                self.loc_index = self.loc_index - 9
 
-            elif loc_action == -1:# left
+            elif loc_action == 1:# north
                 self.loc_index = self.loc_index - 1
 
-            elif loc_action == 0: # stay
+            elif loc_action == 2: # stay
                 self.loc_index = self.loc_index + 0
             
-            elif loc_action == 1: # left
+            elif loc_action == 3: # south
                 self.loc_index = self.loc_index + 1
             
-            elif loc_action == 9: # down
-                self.loc_index = self.loc_index + 6
+            elif loc_action == 4: # east
+                self.loc_index = self.loc_index + 9
             
             else:
-                print('ERROR: UNEXPECTED ACTION', self.action)
+                print('ERROR: UNEXPECTED LOC ACTION', self.action)
 
             pow_action = self.action[1]     # [-1, 0, 1] 
-            if pow_action == -1:    # decrease
+            if pow_action == 0:    # decrease
                 if self.pow_index >2:   # if can decrease
                     self.pow_index = self.pow_index -1 
                 else:
                     print("ERROR: INVALID POWER ACTION")
-            elif pow_action == 0:
+            elif pow_action == 1:
                 self.pow_index = self.pow_index # no change
             
-            elif pow_action == 1: # increase
+            elif pow_action == 2: # increase
                 if self.pow_index < 4: # if can increase
                     self.pow_index = self.pow_index + 1
                 else:
                     print("ERROR: INVALID POWER ACTION")
             else:
-                print('ERROR: UNEXPECTED ACTION', self.action)
+                print('ERROR: UNEXPECTED TX ACTION', self.action)
 
             self.action = None
 
@@ -324,8 +323,7 @@ class UAV_Node():
         self.action_tx_gain(new_gain)   # set power
 
         # Change Location
-        self.global_loc_index = subframe_to_global(self.loc_index, self.my_config.id)   # update global location from local state index
-        self.action_move(global_to_NED(self.global_loc_index))  # move to new location
+        self.action_move(global_to_NED(self.loc_index))  
 
     def action_move(self, coords):
         '''
@@ -362,13 +360,13 @@ def main():
     freq2 = 2.5e9
     freq3 = 2.6e9
 
-    dest1= Node_Config(pc_ip='192.168.10.101', usrp_ip='192.170.10.101', my_id='dest1', role='rx', tx_freq=freq3, rx_freq=freq2, serial="", location_index=110)
-    rly1 = Node_Config(pc_ip='192.168.10.102', usrp_ip='192.170.10.102', my_id='rly1', role='rly', tx_freq=freq2, rx_freq=freq1, serial="", location_index=55)
+    dest1= Node_Config(pc_ip='192.168.10.101', usrp_ip='192.170.10.101', my_id='dest1', role='rx', tx_freq=freq3, rx_freq=freq2, serial="", location_index=10)
+    rly1 = Node_Config(pc_ip='192.168.10.102', usrp_ip='192.170.10.102', my_id='rly1', role='rly', tx_freq=freq2, rx_freq=freq1, serial="", location_index=24)
     src1 = Node_Config(pc_ip='192.168.10.103', usrp_ip='192.170.10.103', my_id='src1' , role='tx', tx_freq=freq1, rx_freq=freq3, serial="", location_index=0)
 
     dest2= Node_Config(pc_ip='192.168.10.104', usrp_ip='192.170.10.104', my_id='dest2', role='rx', tx_freq=freq3, rx_freq=freq2, serial="", location_index=120)
-    rly2 = Node_Config(pc_ip='192.168.10.105', usrp_ip='192.170.10.105', my_id='rly2', role='rly', tx_freq=freq2, rx_freq=freq1, serial="", location_index=54)
-    src2 = Node_Config(pc_ip='192.168.10.106', usrp_ip='192.170.10.106', my_id='src2' , role='tx', tx_freq=freq1, rx_freq=freq3, serial="", location_index=10)
+    rly2 = Node_Config(pc_ip='192.168.10.105', usrp_ip='192.170.10.105', my_id='rly2', role='rly', tx_freq=freq2, rx_freq=freq1, serial="", location_index=70)
+    src2 = Node_Config(pc_ip='192.168.10.106', usrp_ip='192.170.10.106', my_id='src2' , role='tx', tx_freq=freq1, rx_freq=freq3, serial="", location_index=55)
 
     parser = ArgumentParser()
     parser.add_argument('--index', type=int, default='', help='node index number')
