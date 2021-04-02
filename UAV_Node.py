@@ -241,6 +241,7 @@ class UAV_Node():
                     while state_loop:
                         if None in self.state_buf:
                           self.control_plane.get_state_msgs()  
+                          state_timeout = time()
                         
                         if self.get_state_msg == True:
                             self.get_state_msg = False
@@ -249,7 +250,7 @@ class UAV_Node():
                         
                         if time() - state_timeout > 5:
                             state_loop = False
-                            
+
                         sleep(0.5)
                         
                         print('Waiting for state buffer. . .')
@@ -434,6 +435,7 @@ def main():
         uav_node.run()
     except Exception as e:
         print(e)
+        uav_node.my_drone.handle_landing()
         uav_node.close_threads()
         exit(0)
 
