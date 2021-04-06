@@ -78,7 +78,7 @@ class Control_Plane():
         while not stop():
             packet, addr = self.recv_sock.recvfrom(1024)
             control_code = packet[0:2] 
-            print(packet, control_code == CP_Codes.STATE.value)
+            # print(packet, control_code == CP_Codes.STATE.value)
             packet = packet[2:]
             if control_code == CP_Codes.L2_ACK.value:
                 (ack,) = struct.unpack('h', packet[0:2])
