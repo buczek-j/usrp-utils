@@ -123,7 +123,7 @@ class Layer4(Network_Layer):
             
 
             try:
-                self.unacked_packet = struct.unpack('l', l4_packet[0:8])
+                self.unacked_packet = struct.unpack('l', l4_packet[0:8])[0]
             except:
                 pass
 
