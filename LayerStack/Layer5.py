@@ -30,13 +30,14 @@ class Layer5(Network_Layer):
         Method to pass down packets to the lower layers
         :param stop: function returning true/false to stop the thread
         '''
-        tspt_rate = 2000			# Initial tansport layer rate in bps
+        tspt_rate = 4000			# Initial tansport layer rate in bps
         payload = bytes((self.layer4.l4_size - self.layer4.l4_header) * random.choice(string.digits), "utf-8")
         pktno_l4 = 1
         l4_pkts_to_send = 10000
 
         l4_maximum_rate = tspt_rate/8 	    # bps -> [Bps]
         max_pkt_per_sec = max(1,int(ceil(l4_maximum_rate/self.layer4.l4_size)))
+        print("MPPS:", max_pkt_per_sec)
 
         while not stop():
             if self.transmit:
