@@ -66,7 +66,7 @@ class UAV_Node():
         self.threads = {}
 
         # Initalize Network Stack
-        self.control_plane = Control_Plane.Control_Plane(my_config.pc_ip, self.my_config.listen_port)
+        self.control_plane = Control_Plane.Control_Plane(my_config.pc_ip)
         
         self.layer4 = Layer4.Layer4(self.my_config, self.control_plane.send_l4_ack, debug=l4_debug)
         self.layer3 = Layer3.Layer3(self.my_config, debug=l3_debug)
@@ -120,8 +120,17 @@ class UAV_Node():
         print("~ ~ Starting Threads ~ ~", end='\n\n')
 
         # Initialize threads
-        self.threads["control_layer"] = Thread(target=self.control_plane.listening_socket, args=(self.layer2.recv_ack, self.layer4.recv_ack, self.handle_state, self.handle_get_state, lambda : self.stop_threads, ))
-        self.threads["control_layer"].start()
+        # self.threads["control_layer"] = Thread(target=self.control_plane.listening_socket, args=(self.layer2.recv_ack, self.layer4.recv_ack, self.handle_state, self.handle_get_state, lambda : self.stop_threads, ))
+        # self.threads["control_layer"].start()
+
+        self.threads["L2_ACK_RCV"] = Thread(target=self.control_plane.listen_l2, args=(self.layer2.recv_ack, lambda : self.stop_threads, ))
+        self.threads["L2_ACK_RCV"].start()
+
+        self.threads["L4_ACK_RCV"] = Thread(target=self.control_plane.listen_l4, args=(self.layer4.recv_ack, lambda : self.stop_threads, ))
+        self.threads["L4_ACK_RCV"].start()
+
+        self.threads["STATE_RCV"] = Thread(target=self.control_plane.listen_cc, args=(self.handle_state, self.handle_get_state, lambda : self.stop_threads, ))
+        self.threads["STATE_RCV"].start()
 
         for layer in [self.layer1, self.layer2, self.layer3, self.layer4]:
             self.threads[layer.layer_name + "_pass_up"] = Thread(target=layer.pass_up, args=(lambda : self.stop_threads,))
