@@ -81,8 +81,8 @@ class Layer2(Network_Layer):
             mac_destination_ip =   self.unpad(mac_packet[22:42]) 
             mac_source_ip =   self.unpad(mac_packet[2:22])
 
-            if self.debug:
-                print(pktno_mac, mac_source_ip, mac_destination_ip, mac_destination_ip == self.mac_ip)
+            # if self.debug:
+            #     print(pktno_mac, mac_source_ip, mac_destination_ip, mac_destination_ip == self.mac_ip)
 
             if not (mac_source_ip in self.mac_pkt_dict.keys()):
                 self.mac_pkt_dict[mac_source_ip] = L2_ENUMS.MSG.value
@@ -141,8 +141,8 @@ class Layer2(Network_Layer):
         while not stop():
             down_packet = self.prev_down_queue.get(True)
 
-            if self.debug:
-                print("from l3", down_packet)
+            # if self.debug:
+            #     print("from l3", down_packet)
 
             act_rt = 0  # retransmission counter
 

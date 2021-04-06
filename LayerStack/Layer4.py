@@ -94,10 +94,10 @@ class Layer4(Network_Layer):
             
             self.n_recv = self.n_recv + len(l4_packet)
 
-            if self.debug:
-                (timestamp,) = struct.unpack('d', l4_packet[48:56])
-                (pktno_l4,) = struct.unpack('l', l4_packet[:8])	
-                print('l4', pktno_l4, packet_source, packet_destination, timestamp)
+            # if self.debug:
+            #     (timestamp,) = struct.unpack('d', l4_packet[48:56])
+            #     (pktno_l4,) = struct.unpack('l', l4_packet[:8])	
+            #     print('l4', pktno_l4, packet_source, packet_destination, timestamp)
 
             if packet_destination == self.my_pc:    # if this is the destination, then pass payload to the application layer
                 self.up_queue.put(l4_packet[56:], True)
