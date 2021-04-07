@@ -9,6 +9,8 @@ TODO:
 - state message iteration num
 - runtime of 5min once last action, stay until runtime finishes, then land
 - usrp printout of status
+
+- L4 throughput (# packets per second)
 '''
 
 
