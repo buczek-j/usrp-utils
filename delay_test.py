@@ -168,7 +168,7 @@ class UAV_Node():
 
             #[l4_timeout, l2_timeout,  l5_rate]
             setups = [
-                [1.0, 0.3, 2000],
+                [1.0, 0.05, 2000],
                 # [0.1, 0.01,  2000],
                 # [0.1, 0.01,  4000],
                 # [0.1, 0.01,  6000],
@@ -251,13 +251,11 @@ class UAV_Node():
                 print(" - reset")
                 
             print("~ ~ Finished Successfully ~ ~")
-            self.my_drone.handle_landing()
             self.close_threads()
                 
                    
         except Exception as e:
             print(e)
-            self.my_drone.handle_landing()
             self.close_threads()
             
             #sleep(5)
@@ -323,8 +321,7 @@ def main():
         uav_node.run()
     except Exception as e:
         print(e)
-        uav_node.my_drone.handle_landing()
-        uav_node.close_threads()
+
         exit(0)
 
 if __name__ == '__main__':
