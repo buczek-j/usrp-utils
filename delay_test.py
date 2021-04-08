@@ -168,7 +168,7 @@ class UAV_Node():
 
             #[l4_timeout, l2_timeout,  l5_rate]
             setups = [
-                [1.0, 0.05, 2000],
+                [1.0, 0.1, 2000],
                 # [0.1, 0.01,  2000],
                 # [0.1, 0.01,  4000],
                 # [0.1, 0.01,  6000],
@@ -198,7 +198,7 @@ class UAV_Node():
                 l5_thrpt = setup_test[2]
                 l2_num_retran = int((l4_timeout/l2_timeout)-1)
                 print('\n~~ Iteration', iteration_num, ' ~~')
-                setup = "Iteration Number: " +str(iteration_num) + ", l5_max_thrpt:"+ str(l5_thrpt)+ ", l4_timeout:" + str(l4_timeout) + ", l2_timeout:" + str(l2_timeout) + ", l2_num" + str(l2_num_retran)
+                setup = "Iteration Number: " +str(iteration_num) + ", l5_max_thrpt:"+ str(l5_thrpt)+ ", l4_timeout:" + str(l4_timeout) + ", l2_timeout:" + str(l2_timeout) + ", l2_num: " + str(l2_num_retran)
                 if self.layer4.log:
 
                     self.layer4.writer.writerow([setup])
