@@ -24,13 +24,14 @@ class Layer5(Network_Layer):
         self.my_config = my_config
         self.layer4 = layer4
         self.transmit = False
+        self.tspt_rate = 2000			# Initial tansport layer rate in bps
 
     def pass_down(self, stop):
         '''
         Method to pass down packets to the lower layers
         :param stop: function returning true/false to stop the thread
         '''
-        tspt_rate = 2000			# Initial tansport layer rate in bps
+        
         payload = bytes((self.layer4.l4_size - self.layer4.l4_header) * random.choice(string.digits), "utf-8")
         pktno_l4 = 1
         l4_pkts_to_send = 10000
