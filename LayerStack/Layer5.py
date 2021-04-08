@@ -36,7 +36,7 @@ class Layer5(Network_Layer):
         pktno_l4 = 1
         l4_pkts_to_send = 10000
 
-        l4_maximum_rate = tspt_rate/8 	    # bps -> [Bps]
+        l4_maximum_rate = self.tspt_rate/8 	    # bps -> [Bps]
         max_pkt_per_sec = max(1,int(ceil(l4_maximum_rate/self.layer4.l4_size)))
         print("MPPS:", max_pkt_per_sec)
 
