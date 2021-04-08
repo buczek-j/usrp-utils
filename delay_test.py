@@ -166,71 +166,89 @@ class UAV_Node():
 
             print('~ ~ Beginning ~ ~\n')
 
-            
-            l4_timeouts = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5]
-            l2_timeouts = [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75]
-            l2_num_retrans = [2,3,4,5,6,7,8,9]
-            l5_maxthrpt = [2000, 4000, 6000, 8000, 10000, 12000, 14000, 16000, 18000, 20000]
+            #[l4_timeout, l2_timeout,  l5_rate]
+            setups = [
+                [1.0, 0.3, 2000],
+                [0.1, 0.01,  2000],
+                [0.1, 0.01,  4000],
+                [0.1, 0.01,  6000],
+                [0.1, 0.01,  8000],
+                [0.1, 0.01,  10000],
+                [0.1, 0.02,  2000],
+                [0.1, 0.02,  4000],
+                [0.1, 0.02,  6000],
+                [0.1, 0.02,  8000],
+                [0.1, 0.02,  10000],
+                [0.1, 0.03,  2000],
+                [0.1, 0.03,  4000],
+                [0.1, 0.03,  6000],
+                [0.1, 0.03,  8000],
+                [0.1, 0.03,  10000],
+                [0.1, 0.05,  2000],
+                [0.1, 0.05,  4000],
+                [0.1, 0.05,  6000],
+                [0.1, 0.05,  8000],
+                [0.1, 0.05,  10000]
+            ]
 
 
-            for l2_num_retran in l2_num_retrans:
-                for l2_timeout in l2_timeouts:
-                    for l4_timeout in l4_timeouts:
-                        for l5_thrpt in l5_maxthrpt:
+            for setup_test in setups:
+                l4_timeout = setup_test[0]
+                l2_timeout = setup_test[1]
+                l5_thrpt = setup_test[2]
+                l2_num_retran = int((l4_timeout/l2_timeout)-1)
+                print('\n~~ Iteration', iteration_num, ' ~~')
+                setup = "Iteration Number: " +str(iteration_num) + ", l5_max_thrpt:"+ str(l5_thrpt)+ ", l4_timeout:" + str(l4_timeout) + ", l2_timeout:" + str(l2_timeout) + ", l2_num" + str(l2_num_retran)
+                if self.layer4.log:
 
+                    self.layer4.writer.writerow([setup])
 
-                            print('\n~~ Iteration', iteration_num, ' ~~')
-                            setup = "Iteration Number: " +str(iteration_num) + ", l5_max_thrpt:"+ str(l5_thrpt)+ ", l4_timeout:" + str(l4_timeout) + ", l2_timeout:" + str(l2_timeout) + ", l2_num" + str(l2_num_retran)
-                            if self.layer4.log:
+                # goto state
+                self.layer5.tspt_rate = l5_thrpt
+                self.layer4.timeout = l4_timeout
+                self.layer2.timeout = l2_timeout
+                self.layer2.n_retrans = l2_num_retran
+                
 
-                                self.layer4.writer.writerow([setup])
+                # Broadcast State
+                state_loop = True
+                state_timeout = time()
+                print('Waiting for state buffer. . .')
+                while state_loop:
+                    if None in self.state_buf:
+                        self.control_plane.get_state_msgs()  
+                        state_timeout = time()
+                    
+                    if self.get_state_msg == True:
+                        self.get_state_msg = False
+                        self.control_plane.broadcast_state(str(self.node_index) + ',' + str(self.loc_index) + ',' + str(self.pow_index))
+                        state_timeout = time()
+                    
+                    if time() - state_timeout > 1:
+                        state_loop = False
 
-                            # goto state
-                            self.layer5.tspt_rate = l5_thrpt
-                            self.layer4.timeout = l4_timeout
-                            self.layer2.timeout = l2_timeout
-                            self.layer2.n_retrans = l2_num_retran
-                            
+                    sleep(0.1)
 
-                            # Broadcast State
-                            state_loop = True
-                            state_timeout = time()
-                            print('Waiting for state buffer. . .')
-                            while state_loop:
-                                if None in self.state_buf:
-                                    self.control_plane.get_state_msgs()  
-                                    state_timeout = time()
-                                
-                                if self.get_state_msg == True:
-                                    self.get_state_msg = False
-                                    self.control_plane.broadcast_state(str(self.node_index) + ',' + str(self.loc_index) + ',' + str(self.pow_index))
-                                    state_timeout = time()
-                                
-                                if time() - state_timeout > 1:
-                                    state_loop = False
+                self.layer5.transmit=True
+                start_time = time()
+                # Wait for desired min iteration time to pass
+                while time()-start_time<self.min_time:
+                    sleep(0.01)
+                self.layer5.transmit=False
 
-                                sleep(0.1)
+                
 
-                            self.layer5.transmit=True
-                            start_time = time()
-                            # Wait for desired min iteration time to pass
-                            while time()-start_time<self.min_time:
-                                sleep(0.01)
-                            self.layer5.transmit=False
+                # Log Data
+                self.writer.writerow([iteration_num]+self.state_buf+[self.layer4.n_ack])
+                print(" - log data")
+                print(setup)
+                print("num acks:", self.layer4.n_ack)
 
-                           
-
-                            # Log Data
-                            self.writer.writerow([iteration_num]+self.state_buf+[self.layer4.n_ack])
-                            print(" - log data")
-                            print(setup)
-                            print("num acks:", self.layer4.n_ack)
-
-                            # Reset State Buffer
-                            self.layer4.n_ack = 0
-                            
-                            iteration_num += 1
-                            print(" - reset")
+                # Reset State Buffer
+                self.layer4.n_ack = 0
+                
+                iteration_num += 1
+                print(" - reset")
                 
             print("~ ~ Finished Successfully ~ ~")
             self.my_drone.handle_landing()
