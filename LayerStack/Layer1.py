@@ -11,7 +11,7 @@ from numpy import byte, frombuffer
 
    
 class Layer1(Network_Layer):
-    def __init__(self, mynode, debug=False):
+    def __init__(self, mynode, input_port='55555', output_port='55556', debug=False):
         '''
         Object to send and receive bytes via uarp radios through tcp connections to GNU radio object
         :param mynode: Node_Config object for the current node USRP configuration information
@@ -23,11 +23,11 @@ class Layer1(Network_Layer):
 
         send_context = zmq.Context()
         self.send_socket = send_context.socket(zmq.PUB)
-        self.send_socket.bind("tcp://127.0.0.1:"+str(mynode.usrp_in_port))
+        self.send_socket.bind("tcp://127.0.0.1:"+str(input_port))
 
         recv_context = zmq.Context()
         self.recv_socket = recv_context.socket(zmq.SUB)
-        self.recv_socket.connect("tcp://127.0.0.1:"+str(mynode.usrp_out_port))
+        self.recv_socket.connect("tcp://127.0.0.1:"+str(output_port))
         self.recv_socket.setsockopt(zmq.SUBSCRIBE, b'')
 
         # measurement
@@ -35,7 +35,7 @@ class Layer1(Network_Layer):
         self.n_recv = 0
 
         # USRP Object
-        self.tb = TRX_ODFM_USRP(input_port_num=str(mynode.usrp_in_port), serial_num=str(mynode.serial), output_port_num=str(mynode.usrp_out_port), rx_bw=int(mynode.rx_bw), rx_freq=int(mynode.rx_freq), rx_gain=mynode.rx_gain, tx_bw=int(mynode.tx_bw), tx_freq=int(mynode.tx_freq), tx_gain=mynode.tx_gain)
+        self.tb = TRX_ODFM_USRP(input_port_num=str(input_port), serial_num=str(mynode.serial), output_port_num=str(output_port), rx_bw=int(mynode.rx_bw), rx_freq=int(mynode.rx_freq), rx_gain=mynode.rx_gain, tx_bw=int(mynode.tx_bw), tx_freq=int(mynode.tx_freq), tx_gain=mynode.tx_gain)
         def sig_handler(sig=None, frame=None):
             self.tb.stop()
             self.tb.wait()
@@ -45,6 +45,22 @@ class Layer1(Network_Layer):
         signal.signal(signal.SIGTERM, sig_handler)
 
         self.tb.start()
+        self.print_usrp_status()
+
+    def print_usrp_status(self):
+        '''
+        Method to display the L1 usrp settings
+        '''
+        print("- - - USRP SETTINGS - - -\n")
+        print("Serial:", self.tb.get_serial_num()," \n", 
+            "\tRX Freq:", self.tb.get_rx_freq()," Hz\n",
+            "\tRX BW:", self.tb.get_rx_bw()," Hz\n",
+            "\tRX Gain:", self.tb.get_rx_gain()," dB\n",
+            "\tTX Freq:", self.tb.get_tx_freq(), " Hz\n",
+            "\tTX BW:", self.tb.get_tx_bw(), " Hz\n",
+            "\tTX Gain:", self.tb.get_tx_gain(), " dB\n",
+            "\tPKT Len:", self.tb.get_packet_len(), " Bytes\n"
+        )
     
 
     def set_rx_gain(self, gain):
@@ -91,5 +107,4 @@ class Layer1(Network_Layer):
         while not stop():
             msg = self.prev_down_queue.get(True)    #  get message from previous layer down queue
             self.send_socket.send(msg)
-            
-
+            self.n_sent = self.n_sent + len(msg)
