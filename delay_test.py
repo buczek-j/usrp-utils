@@ -460,7 +460,8 @@ class UAV_Node():
                 l4_timeout = setup_test[0]
                 l2_timeout = setup_test[1]
                 l5_thrpt = setup_test[2]
-                l2_num_retran = int((l4_timeout/l2_timeout)-1)
+                # l2_num_retran = int((l4_timeout/l2_timeout)-1)
+                l2_num_retran = 4
                 print('\n~~ Iteration', iteration_num, ' ~~')
                 setup = "Iteration Number: " +str(iteration_num) + ", l5_max_thrpt:"+ str(l5_thrpt)+ ", l4_timeout:" + str(l4_timeout) + ", l2_timeout:" + str(l2_timeout) + ", l2_num: " + str(l2_num_retran)
                 if self.layer4.log:
