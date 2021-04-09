@@ -141,7 +141,7 @@ class Control_Plane():
             packet = packet[2:]
 
             if control_code == CP_Codes.L4_ACK.value:
-                (ack,)=struct.unpack('l', packet[0:8])
+                (ack,)=struct.unpack('L', packet[0:8])
                 (time_sent,) = struct.unpack('d', packet[8:16])
                 l4_recv_ack(ack, time_sent)
 
