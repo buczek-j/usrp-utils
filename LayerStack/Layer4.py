@@ -99,17 +99,17 @@ class Layer4(Network_Layer):
             self.ack_set.add(pktno)
             self.n_ack += 1
 
+            if self.debug:
+                print("L4 ACK:", pktno)
+            
+            if self.log == True:
+                ack_time = time()
+                rtt = ack_time - time_sent 
+                self.writer.writerow([pktno, time_sent, ack_time, rtt, 8.0*self.l4_size/rtt])
+
 
         if pktno == self.unacked_packet:
-            globals()["l4_ack"].set()
-            
-        if self.log == True:
-            ack_time = time()
-            rtt = ack_time - time_sent 
-            self.writer.writerow([pktno, time_sent, ack_time, rtt, 8.0*self.l4_size/rtt])
-
-        if self.debug:
-            print("L4 ACK:", pktno)
+            globals()["l4_ack"].set()      
 
     def pass_up(self, stop):
         '''
