@@ -52,7 +52,7 @@ class Layer1(Network_Layer):
         Method to display the L1 usrp settings
         '''
         print("- - - USRP SETTINGS - - -\n")
-        print("Serial:", self.tb.get_serial_num()," \n", 
+        print("\tSerial:", self.tb.get_serial_num()," \n", 
             "\tRX Freq:", self.tb.get_rx_freq()," Hz\n",
             "\tRX BW:", self.tb.get_rx_bw()," Hz\n",
             "\tRX Gain:", self.tb.get_rx_gain()," dB\n",
