@@ -68,7 +68,7 @@ class Layer4(Network_Layer):
         self.timeout=timeout
         self.n_retrans = n_retrans
         self.unacked_packet = 0
-        self.ack_set = ()
+        self.ack_list = []
         
         self.l4_size = num_blocks*l2_block_size*num_frames
         self.l4_header = l4_header
@@ -95,8 +95,8 @@ class Layer4(Network_Layer):
         :param time_sent: float for the packet time sent
         TODO 
         '''
-        if not pktno in self.ack_set:
-            self.ack_set.add(pktno)
+        if not pktno in self.ack_list:
+            self.ack_list.append(pktno)
             self.n_ack += 1
 
             if self.debug:
