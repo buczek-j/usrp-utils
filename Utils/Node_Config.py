@@ -5,7 +5,7 @@ Node_Config object
 '''
 
 class Node_Config():
-	def __init__(self, pc_ip='', usrp_ip='', my_id='src0', role='tx', listen_port=55557, usrp_ports=['55555', '55556'], rx_bw=500e3, rx_freq=2e9, rx_gain=0.5, tx_bw=500e3, tx_freq=2.1e9, tx_gain=0.5, serial=""):
+	def __init__(self, pc_ip='', usrp_ip='', my_id='src0', role='tx', listen_port=55557, usrp_ports=['55555', '55556'], rx_bw=500e3, rx_freq=2e9, rx_gain=0.8, tx_bw=500e3, tx_freq=2.1e9, tx_gain=0.8, serial=""):
 		'''
 		:param pc_ip: string of ip address of the pc for the node
 		:param usrp_ip: string of ip address for the usrp of the node
