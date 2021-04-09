@@ -534,8 +534,8 @@ def main():
     '''
     Main Method
     '''
-    freq1 = 2.4e9
-    freq2 = 2.5e9
+    freq1 = 2.2e9
+    freq2 = 2.1e9
     freq3 = 2.6e9
 
     dest1= Node_Config(pc_ip='192.168.10.101', usrp_ip='192.170.10.101', my_id='dest1', role='rx', tx_freq=freq3, rx_freq=freq2, serial="", location_index=10)
