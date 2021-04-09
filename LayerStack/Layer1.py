@@ -45,6 +45,22 @@ class Layer1(Network_Layer):
         signal.signal(signal.SIGTERM, sig_handler)
 
         self.tb.start()
+        self.print_usrp_status()
+
+    def print_usrp_status(self):
+        '''
+        Method to display the L1 usrp settings
+        '''
+        print("- - - USRP SETTINGS - - -\n")
+        print("Serial:", self.tb.get_serial_num()," \n", 
+            "\tRX Freq:", self.tb.get_rx_freq()," Hz\n",
+            "\tRX BW:", self.tb.get_rx_bw()," Hz\n",
+            "\tRX Gain:", self.tb.get_rx_gain()," dB\n",
+            "\tTX Freq:", self.tb.get_tx_freq(), " Hz\n",
+            "\tTX BW:", self.tb.get_tx_bw(), " Hz\n",
+            "\tTX Gain:", self.tb.get_tx_gain(), " dB\n",
+            "\tPKT Len:", self.tb.get_packet_len(), " Bytes\n"
+        )
     
 
     def set_rx_gain(self, gain):
