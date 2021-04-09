@@ -92,16 +92,20 @@ class Layer4(Network_Layer):
         Method to signal that a packet has been ack'd 
         :param pktno: int for the packet number that has been acked
         :param time_sent: float for the packet time sent
+        TODO 
         '''
+        self.n_ack += 1
+
         if pktno == self.unacked_packet:
             globals()["l4_ack"].set()
-            self.n_ack += 1
-            if self.log == True:
-                ack_time = time()
-                rtt = ack_time - time_sent 
-                self.writer.writerow([pktno, time_sent, ack_time, rtt, 8.0*self.l4_size/rtt])
-            if self.debug:
-                print("L4 ACK:", pktno)
+            
+        if self.log == True:
+            ack_time = time()
+            rtt = ack_time - time_sent 
+            self.writer.writerow([pktno, time_sent, ack_time, rtt, 8.0*self.l4_size/rtt])
+
+        if self.debug:
+            print("L4 ACK:", pktno)
 
     def pass_up(self, stop):
         '''
