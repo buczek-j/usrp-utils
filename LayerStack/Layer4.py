@@ -161,7 +161,7 @@ class Layer4(Network_Layer):
             # pass l2 packets down to l3
             while pkt_no_mac <= self.num_frames:
                 chunk = l4_packet[(pkt_no_mac-1)*self.chunk_size : min((pkt_no_mac)*self.chunk_size,len(l4_packet)) ]
-                l2_packet = struct.pack('L', pkt_no_mac ) + l4_packet[8:28] + l4_packet[28:48] + chunk  # packet source not needed, it gets replaced in l3, similarly, in l3 the dest is replaced by the mac address
+                l2_packet = struct.pack('H', pkt_no_mac & 0xffff ) + l4_packet[8:28] + l4_packet[28:48] + chunk  # packet source not needed, it gets replaced in l3, similarly, in l3 the dest is replaced by the mac address
                 self.down_queue.put(l2_packet, True)    # TODO check that a full l2 packet is made and pad otherwise
 
                 pkt_no_mac +=1
