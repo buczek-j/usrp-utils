@@ -119,6 +119,8 @@ class Layer4(Network_Layer):
             packet_destination = self.unpad(l4_packet[28:48])
             
             self.n_recv = self.n_recv + len(l4_packet)
+            if self.debug:
+                print('L4 RCV', l4_packet[:8])
 
             # if self.debug:
             #     (timestamp,) = struct.unpack('d', l4_packet[48:56])
@@ -146,6 +148,8 @@ class Layer4(Network_Layer):
             packet_source = self.unpad(l4_packet[8:28])
             self.n_sent = self.n_sent + len(l4_packet)      # record number of bytes
             
+            if self.debug:
+                print('L4 Sent', l4_packet[:8])
 
             try:
                 self.unacked_packet = struct.unpack('l', l4_packet[0:8])[0]
