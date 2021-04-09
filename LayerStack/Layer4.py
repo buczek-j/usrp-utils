@@ -148,7 +148,7 @@ class Layer4(Network_Layer):
                 if globals()["l4_ack"].isSet(): # ack received
                     globals()["l4_ack"].clear()
                     # TODO measurements
-                    print("~~~ L4 ACK")
+                    print("\n~~~ L4 ACK")
                     break
 
                 elif act_rt < self.n_retrans:       # check num of retransmissions
