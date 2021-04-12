@@ -86,6 +86,7 @@ class Layer4(Network_Layer):
 
             globals()["l4_ack"].set()
             self.n_ack += 1
+            print("RTT", time()-time_sent)
 
     def send_msg(self, msg, dest_port=0):
         '''

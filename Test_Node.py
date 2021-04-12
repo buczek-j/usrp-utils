@@ -42,6 +42,8 @@ class Test_Node():
         self.layer3.init_layers(upper=self.layer4, lower=self.layer2)
         self.layer4.init_layers(upper=None, lower=self.layer3)  # link l4 to this class object
 
+        self.prev_msg = ''
+
         print("~ ~ Initialization Complete ~ ~", end='\n\n')
         
 
@@ -58,8 +60,10 @@ class Test_Node():
         TODO
         '''
         while not stop():
-            msg = self.layer4.recv_msg()
-            print(msg)
+            msg = self.layer4.recv_msg().decode('utf-8')
+            if msg != self.prev_msg:
+                print(msg)
+                self.prev_msg = msg
 
     def start_threads(self):
         '''
@@ -102,16 +106,6 @@ class Test_Node():
         print("\n ~ ~ Threads Closed ~ ~", end='\n\n')
         os._exit(0)
 
-    def handle_state(self, node_index, loc_index, pow_index):
-        '''
-        Method to handle receiving state info from another node
-        :param  node_index: int for the node index number
-        :param loc_index: int for the location index number
-        :param pow_index: int for the tx power index number
-        '''
-        # [loc0, loc1, loc2, ..., locn, pow0, pow1, pow2, ..., pown ]
-        self.state_buf[int(node_index)] = int(loc_index)
-        self.state_buf[int(node_index) + self.num_nodes] = int(pow_index)
 
     def run(self):
         '''
@@ -159,16 +153,16 @@ def main():
     
     if int(options.index) == 0:
         my_config = dest1
-    elif int(options.index) == 1:
-        my_config = rly1
+    # elif int(options.index) == 1:
+    #     my_config = rly1
     elif int(options.index) == 2:
         my_config = src1
-    elif int(options.index) == 3:
-        my_config = dest2
-    elif int(options.index) == 4:
-        my_config = rly2
-    elif int(options.index) == 5:
-        my_config = src2
+    # elif int(options.index) == 3:
+    #     my_config = dest2
+    # elif int(options.index) == 4:
+    #     my_config = rly2
+    # elif int(options.index) == 5:
+    #     my_config = src2
     else:
         print('INVALID INDEX')
         exit(0)
