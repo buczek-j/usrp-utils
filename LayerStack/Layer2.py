@@ -28,7 +28,7 @@ L2_Num_Blocks=2
 L2_Block_Size=128
 
 class Layer2(Network_Layer):
-    def __init__(self, mac_ip, num_frames=1, timeout=0.03, n_retrans=15, debug=False):
+    def __init__(self, mac_ip, num_frames=1, timeout=0.1, n_retrans=4, debug=False):
         '''
         Layer 2 network layer object
         :param mac_ip: string for the usrp mac address fo the current node
