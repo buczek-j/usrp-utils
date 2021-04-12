@@ -82,6 +82,7 @@ class Layer4(Network_Layer):
         :param pktno: int for the packet number that has been acked
         :param time_sent: float for the packet time sent
         '''
+        print('L4', pktno, time_sent)
         if pktno == self.unacked_packet:
 
             globals()["l4_ack"].set()
