@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# ./mass_scp.sh "./random" "~/Documents"
+
 echo 1
 scp -r ~/Documents/usrp-utils wines-nuc1@192.168.10.101:~/Documents;
 echo 2

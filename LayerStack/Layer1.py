@@ -6,9 +6,9 @@ Layer 1 object: Physical layer
 
 from LayerStack.L1_protocols.TRX_ODFM_USRP import TRX_ODFM_USRP
 from LayerStack.Network_Layer import Network_Layer
-import signal, time, sys, pmt, zmq, os
+import signal, time, sys, pmt, zmq, os, struct
 from numpy import byte, frombuffer
-
+from argparse import ArgumentParser
    
 class Layer1(Network_Layer):
     def __init__(self, mynode, input_port='55555', output_port='55556', debug=False):
@@ -35,7 +35,7 @@ class Layer1(Network_Layer):
         self.n_recv = 0
 
         # USRP Object
-        self.tb = TRX_ODFM_USRP(input_port_num=str(input_port), serial_num=str(mynode.serial), output_port_num=str(output_port), rx_bw=int(mynode.rx_bw), rx_freq=int(mynode.rx_freq), rx_gain=mynode.rx_gain, tx_bw=int(mynode.tx_bw), tx_freq=int(mynode.tx_freq), tx_gain=mynode.tx_gain)
+        self.tb = TRX_ODFM_USRP(input_port_num=str(input_port), output_port_num=str(output_port), rx_bw=int(mynode.rx_bw), rx_freq=int(mynode.rx_freq), rx_gain=mynode.rx_gain, tx_bw=int(mynode.tx_bw), tx_freq=int(mynode.tx_freq), tx_gain=mynode.tx_gain)
         def sig_handler(sig=None, frame=None):
             self.tb.stop()
             self.tb.wait()
@@ -52,7 +52,7 @@ class Layer1(Network_Layer):
         Method to display the L1 usrp settings
         '''
         print("- - - USRP SETTINGS - - -\n")
-        print("\tSerial:", self.tb.get_serial_num()," \n", 
+        print( 
             "\tRX Freq:", self.tb.get_rx_freq()," Hz\n",
             "\tRX BW:", self.tb.get_rx_bw()," Hz\n",
             "\tRX Gain:", self.tb.get_rx_gain()," / 1.0\n",
@@ -131,7 +131,7 @@ if __name__ == '__main__':
     recv_socket.connect("tcp://127.0.0.1:"+str(options.onp))
     recv_socket.setsockopt(zmq.SUBSCRIBE, b'')
 
-    tb = TRX_ODFM_USRP(serial_num='', rx_freq=int(options.rxf), rx_gain=options.rxg, tx_freq=int(options.txf), tx_gain=options.txg, input_port_num=str(options.inp), output_port_num=str(options.onp))
+    tb = TRX_ODFM_USRP(rx_freq=int(options.rxf), rx_gain=options.rxg, tx_freq=int(options.txf), tx_gain=options.txg, input_port_num=str(options.inp), output_port_num=str(options.onp))
     def sig_handler(sig=None, frame=None):
         tb.stop()
         tb.wait()
@@ -152,4 +152,4 @@ if __name__ == '__main__':
         while True:
             msg = recv_socket.recv()
             received_pkt = frombuffer(msg, dtype=byte, count=-1)
-            print(received_pkt.decode('utf-8'))
+            print(received_pkt.tobytes().decode('utf-8'))

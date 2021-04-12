@@ -70,7 +70,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [656, 20]
+    coordinate: [656, 20.0]
     rotation: 0
     state: enabled
 - name: freq_offset
@@ -103,7 +103,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [304, 20]
+    coordinate: [304, 20.0]
     rotation: 0
     state: enabled
 - name: header_equalizer
@@ -116,7 +116,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1264, 100]
+    coordinate: [1264, 100.0]
     rotation: 0
     state: enabled
 - name: header_formatter
@@ -130,7 +130,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1200, 20]
+    coordinate: [1200, 20.0]
     rotation: 0
     state: enabled
 - name: header_mod
@@ -142,7 +142,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [840, 20]
+    coordinate: [840, 20.0]
     rotation: 0
     state: enabled
 - name: length_tag_key
@@ -154,7 +154,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [728, 20]
+    coordinate: [728, 20.0]
     rotation: 0
     state: enabled
 - name: noise_voltage
@@ -188,7 +188,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [880, 100]
+    coordinate: [880, 100.0]
     rotation: 0
     state: enabled
 - name: packet_len
@@ -200,7 +200,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1384, 20]
+    coordinate: [1384, 20.0]
     rotation: 0
     state: enabled
 - name: packet_length_tag_key
@@ -212,7 +212,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1472, 20]
+    coordinate: [1472, 20.0]
     rotation: 0
     state: enabled
 - name: payload_equalizer
@@ -225,7 +225,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1456, 100]
+    coordinate: [1456, 100.0]
     rotation: 0
     state: enabled
 - name: payload_mod
@@ -237,7 +237,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1024, 20]
+    coordinate: [1024, 20.0]
     rotation: 0
     state: enabled
 - name: pilot_carriers
@@ -249,7 +249,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1040, 100]
+    coordinate: [1040, 100.0]
     rotation: 0
     state: enabled
 - name: pilot_symbols
@@ -261,7 +261,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1152, 100]
+    coordinate: [1152, 100.0]
     rotation: 0
     state: enabled
 - name: polys
@@ -285,7 +285,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [224, 20]
+    coordinate: [224, 20.0]
     rotation: 0
     state: enabled
 - name: samp_rate
@@ -314,7 +314,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [592, 100]
+    coordinate: [592, 100.0]
     rotation: 0
     state: enabled
 - name: sync_word2
@@ -332,7 +332,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [736, 100]
+    coordinate: [736, 100.0]
     rotation: 0
     state: enabled
 - name: variable_cc_decoder_def
@@ -411,7 +411,7 @@ blocks:
     bus_structure: null
     coordinate: [892, 1761]
     rotation: 0
-    state: disabled
+    state: true
 - name: blocks_delay_0
   id: blocks_delay
   parameters:
@@ -885,7 +885,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1248, 1444]
+    coordinate: [1248, 1444.0]
     rotation: 0
     state: enabled
 - name: digital_ofdm_sync_sc_cfb_0
@@ -960,7 +960,7 @@ blocks:
     bus_structure: null
     coordinate: [1079, 1733]
     rotation: 0
-    state: disabled
+    state: true
 - name: fec_extended_tagged_encoder_0
   id: fec_extended_tagged_encoder
   parameters:
@@ -977,9 +977,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [939, 288]
+    coordinate: [936, 278]
     rotation: 0
-    state: disabled
+    state: true
 - name: fec_generic_decoder_0
   id: fec_generic_decoder
   parameters:
@@ -1013,7 +1013,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [947, 242]
+    coordinate: [950, 289]
     rotation: 0
     state: disabled
 - name: fec_tagged_decoder_0
@@ -1035,7 +1035,7 @@ blocks:
     bus_structure: null
     coordinate: [1075, 1641]
     rotation: 0
-    state: bypassed
+    state: disabled
 - name: fec_tagged_encoder_0
   id: fec_tagged_encoder
   parameters:
@@ -1053,9 +1053,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [940, 155]
+    coordinate: [921, 182]
     rotation: 0
-    state: bypassed
+    state: disabled
 - name: fft_vxx_0
   id: fft_vxx
   parameters:
@@ -1142,7 +1142,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [512, 20]
+    coordinate: [512, 20.0]
     rotation: 0
     state: enabled
 - name: input_port_num
@@ -1193,7 +1193,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [344, 124]
+    coordinate: [344, 124.0]
     rotation: 0
     state: true
 - name: rx_freq
@@ -1210,7 +1210,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [248, 124]
+    coordinate: [248, 124.0]
     rotation: 0
     state: true
 - name: rx_gain
@@ -1227,7 +1227,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [144, 124]
+    coordinate: [144, 124.0]
     rotation: 0
     state: true
 - name: serial_num
@@ -1244,7 +1244,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [32, 124]
+    coordinate: [32, 124.0]
     rotation: 0
     state: true
 - name: tx_bw
@@ -1261,7 +1261,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [344, 204]
+    coordinate: [344, 204.0]
     rotation: 0
     state: true
 - name: tx_freq
@@ -1278,7 +1278,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [248, 204]
+    coordinate: [248, 204.0]
     rotation: 0
     state: true
 - name: tx_gain
@@ -1295,7 +1295,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [144, 204]
+    coordinate: [144, 204.0]
     rotation: 0
     state: true
 - name: uhd_usrp_sink_0
