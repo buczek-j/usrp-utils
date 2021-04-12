@@ -105,7 +105,7 @@ class Layer2(Network_Layer):
             if self.debug:
                 print("L2_up", "pknto", pktno_mac, "dest:", mac_destination_ip, "src:", mac_source_ip, "Ack:", ack)
                 print("to me?", mac_destination_ip == self.mac_ip)
-                print('My Ack?', ack, self.sent_pkt_dict[addr])
+                print('My Ack?', ack, self.sent_pkt_dict[mac_source_ip])
 
             if not (mac_source_ip in self.mac_pkt_dict.keys()):
                 self.mac_pkt_dict[mac_source_ip] = L2_ENUMS.MSG.value
