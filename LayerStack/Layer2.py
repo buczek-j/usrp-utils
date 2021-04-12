@@ -63,7 +63,7 @@ class Layer2(Network_Layer):
         :param dest: bytes for the destination mac address
         '''
         pkt = struct.pack("H", L2_ENUMS.MSG.value) + dest + self.mac_ip + pktno
-        for ii in range(self.chunk_size - (len(pkt[(L2_Header_Len:])%self.chunk_size)):  # pad to next chunk size
+        for ii in range(self.chunk_size - (len(pkt[L2_Header_Len:])%self.chunk_size)):  # pad to next chunk size
                 pkt = pkt+struct.pack('x')
         self.down_queue.put(pkt, True)
         print("ACK LEN",len(pkt))
