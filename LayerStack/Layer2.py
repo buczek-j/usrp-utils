@@ -154,7 +154,9 @@ class Layer2(Network_Layer):
 
             while len(down_packet[(L2_Header_Len+(self.chunk_size*(pkno-1))):]) / (self.chunk_size)>0:   #while chunks left
                 chunk = down_packet[(L2_Header_Len+(self.chunk_size*(pkno-1))):(L2_Header_Len+(self.chunk_size*(pkno)))]
+                globals()["l2_ack"].clear()
                 self.down_queue.put(down_packet[0:L2_Header_Len] + chunk, True)
+                
                 self.sent_pkt_dict[down_packet[2:8]]= pkno
                 pkno += 1
 
