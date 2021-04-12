@@ -96,7 +96,6 @@ class Layer1(Network_Layer):
                 msg = self.recv_socket.recv()
                 received_pkt = frombuffer(msg, dtype=byte, count=-1)
                 self.up_queue.put(received_pkt.tobytes(), True)
-                self.n_recv = self.n_recv + len(received_pkt.tobytes())
                 received_pkt=None
 
 
@@ -108,7 +107,6 @@ class Layer1(Network_Layer):
         while not stop():
             msg = self.prev_down_queue.get(True)    #  get message from previous layer down queue
             self.send_socket.send(msg)
-            self.n_sent = self.n_sent + len(msg)
 
 
 if __name__ == '__main__':
