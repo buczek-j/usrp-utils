@@ -127,10 +127,10 @@ if __name__ == '__main__':
 
     recv_context = zmq.Context()
     recv_socket = recv_context.socket(zmq.SUB)
-    recv_socket.connect("tcp://127.0.0.1:"+str(options.ont))
+    recv_socket.connect("tcp://127.0.0.1:"+str(options.onp))
     recv_socket.setsockopt(zmq.SUBSCRIBE, b'')
 
-    tb = TRX_ODFM_USRP(serial_num='', rx_freq=int(options.rxf), rx_gain=options.rxg, tx_freq=int(options.txf), tx_gain=options.txg, input_port_num=str(options.inp), output_port_num=str(options.ont))
+    tb = TRX_ODFM_USRP(serial_num='', rx_freq=int(options.rxf), rx_gain=options.rxg, tx_freq=int(options.txf), tx_gain=options.txg, input_port_num=str(options.inp), output_port_num=str(options.onp))
     def sig_handler(sig=None, frame=None):
         tb.stop()
         tb.wait()
