@@ -117,7 +117,7 @@ if __name__ == '__main__':
     parser.add_argument('--rxg', type=float, default=float(0.8), help='rx gain normalized')
     parser.add_argument('--txg', type=float, default=float(0.8), help='tx gain normalized')
     parser.add_argument('--inp', type=int, default=int(55555), help='input port')
-    parser.add_argument('--onp', type=int, default=int(55555), help='output port')
+    parser.add_argument('--onp', type=int, default=int(55556), help='output port')
 
     options = parser.parse_args()
 
