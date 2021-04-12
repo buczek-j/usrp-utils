@@ -133,10 +133,10 @@ def main():
     Main Method
     '''
     freq1 = 2.5e9
-    freq2 = 2.3e9
+    freq2 = 2.7e9
 
     dest1= Node_Config(pc_ip='192.168.10.101', usrp_ip='0.0.192.170.10.101', my_id='dest1', role='rx', tx_freq=freq2, rx_freq=freq1)
-    src1 = Node_Config(pc_ip='192.168.10.103', usrp_ip='0.0.192.170.10.103', my_id='src1' , role='tx', tx_freq=freq1, rx_freq=freq2, usrp_ports=['55557', '55558'])
+    src1 = Node_Config(pc_ip='192.168.10.103', usrp_ip='0.0.192.170.10.103', my_id='src1' , role='tx', tx_freq=freq1, rx_freq=freq2)
 
     parser = ArgumentParser()
     parser.add_argument('--index', type=int, default='', help='node index number')
