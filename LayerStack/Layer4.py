@@ -119,6 +119,7 @@ class Layer4(Network_Layer):
                 print('l4', l4_packet)
             
             ack_num = struct.unpack("I", l4_packet[20:24])[0]
+            print('ACK NO', ack_num)
             if ack_num !=0:
                 self.recv_ack(ack_num, struct.unpack("d", l4_packet[12:20])[0])
             else:
@@ -160,8 +161,7 @@ class Layer4(Network_Layer):
                     l4_down_access.release()
 
                 else:
-                    if self.debug:
-                        print("FATAL ERROR: L4 retransmit limit reached for pktno ", self.unacked_packet)
+                    print("FATAL ERROR: L4 retransmit limit reached for pktno ", self.unacked_packet)
                     try:
                         globals()["l4_ack"].set()
                     except:
