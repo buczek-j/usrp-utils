@@ -63,6 +63,8 @@ class Layer2(Network_Layer):
         :param dest: bytes for the destination mac address
         '''
         pkt = struct.pack("H", L2_ENUMS.MSG.value) + dest + self.mac_ip + pktno
+        for ii in range(self.chunk_size - (len(pkt[L2_Header_Len:])%self.chunk_size)):  # pad to next chunk size
+                pkt = pkt+struct.pack('x')
         self.down_queue.put(pkt, True)
         
     def recv_ack(self, pktno, addr):
@@ -150,8 +152,8 @@ class Layer2(Network_Layer):
             for ii in range(self.chunk_size - (len(down_packet[L2_Header_Len:])%self.chunk_size)):  # pad to next chunk size
                 down_packet = down_packet+struct.pack('x')
 
-            if self.debug:
-                print("from l3", down_packet)
+            # if self.debug:
+            #     print("from l3", down_packet)
 
             while len(down_packet[(L2_Header_Len+(self.chunk_size*(pkno-1))):]) / (self.chunk_size)>0:   #while chunks left
                 chunk = down_packet[(L2_Header_Len+(self.chunk_size*(pkno-1))):(L2_Header_Len+(self.chunk_size*(pkno)))]
