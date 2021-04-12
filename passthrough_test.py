@@ -12,7 +12,7 @@ if __name__ == '__main__':
     context = zmq.Context()
     socket = context.socket(zmq.PUB)
     socket.bind("tcp://127.0.0.1:55555") # connect, not bind, the PUB will bind, only 1 can bind
-    msg = np.ones(128, dtype=np.byte)
+    msg = np.ones(256, dtype=np.byte)
 
     #reader
     rcv_socket = context.socket(zmq.SUB)
