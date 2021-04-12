@@ -18,7 +18,7 @@ l4_down_access = Lock()
 L4_Header_Len=24
 
 class Layer4(Network_Layer):
-    def __init__(self, my_config, timeout=1.0, n_retrans=3, debug=False):
+    def __init__(self, my_config, timeout=0.5, n_retrans=3, debug=False):
         '''
         Layer 4 Transport layer object
         :param my_config: Node_Config object for the current node

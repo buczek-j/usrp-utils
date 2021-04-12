@@ -28,7 +28,7 @@ L2_Num_Blocks=2
 L2_Block_Size=128
 
 class Layer2(Network_Layer):
-    def __init__(self, mac_ip, num_frames=1, timeout=0.1, n_retrans=9, debug=False):
+    def __init__(self, mac_ip, num_frames=1, timeout=0.03, n_retrans=15, debug=False):
         '''
         Layer 2 network layer object
         :param mac_ip: string for the usrp mac address fo the current node
@@ -66,7 +66,6 @@ class Layer2(Network_Layer):
         for ii in range(self.chunk_size - (len(pkt[L2_Header_Len:])%self.chunk_size)):  # pad to next chunk size
                 pkt = pkt+struct.pack('x')
         self.down_queue.put(pkt, True)
-        print("ACK LEN",len(pkt))
         
     def recv_ack(self, pktno, addr):
         '''
@@ -156,7 +155,6 @@ class Layer2(Network_Layer):
             pkno = 1
             for ii in range(self.chunk_size - (len(down_packet[L2_Header_Len:])%self.chunk_size)):  # pad to next chunk size
                 down_packet = down_packet+struct.pack('x')
-            print("PKT LEN", len(down_packet))
 
             # if self.debug:
             #     print("from l3", down_packet)
