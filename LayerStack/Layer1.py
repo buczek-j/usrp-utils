@@ -112,10 +112,10 @@ class Layer1(Network_Layer):
 if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('--role', type=str, default='rx', help='node role')
-    parser.add_argument('--frx', type=int, default=int(2.0e9), help='rx freq')
-    parser.add_argument('--ftx', type=int, default=int(2.2e9), help='tx freq')
-    parser.add_argument('--grx', type=float, default=float(0.8), help='rx gain normalized')
-    parser.add_argument('--gtx', type=float, default=float(0.8), help='tx gain normalized')
+    parser.add_argument('--rxf', type=int, default=int(2.0e9), help='rx freq')
+    parser.add_argument('--txf', type=int, default=int(2.2e9), help='tx freq')
+    parser.add_argument('--rxg', type=float, default=float(0.8), help='rx gain normalized')
+    parser.add_argument('--txg', type=float, default=float(0.8), help='tx gain normalized')
     parser.add_argument('--inp', type=int, default=int(55555), help='input port')
     parser.add_argument('--onp', type=int, default=int(55555), help='output port')
 
