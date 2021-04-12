@@ -143,7 +143,7 @@ if __name__ == '__main__':
     if options.role == 'tx':
         while True:
             msg = input("'MSG to send:")
-            self.send_socket.send(msg.encode('utf-8'))
+            send_socket.send(msg.encode('utf-8'))
 
     elif options.role == 'rx':
         while True:
