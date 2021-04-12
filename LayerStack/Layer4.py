@@ -142,6 +142,7 @@ class Layer4(Network_Layer):
                  
             l4_down_access.acquire()
             # pass l2 packets down to l3
+            globals()["l4_ack"].clear()
             self.down_queue.put(self.make_l4_pkt(pkt_num=l4_pktno, dest_port=self.dest_port, msg=msg), True)   
             l4_pktno +=1
             l4_down_access.release()
