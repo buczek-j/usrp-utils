@@ -8,6 +8,7 @@ from LayerStack.L1_protocols.TRX_ODFM_USRP import TRX_ODFM_USRP
 from LayerStack.Network_Layer import Network_Layer
 import signal, time, sys, pmt, zmq, os
 from numpy import byte, frombuffer
+from argparse import ArgumentParser
 
    
 class Layer1(Network_Layer):
@@ -108,3 +109,46 @@ class Layer1(Network_Layer):
             msg = self.prev_down_queue.get(True)    #  get message from previous layer down queue
             self.send_socket.send(msg)
             self.n_sent = self.n_sent + len(msg)
+
+
+if __name__ == '__main__':
+    parser = ArgumentParser()
+    parser.add_argument('--role', type=str, default='rx', help='node role')
+    parser.add_argument('--frx', type=int, default=int(2.0e9), help='rx freq)
+    parser.add_argument('--ftx', type=int, default=int(2.2e9), help='tx freq)
+    parser.add_argument('--grx', type=float, default=float(0.8), help='rx gain normalized)
+    parser.add_argument('--gtx', type=float, default=float(0.8), help='tx gain normalized)
+    parser.add_argument('--inp', type=int, default=int(55555), help='input port')
+    parser.add_argument('--onp', type=int, default=int(55555), help='output port')
+
+    options = parser.parse_args()
+
+    send_context = zmq.Context()
+    send_socket = send_context.socket(zmq.PUB)
+    send_socket.bind("tcp://127.0.0.1:"+str(options.inp))
+
+    recv_context = zmq.Context()
+    recv_socket = recv_context.socket(zmq.SUB)
+    recv_socket.connect("tcp://127.0.0.1:"+str(options.opt))
+    recv_socket.setsockopt(zmq.SUBSCRIBE, b'')
+
+    tb = TRX_ODFM_USRP(serial_num='', rx_freq=int(options.rxf), rx_gain=options.rxg, tx_freq=int(options.txf), tx_gain=options.txg, input_port_num=str(options.inp), output_port_num=str(optinos.opt))
+    def sig_handler(sig=None, frame=None):
+        tb.stop()
+        tb.wait()
+
+        sys.exit(0)
+    signal.signal(signal.SIGINT, sig_handler)
+    signal.signal(signal.SIGTERM, sig_handler)
+    tb.start()
+
+    if options.role == 'tx':
+        while True:
+            msg = input("'MSG to send:")
+            self.send_socket.send(msg.encode('utf-8'))
+
+    elif options.role == 'rx':
+        while True:
+            msg = recv_socket.recv()
+            received_pkt = frombuffer(msg, dtype=byte, count=-1)
+            print(received_pkt.decode('utf-8')
