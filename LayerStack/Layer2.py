@@ -90,13 +90,15 @@ class Layer2(Network_Layer):
         while not stop():
             mac_packet = self.prev_up_queue.get(True)
 
-            if self.debug:
-                print('from l1', mac_packet)
+            # if self.debug:
+            #     print('from l1', mac_packet)
 
             pktno_mac = struct.unpack('H', mac_packet[0:2])[0]
             mac_destination_ip=mac_packet[2:8]
             mac_source_ip=mac_packet[8:14]
             ack = struct.unpack('H', mac_packet[14:L2_Header_Len])[0]
+            if self.debug:
+                print("L2_up", "pknto", pktno_mac, "dest:", mac_destination_ip, "src:", mac_source_ip, "Ack:", ack)
 
             if not (mac_source_ip in self.mac_pkt_dict.keys()):
                 self.mac_pkt_dict[mac_source_ip] = L2_ENUMS.MSG.value
@@ -172,7 +174,7 @@ class Layer2(Network_Layer):
 
                     else:
                         if self.debug:
-                            print("FATAL ERROR: L2 retransmit limit reached for pktno ", struct.unpack("H", down_packet[0:2]))
+                            print("FATAL ERROR: L2 retransmit limit reached for pktno ", struct.unpack("H", down_packet[0:2])[0])
                         down_packet=b''
 
                         break
