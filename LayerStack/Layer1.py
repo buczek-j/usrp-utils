@@ -55,10 +55,10 @@ class Layer1(Network_Layer):
         print("\tSerial:", self.tb.get_serial_num()," \n", 
             "\tRX Freq:", self.tb.get_rx_freq()," Hz\n",
             "\tRX BW:", self.tb.get_rx_bw()," Hz\n",
-            "\tRX Gain:", self.tb.get_rx_gain()," dB\n",
+            "\tRX Gain:", self.tb.get_rx_gain()," / 1.0\n",
             "\tTX Freq:", self.tb.get_tx_freq(), " Hz\n",
             "\tTX BW:", self.tb.get_tx_bw(), " Hz\n",
-            "\tTX Gain:", self.tb.get_tx_gain(), " dB\n",
+            "\tTX Gain:", self.tb.get_tx_gain(), " / 1.0\n",
             "\tPKT Len:", self.tb.get_packet_len(), " Bytes\n"
         )
     
@@ -109,3 +109,47 @@ class Layer1(Network_Layer):
             self.send_socket.send(msg+msg) # send 2 messages
             self.n_sent = self.n_sent + len(msg)
 
+
+if __name__ == '__main__':
+    parser = ArgumentParser()
+    parser.add_argument('--role', type=str, default='rx', help='node role')
+    parser.add_argument('--rxf', type=int, default=int(2.0e9), help='rx freq')
+    parser.add_argument('--txf', type=int, default=int(2.2e9), help='tx freq')
+    parser.add_argument('--rxg', type=float, default=float(0.8), help='rx gain normalized')
+    parser.add_argument('--txg', type=float, default=float(0.8), help='tx gain normalized')
+    parser.add_argument('--inp', type=int, default=int(55555), help='input port')
+    parser.add_argument('--onp', type=int, default=int(55556), help='output port')
+
+    options = parser.parse_args()
+
+    send_context = zmq.Context()
+    send_socket = send_context.socket(zmq.PUB)
+    send_socket.bind("tcp://127.0.0.1:"+str(options.inp))
+
+    recv_context = zmq.Context()
+    recv_socket = recv_context.socket(zmq.SUB)
+    recv_socket.connect("tcp://127.0.0.1:"+str(options.onp))
+    recv_socket.setsockopt(zmq.SUBSCRIBE, b'')
+
+    tb = TRX_ODFM_USRP(serial_num='', rx_freq=int(options.rxf), rx_gain=options.rxg, tx_freq=int(options.txf), tx_gain=options.txg, input_port_num=str(options.inp), output_port_num=str(options.onp))
+    def sig_handler(sig=None, frame=None):
+        tb.stop()
+        tb.wait()
+
+        sys.exit(0)
+    signal.signal(signal.SIGINT, sig_handler)
+    signal.signal(signal.SIGTERM, sig_handler)
+    tb.start()
+
+    if options.role == 'tx':
+        while True:
+            msg = input("MSG to send:").encode('utf-8')
+            for ii in range(256 - (len(msg)%256)):  # pad 
+                msg = msg+struct.pack('x')
+            send_socket.send(msg)
+
+    elif options.role == 'rx':
+        while True:
+            msg = recv_socket.recv()
+            received_pkt = frombuffer(msg, dtype=byte, count=-1)
+            print(received_pkt.decode('utf-8'))

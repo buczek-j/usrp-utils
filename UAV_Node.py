@@ -9,6 +9,8 @@ TODO:
 - runtime of 5min once last action, stay until runtime finishes, then land
 
 - L4 throughput (# packets per second)
+- L4 windowing
+    - dic of packets out
 '''
 
 

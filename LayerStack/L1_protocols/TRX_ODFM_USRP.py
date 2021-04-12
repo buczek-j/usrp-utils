@@ -12,6 +12,7 @@
 from gnuradio import analog
 from gnuradio import blocks
 from gnuradio import digital
+from gnuradio import fec
 from gnuradio import fft
 from gnuradio.fft import window
 from gnuradio import gr
@@ -29,8 +30,8 @@ from gnuradio.digital.utils import tagged_streams
 
 class TRX_ODFM_USRP(gr.top_block):
 
-    def __init__(self, input_port_num="55555", output_port_num="55556", rx_bw=0.5e6, rx_freq=1e9, rx_gain=0.8, serial_num="", tx_bw=0.5e6, tx_freq=1e9, tx_gain=0.8):
-        gr.top_block.__init__(self, "tranceiver_ofdm_usrp")
+    def __init__(self, input_port_num="55555", output_port_num="55556", rx_bw=0.5e6, rx_freq=2e9, rx_gain=0.8, tx_bw=0.5e6, tx_freq=2.0e9, tx_gain=1):
+        gr.top_block.__init__(self, "tranceiver_ofdm_usrp", catch_exceptions=True)
 
         ##################################################
         # Parameters
@@ -40,7 +41,6 @@ class TRX_ODFM_USRP(gr.top_block):
         self.rx_bw = rx_bw
         self.rx_freq = rx_freq
         self.rx_gain = rx_gain
-        self.serial_num = serial_num
         self.tx_bw = tx_bw
         self.tx_freq = tx_freq
         self.tx_gain = tx_gain
@@ -56,12 +56,15 @@ class TRX_ODFM_USRP(gr.top_block):
         self.length_tag_key = length_tag_key = "frame_len"
         self.header_mod = header_mod = digital.constellation_bpsk()
         self.fft_len = fft_len = 64
+        self.FEC_rate = FEC_rate = 1/2
+        self.variable_cc_encoder_def = variable_cc_encoder_def = fec.cc_encoder_make(2048,7, int(1/FEC_rate), [79,109], 0, fec.CC_TRUNCATED, False)
+        self.variable_cc_decoder_def = variable_cc_decoder_def = fec.cc_decoder.make(2048,7, int(1/FEC_rate), [79,109], 0, -1, fec.CC_TRUNCATED, False)
         self.sync_word2 = sync_word2 = [0j, 0j, 0j, 0j, 0j, 0j, (-1+0j), (-1+0j), (-1+0j), (-1+0j), (1+0j), (1+0j), (-1+0j), (-1+0j), (-1+0j), (1+0j), (-1+0j), (1+0j), (1+0j), (1 +0j), (1+0j), (1+0j), (-1+0j), (-1+0j), (-1+0j), (-1+0j), (-1+0j), (1+0j), (-1+0j), (-1+0j), (1+0j), (-1+0j), 0j, (1+0j), (-1+0j), (1+0j), (1+0j), (1+0j), (-1+0j), (1+0j), (1+0j), (1+0j), (-1+0j), (1+0j), (1+0j), (1+0j), (1+0j), (-1+0j), (1+0j), (-1+0j), (-1+0j), (-1+0j), (1+0j), (-1+0j), (1+0j), (-1+0j), (-1+0j), (-1+0j), (-1+0j), 0j, 0j, 0j, 0j, 0j]
         self.sync_word1 = sync_word1 = [0., 0., 0., 0., 0., 0., 0., 1.41421356, 0., -1.41421356, 0., 1.41421356, 0., -1.41421356, 0., -1.41421356, 0., -1.41421356, 0., 1.41421356, 0., -1.41421356, 0., 1.41421356, 0., -1.41421356, 0., -1.41421356, 0., -1.41421356, 0., -1.41421356, 0., 1.41421356, 0., -1.41421356, 0., 1.41421356, 0., 1.41421356, 0., 1.41421356, 0., -1.41421356, 0., 1.41421356, 0., 1.41421356, 0., 1.41421356, 0., -1.41421356, 0., 1.41421356, 0., 1.41421356, 0., 1.41421356, 0., 0., 0., 0., 0., 0.]
         self.samp_rate = samp_rate = 10000
         self.rolloff = rolloff = 0
         self.payload_equalizer = payload_equalizer = digital.ofdm_equalizer_simpledfe(fft_len, payload_mod.base(), occupied_carriers, pilot_carriers, pilot_symbols, 1)
-        self.packet_len = packet_len = 256 
+        self.packet_len = packet_len = 256
         self.header_formatter = header_formatter = digital.packet_header_ofdm(occupied_carriers, n_syms=1, len_tag_key=packet_length_tag_key, frame_len_tag_key=length_tag_key, bits_per_header_sym=header_mod.bits_per_symbol(), bits_per_payload_sym=payload_mod.bits_per_symbol(), scramble_header=False)
         self.header_equalizer = header_equalizer = digital.ofdm_equalizer_simpledfe(fft_len, header_mod.base(), occupied_carriers, pilot_carriers, pilot_symbols)
         self.hdr_format = hdr_format = digital.header_format_ofdm(occupied_carriers, 1, length_tag_key,)
@@ -70,64 +73,41 @@ class TRX_ODFM_USRP(gr.top_block):
         # Blocks
         ##################################################
         self.zeromq_sub_source_0 = zeromq.sub_source(gr.sizeof_char, 1, "tcp://127.0.0.1:"+input_port_num, 100, False, -1)
-        self.zeromq_pub_sink_0 = zeromq.pub_sink(gr.sizeof_char, 1, "tcp://127.0.0.1:"+output_port_num, 100, False, -1)
-
-        if self.serial_num == "" or self.serial_num==None or self.serial_num=="None":
-            self.uhd_usrp_source_0 = uhd.usrp_source(
-                ",".join(("", "")),
-                uhd.stream_args(
-                    cpu_format="fc32",
-                    args='',
-                    channels=list(range(0,1)),
-                ),
-            )
-
-            self.uhd_usrp_sink_0 = uhd.usrp_sink(
-                ",".join(("", "")),
-                uhd.stream_args(
-                    cpu_format="fc32",
-                    args='',
-                    channels=list(range(0,1)),
-                ),
-                packet_length_tag_key,
-            )
-
-        else:
-            self.uhd_usrp_source_0 = uhd.usrp_source(
-                ",".join(("serial="+serial_num, "")),
-                uhd.stream_args(
-                    cpu_format="fc32",
-                    args='',
-                    channels=list(range(0,1)),
-                ),
-            )
-
-            self.uhd_usrp_sink_0 = uhd.usrp_sink(
-                ",".join(("serial="+serial_num, "")),
-                uhd.stream_args(
-                    cpu_format="fc32",
-                    args='',
-                    channels=list(range(0,1)),
-                ),
-                packet_length_tag_key,
-            )
-
+        self.zeromq_pub_sink_0 = zeromq.pub_sink(gr.sizeof_char, 1, "tcp://127.0.0.1:55556", 100, False, -1)
+        self.uhd_usrp_source_0 = uhd.usrp_source(
+            ",".join(("", "")),
+            uhd.stream_args(
+                cpu_format="fc32",
+                args='',
+                channels=list(range(0,1)),
+            ),
+        )
         self.uhd_usrp_source_0.set_samp_rate(rx_bw)
         self.uhd_usrp_source_0.set_time_now(uhd.time_spec(time.time()), uhd.ALL_MBOARDS)
 
         self.uhd_usrp_source_0.set_center_freq(rx_freq, 0)
         self.uhd_usrp_source_0.set_antenna('RX2', 0)
-        self.uhd_usrp_source_0.set_normalized_gain(rx_gain, 0)
-
+        self.uhd_usrp_source_0.set_gain(rx_gain, 0)
+        self.uhd_usrp_sink_0 = uhd.usrp_sink(
+            ",".join(("", "")),
+            uhd.stream_args(
+                cpu_format="fc32",
+                args='',
+                channels=list(range(0,1)),
+            ),
+            packet_length_tag_key,
+        )
         self.uhd_usrp_sink_0.set_samp_rate(tx_bw)
         self.uhd_usrp_sink_0.set_time_now(uhd.time_spec(time.time()), uhd.ALL_MBOARDS)
 
         self.uhd_usrp_sink_0.set_center_freq(tx_freq, 0)
         self.uhd_usrp_sink_0.set_antenna('TX/RX', 0)
-        self.uhd_usrp_sink_0.set_normalized_gain(tx_gain, 0)
+        self.uhd_usrp_sink_0.set_gain(tx_gain, 0)
         self.fft_vxx_1 = fft.fft_vcc(fft_len, True, (), True, 1)
         self.fft_vxx_0_0 = fft.fft_vcc(fft_len, False, (), True, 1)
         self.fft_vxx_0 = fft.fft_vcc(fft_len, True, (), True, 1)
+        self.fec_generic_encoder_0 = fec.encoder(variable_cc_encoder_def, gr.sizeof_char, gr.sizeof_char)
+        self.fec_generic_decoder_0 = fec.decoder(variable_cc_decoder_def, gr.sizeof_char, gr.sizeof_char)
         self.digital_protocol_formatter_bb_0 = digital.protocol_formatter_bb(hdr_format, packet_length_tag_key)
         self.digital_packet_headerparser_b_0 = digital.packet_headerparser_b(header_formatter.base())
         self.digital_ofdm_sync_sc_cfb_0 = digital.ofdm_sync_sc_cfb(fft_len, fft_len//4, False, 0.9)
@@ -171,6 +151,7 @@ class TRX_ODFM_USRP(gr.top_block):
         self.analog_frequency_modulator_fc_0 = analog.frequency_modulator_fc(-2.0/fft_len)
 
 
+
         ##################################################
         # Connections
         ##################################################
@@ -188,9 +169,8 @@ class TRX_ODFM_USRP(gr.top_block):
         self.connect((self.digital_chunks_to_symbols_xx_0_0, 0), (self.blocks_tagged_stream_mux_0, 1))
         self.connect((self.digital_constellation_decoder_cb_0, 0), (self.digital_packet_headerparser_b_0, 0))
         self.connect((self.digital_constellation_decoder_cb_1, 0), (self.blocks_repack_bits_bb_0, 0))
-        self.connect((self.digital_crc32_bb_0, 0), (self.zeromq_pub_sink_0, 0))
-        self.connect((self.digital_crc32_bb_0_0, 0), (self.blocks_repack_bits_bb_0_1, 0))
-        self.connect((self.digital_crc32_bb_0_0, 0), (self.digital_protocol_formatter_bb_0, 0))
+        self.connect((self.digital_crc32_bb_0, 0), (self.fec_generic_decoder_0, 0))
+        self.connect((self.digital_crc32_bb_0_0, 0), (self.fec_generic_encoder_0, 0))
         self.connect((self.digital_header_payload_demux_0, 0), (self.fft_vxx_0, 0))
         self.connect((self.digital_header_payload_demux_0, 1), (self.fft_vxx_1, 0))
         self.connect((self.digital_ofdm_carrier_allocator_cvc_0, 0), (self.fft_vxx_0_0, 0))
@@ -203,6 +183,9 @@ class TRX_ODFM_USRP(gr.top_block):
         self.connect((self.digital_ofdm_sync_sc_cfb_0, 0), (self.analog_frequency_modulator_fc_0, 0))
         self.connect((self.digital_ofdm_sync_sc_cfb_0, 1), (self.digital_header_payload_demux_0, 1))
         self.connect((self.digital_protocol_formatter_bb_0, 0), (self.blocks_repack_bits_bb_0_0, 0))
+        self.connect((self.fec_generic_decoder_0, 0), (self.zeromq_pub_sink_0, 0))
+        self.connect((self.fec_generic_encoder_0, 0), (self.blocks_repack_bits_bb_0_1, 0))
+        self.connect((self.fec_generic_encoder_0, 0), (self.digital_protocol_formatter_bb_0, 0))
         self.connect((self.fft_vxx_0, 0), (self.digital_ofdm_chanest_vcvc_0, 0))
         self.connect((self.fft_vxx_0_0, 0), (self.digital_ofdm_cyclic_prefixer_0, 0))
         self.connect((self.fft_vxx_1, 0), (self.digital_ofdm_frame_equalizer_vcvc_1, 0))
@@ -210,8 +193,6 @@ class TRX_ODFM_USRP(gr.top_block):
         self.connect((self.uhd_usrp_source_0, 0), (self.digital_ofdm_sync_sc_cfb_0, 0))
         self.connect((self.zeromq_sub_source_0, 0), (self.blocks_stream_to_tagged_stream_0, 0))
 
-        for logname in gr.logger_get_names():
-            gr.logger(logname).set_level("ERROR")
 
     def get_input_port_num(self):
         return self.input_port_num
@@ -244,13 +225,7 @@ class TRX_ODFM_USRP(gr.top_block):
 
     def set_rx_gain(self, rx_gain):
         self.rx_gain = rx_gain
-        self.uhd_usrp_source_0.set_normalized_gain(self.rx_gain, 0)
-
-    def get_serial_num(self):
-        return self.serial_num
-
-    def set_serial_num(self, serial_num):
-        self.serial_num = serial_num
+        self.uhd_usrp_source_0.set_gain(self.rx_gain, 0)
 
     def get_tx_bw(self):
         return self.tx_bw
@@ -271,7 +246,7 @@ class TRX_ODFM_USRP(gr.top_block):
 
     def set_tx_gain(self, tx_gain):
         self.tx_gain = tx_gain
-        self.uhd_usrp_sink_0.set_normalized_gain(self.tx_gain, 0)
+        self.uhd_usrp_sink_0.set_gain(self.tx_gain, 0)
 
     def get_pilot_symbols(self):
         return self.pilot_symbols
@@ -335,6 +310,24 @@ class TRX_ODFM_USRP(gr.top_block):
         self.set_payload_equalizer(digital.ofdm_equalizer_simpledfe(self.fft_len, payload_mod.base(), self.occupied_carriers, self.pilot_carriers, self.pilot_symbols, 1))
         self.analog_frequency_modulator_fc_0.set_sensitivity(-2.0/self.fft_len)
         self.blocks_delay_0.set_dly(self.fft_len+self.fft_len//4)
+
+    def get_FEC_rate(self):
+        return self.FEC_rate
+
+    def set_FEC_rate(self, FEC_rate):
+        self.FEC_rate = FEC_rate
+
+    def get_variable_cc_encoder_def(self):
+        return self.variable_cc_encoder_def
+
+    def set_variable_cc_encoder_def(self, variable_cc_encoder_def):
+        self.variable_cc_encoder_def = variable_cc_encoder_def
+
+    def get_variable_cc_decoder_def(self):
+        return self.variable_cc_decoder_def
+
+    def set_variable_cc_decoder_def(self, variable_cc_decoder_def):
+        self.variable_cc_decoder_def = variable_cc_decoder_def
 
     def get_sync_word2(self):
         return self.sync_word2

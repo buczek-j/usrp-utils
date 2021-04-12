@@ -1,3 +1,4 @@
+#!/bin/bash
 # ./mass_scp.sh "./random" "~/Documents"
 
 echo 1
