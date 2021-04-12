@@ -73,6 +73,7 @@ class Layer2(Network_Layer):
         Method to signal that a packet has been ack'd (needed for usrp and wifi ack messages)
         :param pktno: int for the packet number that has been acked
         '''
+        print(pktno == self.sent_pkt_dict[addr], pktno)
         if pktno == self.sent_pkt_dict[addr]:
             globals()["l2_ack"].set()
             print('L2 ACK', pktno)
@@ -103,6 +104,8 @@ class Layer2(Network_Layer):
             ack = struct.unpack('H', mac_packet[14:L2_Header_Len])[0]
             if self.debug:
                 print("L2_up", "pknto", pktno_mac, "dest:", mac_destination_ip, "src:", mac_source_ip, "Ack:", ack)
+                print("to me?", mac_destination_ip == self.mac_ip)
+                print('My Ack?', ack, self.sent_pkt_dict[addr])
 
             if not (mac_source_ip in self.mac_pkt_dict.keys()):
                 self.mac_pkt_dict[mac_source_ip] = L2_ENUMS.MSG.value
