@@ -6,7 +6,7 @@ Layer 1 object: Physical layer
 
 from LayerStack.L1_protocols.TRX_ODFM_USRP import TRX_ODFM_USRP
 from LayerStack.Network_Layer import Network_Layer
-import signal, time, sys, pmt, zmq, os
+import signal, time, sys, pmt, zmq, os, struct
 from numpy import byte, frombuffer
 from argparse import ArgumentParser
 
@@ -142,7 +142,9 @@ if __name__ == '__main__':
 
     if options.role == 'tx':
         while True:
-            msg = input("'MSG to send:")
+            msg = input("MSG to send:")
+            for ii in range(256 - (len(msg)%256)):  # pad 
+                pkt = pkt+struct.pack('x')
             send_socket.send(msg.encode('utf-8'))
 
     elif options.role == 'rx':
