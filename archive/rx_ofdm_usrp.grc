@@ -1,15 +1,14 @@
 options:
   parameters:
     author: ''
-    catch_exceptions: 'True'
-    category: Custom
+    category: SwarmControl
     cmake_opt: ''
     comment: ''
     copyright: ''
-    description: Example of an OFDM receiver
+    description: Example of an OFDM receiver for USRP
     gen_cmake: 'On'
     gen_linking: dynamic
-    generate_options: no_gui
+    generate_options: hb
     hier_block_src_path: '.:'
     id: rx_ofdm
     max_nouts: '0'
@@ -22,7 +21,8 @@ options:
     run_options: prompt
     sizing_mode: fixed
     thread_safe_setters: ''
-    title: OFDM Rx
+    title: OFDM Rx USRP
+    window_size: ''
   states:
     bus_sink: false
     bus_source: false
@@ -32,6 +32,18 @@ options:
     state: enabled
 
 blocks:
+- name: FEC_rate
+  id: variable
+  parameters:
+    comment: ''
+    value: 1/2
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [541, 152]
+    rotation: 0
+    state: enabled
 - name: band_width
   id: variable
   parameters:
@@ -264,6 +276,29 @@ blocks:
     coordinate: [416, 76.0]
     rotation: 0
     state: enabled
+- name: variable_cc_decoder_def
+  id: variable_cc_decoder_def
+  parameters:
+    comment: ''
+    dim1: '1'
+    dim2: '1'
+    framebits: '2048'
+    k: '7'
+    mode: fec.CC_TRUNCATED
+    ndim: '0'
+    padding: 'False'
+    polys: '[79,109]'
+    rate: int(1/FEC_rate)
+    state_end: '-1'
+    state_start: '0'
+    value: '"ok"'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [330, 983]
+    rotation: 0
+    state: true
 - name: analog_frequency_modulator_fc_0
   id: analog_frequency_modulator_fc
   parameters:
@@ -574,6 +609,24 @@ blocks:
     coordinate: [832, 580.0]
     rotation: 180
     state: enabled
+- name: fec_generic_decoder_0
+  id: fec_generic_decoder
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    decoder: variable_cc_decoder_def
+    itype: byte
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    otype: byte
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [550, 988]
+    rotation: 0
+    state: true
 - name: fft_vxx_0
   id: fft_vxx
   parameters:
@@ -629,6 +682,44 @@ blocks:
     coordinate: [184, 12.0]
     rotation: 0
     state: enabled
+- name: pad_sink_0
+  id: pad_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    label: out
+    num_streams: '1'
+    optional: 'False'
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1029, 1023]
+    rotation: 0
+    state: true
+- name: pad_source_0
+  id: pad_source
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    label: in
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_streams: '1'
+    optional: 'False'
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [420, 299]
+    rotation: 0
+    state: true
 - name: uhd_usrp_source_0
   id: uhd_usrp_source
   parameters:
@@ -806,38 +897,6 @@ blocks:
     gain7: '0'
     gain8: '0'
     gain9: '0'
-    gain_type0: normalized
-    gain_type1: default
-    gain_type10: default
-    gain_type11: default
-    gain_type12: default
-    gain_type13: default
-    gain_type14: default
-    gain_type15: default
-    gain_type16: default
-    gain_type17: default
-    gain_type18: default
-    gain_type19: default
-    gain_type2: default
-    gain_type20: default
-    gain_type21: default
-    gain_type22: default
-    gain_type23: default
-    gain_type24: default
-    gain_type25: default
-    gain_type26: default
-    gain_type27: default
-    gain_type28: default
-    gain_type29: default
-    gain_type3: default
-    gain_type30: default
-    gain_type31: default
-    gain_type4: default
-    gain_type5: default
-    gain_type6: default
-    gain_type7: default
-    gain_type8: default
-    gain_type9: default
     iq_imbal_enb0: '""'
     iq_imbal_enb1: '""'
     iq_imbal_enb10: '""'
@@ -937,6 +996,38 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     nchan: '1'
+    norm_gain0: 'False'
+    norm_gain1: 'False'
+    norm_gain10: 'False'
+    norm_gain11: 'False'
+    norm_gain12: 'False'
+    norm_gain13: 'False'
+    norm_gain14: 'False'
+    norm_gain15: 'False'
+    norm_gain16: 'False'
+    norm_gain17: 'False'
+    norm_gain18: 'False'
+    norm_gain19: 'False'
+    norm_gain2: 'False'
+    norm_gain20: 'False'
+    norm_gain21: 'False'
+    norm_gain22: 'False'
+    norm_gain23: 'False'
+    norm_gain24: 'False'
+    norm_gain25: 'False'
+    norm_gain26: 'False'
+    norm_gain27: 'False'
+    norm_gain28: 'False'
+    norm_gain29: 'False'
+    norm_gain3: 'False'
+    norm_gain30: 'False'
+    norm_gain31: 'False'
+    norm_gain4: 'False'
+    norm_gain5: 'False'
+    norm_gain6: 'False'
+    norm_gain7: 'False'
+    norm_gain8: 'False'
+    norm_gain9: 'False'
     num_mboards: '1'
     otw: ''
     rx_agc0: Default
@@ -981,7 +1072,6 @@ blocks:
     sd_spec6: ''
     sd_spec7: ''
     show_lo_controls: 'False'
-    start_time: '-1.0'
     stream_args: ''
     stream_chans: '[]'
     sync: pc_clock
@@ -998,9 +1088,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [208, 340.0]
+    coordinate: [207, 340]
     rotation: 0
-    state: true
+    state: disabled
 - name: virtual_sink_0
   id: virtual_sink
   parameters:
@@ -1087,7 +1177,6 @@ blocks:
     alias: ''
     comment: ''
     hwm: '-1'
-    key: ''
     pass_tags: 'False'
     timeout: '100'
     type: byte
@@ -1098,16 +1187,17 @@ blocks:
     bus_structure: null
     coordinate: [984, 916.0]
     rotation: 0
-    state: enabled
+    state: disabled
 
 connections:
 - [analog_frequency_modulator_fc_0, '0', blocks_multiply_xx_0, '0']
 - [blocks_delay_0, '0', blocks_multiply_xx_0, '1']
 - [blocks_multiply_xx_0, '0', digital_header_payload_demux_0, '0']
-- [blocks_repack_bits_bb_0, '0', digital_crc32_bb_0, '0']
+- [blocks_repack_bits_bb_0, '0', fec_generic_decoder_0, '0']
 - [digital_constellation_decoder_cb_0, '0', digital_packet_headerparser_b_0, '0']
 - [digital_constellation_decoder_cb_1, '0', blocks_repack_bits_bb_0, '0']
 - [digital_crc32_bb_0, '0', blocks_tag_debug_1, '0']
+- [digital_crc32_bb_0, '0', pad_sink_0, '0']
 - [digital_crc32_bb_0, '0', zeromq_pub_sink_0, '0']
 - [digital_header_payload_demux_0, '0', virtual_sink_0, '0']
 - [digital_header_payload_demux_0, '1', virtual_sink_1, '0']
@@ -1120,8 +1210,11 @@ connections:
 - [digital_ofdm_sync_sc_cfb_0, '0', analog_frequency_modulator_fc_0, '0']
 - [digital_ofdm_sync_sc_cfb_0, '1', digital_header_payload_demux_0, '1']
 - [digital_packet_headerparser_b_0, header_data, digital_header_payload_demux_0, header_data]
+- [fec_generic_decoder_0, '0', digital_crc32_bb_0, '0']
 - [fft_vxx_0, '0', digital_ofdm_chanest_vcvc_0, '0']
 - [fft_vxx_1, '0', digital_ofdm_frame_equalizer_vcvc_1, '0']
+- [pad_source_0, '0', blocks_delay_0, '0']
+- [pad_source_0, '0', digital_ofdm_sync_sc_cfb_0, '0']
 - [uhd_usrp_source_0, '0', blocks_delay_0, '0']
 - [uhd_usrp_source_0, '0', digital_ofdm_sync_sc_cfb_0, '0']
 - [virtual_source_0, '0', fft_vxx_0, '0']
