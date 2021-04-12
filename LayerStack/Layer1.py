@@ -142,10 +142,10 @@ if __name__ == '__main__':
 
     if options.role == 'tx':
         while True:
-            msg = input("MSG to send:")
+            msg = input("MSG to send:").encode('utf-8')
             for ii in range(256 - (len(msg)%256)):  # pad 
-                pkt = pkt+struct.pack('x')
-            send_socket.send(msg.encode('utf-8'))
+                msg = msg+struct.pack('x')
+            send_socket.send(msg)
 
     elif options.role == 'rx':
         while True:
