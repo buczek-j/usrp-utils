@@ -98,7 +98,7 @@ class UAV_Node():
             
             self.threads[layer.layer_name + "_pass_up"] = Thread(target=layer.pass_up, args=(lambda : self.stop_threads,))
             self.threads[layer.layer_name + "_pass_up"].start()
-            for jj in layer.window:
+            for jj in range(layer.window):
                 self.threads[layer.layer_name + "_pass_down_"+str(jj)] = Thread(target=layer.pass_down, args=(lambda : self.stop_threads,))
                 self.threads[layer.layer_name + "_pass_down_"+str(jj)].start() 
         
