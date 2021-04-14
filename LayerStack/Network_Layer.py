@@ -8,7 +8,7 @@ IP_LEN = 20
 import  struct
 from queue import Queue
 class Network_Layer():
-	def __init__(self, layer_name, window=None, debug=False):
+	def __init__(self, layer_name, window=1, debug=False):
 		'''
 		Class to define the the basic structure of a network layer
 		:param layer_name: sting for the layer name

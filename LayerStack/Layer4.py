@@ -9,7 +9,6 @@ from threading import  Event, Lock
 from time import time
 import struct, csv, os
 
-l4_ack = Event()
 l4_down_access = Lock()     
 
 # latency
@@ -33,7 +32,7 @@ l4_down_access = Lock()
 # l2_window=1
 
 class Layer4(Network_Layer):
-    def __init__(self, my_config, send_ack, num_frames=1, num_blocks=2, l2_header=42, l2_block_size=128, timeout=0.4, n_retrans=0, debug=False, l4_header=56, l4_log_base_name="~/Documents/usrp-utils/Logs/l4_acks_",  log=True):
+    def __init__(self, my_config, send_ack, window=1, num_frames=1, num_blocks=2, l2_header=42, l2_block_size=128, timeout=0.4, n_retrans=0, debug=False, l4_header=56, l4_log_base_name="~/Documents/usrp-utils/Logs/l4_acks_",  log=True):
         '''
         Layer 4 Transport layer object
         :param my_config: Node_Config object for the current node
@@ -48,8 +47,9 @@ class Layer4(Network_Layer):
         :param l4_header: int for the l4 packet header length
         :param l4_log_base_name: string for the file location and name to save l4 log files
         :param log: bool to log or not
+        TODO
         '''
-        Network_Layer.__init__(self, "layer_4", debug=debug)
+        Network_Layer.__init__(self, "layer_4", debug=debug, window=window)
         self.my_pc = bytes(my_config.pc_ip, "utf-8")
 
         # Setup Log File
@@ -63,11 +63,17 @@ class Layer4(Network_Layer):
   
         self.send_ack_wifi = send_ack
 
+        self.unacked_packets = []
+        self.window_ack_list = []
+        for ii in window:
+            self.unacked_packets.append(None)
+            self.window_ack_list.append(False)
+                
         self.num_frames = num_frames
         self.chunk_size = l2_block_size*num_blocks - l2_header
         self.timeout=timeout
         self.n_retrans = n_retrans
-        self.unacked_packet = 0
+        
         self.ack_list = []
         
         self.l4_size = num_blocks*l2_block_size*num_frames
@@ -107,9 +113,10 @@ class Layer4(Network_Layer):
                 rtt = ack_time - time_sent 
                 self.writer.writerow([pktno, time_sent, ack_time, rtt, 8.0*self.l4_size/rtt])
 
-
-        if pktno == self.unacked_packet:
-            globals()["l4_ack"].set()      
+        if pktno in self.unacked_packets:
+            self.window_ack_list[self.unacked_packets.index(pktno)]=True
+            self.unacked_packets[self.unacked_packets.index(pktno)] = None
+    
 
     def pass_up(self, stop):
         '''
@@ -141,11 +148,13 @@ class Layer4(Network_Layer):
 
                 l4_packet = b''
 
-    def pass_down(self, stop):
+    def pass_down(self, stop, window_index=0):
         '''
         Method to receive l4 packets, break them into l2 sized packets, and pass them to l3
         :param stop: function returning true/false to stop the thread
+        TODO
         '''
+        
         while not stop():
             act_rt=0 # retransmission counter
             l4_packet = self.prev_down_queue.get(True)
@@ -156,7 +165,7 @@ class Layer4(Network_Layer):
                 print('L4 Sent', struct.unpack('L', l4_packet[0:8])[0])
 
             try:
-                self.unacked_packet = struct.unpack('L', l4_packet[0:8])[0]
+                self.unacked_packets[window_index] = struct.unpack('L', l4_packet[0:8])[0]
             except:
                 pass
 
@@ -175,9 +184,9 @@ class Layer4(Network_Layer):
             # if l4 packet originated from this node, then wait for ack
             if packet_source == self.my_pc:
                 while not stop():
-                    globals()["l4_ack"].wait(self.timeout)
-                    if globals()["l4_ack"].isSet(): # ack received
-                        globals()["l4_ack"].clear()
+                    start_time = time()
+                    if self.unacked_packets[window_index]==True: # ack received
+                        self.unacked_packets[window_index]==False
                         # TODO measurements
                         break
 
@@ -199,7 +208,7 @@ class Layer4(Network_Layer):
 
                     else:
                         if self.debug:
-                            print("FATAL ERROR: L4 retransmit limit reached for pktno ", self.unacked_packet)
+                            print("FATAL ERROR: L4 retransmit limit reached for pktno ", self.unacked_packets[window_index])
                         try:
                             globals()["l4_ack"].set()
                         except:
