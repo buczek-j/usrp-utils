@@ -18,7 +18,7 @@ options:
     realtime_scheduling: ''
     run: 'True'
     run_command: '{python} -u {filename}'
-    run_options: prompt
+    run_options: run
     sizing_mode: fixed
     thread_safe_setters: ''
     title: tranceiver_ofdm_usrp_RS
@@ -41,9 +41,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [148, 305]
+    coordinate: [148, 320]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: blocks_RS
   id: variable
   parameters:
@@ -147,7 +147,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '300'
+    value: '255'
   states:
     bus_sink: false
     bus_source: false
@@ -172,7 +172,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '0'
+    value: '64000'
   states:
     bus_sink: false
     bus_source: false
@@ -184,12 +184,12 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '256'
+    value: '200'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1384, 20]
+    coordinate: [170, 511]
     rotation: 0
     state: enabled
 - name: packet_length_tag_key
@@ -358,6 +358,40 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [465, 371]
+    rotation: 0
+    state: disabled
+- name: blocks_char_to_float_0_0_0
+  id: blocks_char_to_float
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    scale: '1'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1681, 169]
+    rotation: 0
+    state: disabled
+- name: blocks_char_to_float_0_0_0_0
+  id: blocks_char_to_float
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    scale: '1'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1626, 421]
     rotation: 0
     state: disabled
 - name: blocks_delay_0
@@ -637,25 +671,6 @@ blocks:
     coordinate: [609, 172]
     rotation: 0
     state: enabled
-- name: blocks_stream_to_tagged_stream_0_0
-  id: blocks_stream_to_tagged_stream
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    len_tag_key: packet_length_tag_key
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    packet_len: n
-    type: byte
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1336, 204]
-    rotation: 0
-    state: enabled
 - name: blocks_stream_to_tagged_stream_0_0_0
   id: blocks_stream_to_tagged_stream
   parameters:
@@ -711,6 +726,44 @@ blocks:
     coordinate: [926, 289]
     rotation: 0
     state: enabled
+- name: blocks_tagged_stream_multiply_length_0
+  id: blocks_tagged_stream_multiply_length
+  parameters:
+    affinity: ''
+    alias: ''
+    c: n/k
+    comment: ''
+    lengthtagname: packet_length_tag_key
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1397, 193]
+    rotation: 0
+    state: true
+- name: blocks_tagged_stream_multiply_length_0_0
+  id: blocks_tagged_stream_multiply_length
+  parameters:
+    affinity: ''
+    alias: ''
+    c: k/n
+    comment: ''
+    lengthtagname: packet_length_tag_key
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1287, 2163]
+    rotation: 0
+    state: true
 - name: blocks_tagged_stream_mux_0
   id: blocks_tagged_stream_mux
   parameters:
@@ -742,7 +795,7 @@ blocks:
     repeat: 'False'
     tags: '[]'
     type: byte
-    vector: (packet_len//1)*[255]
+    vector: (packet_len//1)*[255]*4
     vlen: '1'
   states:
     bus_sink: false
@@ -895,7 +948,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1514, 2084]
+    coordinate: [1805, 2017]
     rotation: 0
     state: enabled
 - name: digital_crc32_bb_0_0
@@ -1419,6 +1472,103 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [1620, 1807]
+    rotation: 0
+    state: disabled
+- name: qtgui_time_sink_x_0_0
+  id: qtgui_time_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'True'
+    axislabels: 'True'
+    color1: blue
+    color10: dark blue
+    color2: red
+    color3: green
+    color4: black
+    color5: cyan
+    color6: magenta
+    color7: yellow
+    color8: dark red
+    color9: dark green
+    comment: ''
+    ctrlpanel: 'False'
+    entags: 'True'
+    grid: 'False'
+    gui_hint: ''
+    label1: Signal 1
+    label10: Signal 10
+    label2: Signal 2
+    label3: Signal 3
+    label4: Signal 4
+    label5: Signal 5
+    label6: Signal 6
+    label7: Signal 7
+    label8: Signal 8
+    label9: Signal 9
+    legend: 'True'
+    marker1: '-1'
+    marker10: '-1'
+    marker2: '-1'
+    marker3: '-1'
+    marker4: '-1'
+    marker5: '-1'
+    marker6: '-1'
+    marker7: '-1'
+    marker8: '-1'
+    marker9: '-1'
+    name: '""'
+    nconnections: '2'
+    size: '300'
+    srate: samp_rate
+    stemplot: 'False'
+    style1: '1'
+    style10: '1'
+    style2: '1'
+    style3: '1'
+    style4: '1'
+    style5: '1'
+    style6: '1'
+    style7: '1'
+    style8: '1'
+    style9: '1'
+    tr_chan: '0'
+    tr_delay: '0'
+    tr_level: '0.0'
+    tr_mode: qtgui.TRIG_MODE_FREE
+    tr_slope: qtgui.TRIG_SLOPE_POS
+    tr_tag: '""'
+    type: float
+    update_time: '0.10'
+    width1: '1'
+    width10: '1'
+    width2: '1'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    ylabel: Amplitude
+    ymax: '1'
+    ymin: '-1'
+    yunit: '""'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1806, 262]
     rotation: 0
     state: disabled
 - name: rx_bw
@@ -2413,6 +2563,8 @@ blocks:
 connections:
 - [analog_frequency_modulator_fc_0, '0', blocks_multiply_xx_0, '0']
 - [analog_random_source_x_0, '0', blocks_stream_to_tagged_stream_0, '0']
+- [blocks_char_to_float_0_0_0, '0', qtgui_time_sink_x_0_0, '0']
+- [blocks_char_to_float_0_0_0_0, '0', qtgui_time_sink_x_0_0, '1']
 - [blocks_delay_0, '0', blocks_multiply_xx_0, '1']
 - [blocks_multiply_const_vxx_0, '0', channels_channel_model_0, '0']
 - [blocks_multiply_const_vxx_0, '0', uhd_usrp_sink_0, '0']
@@ -2423,14 +2575,17 @@ connections:
 - [blocks_repack_bits_bb_0_1, '0', virtual_sink_0_0_0, '0']
 - [blocks_stream_to_tagged_stream_0, '0', blocks_file_sink_0_0_0_0_0, '0']
 - [blocks_stream_to_tagged_stream_0, '0', digital_crc32_bb_0_0, '0']
-- [blocks_stream_to_tagged_stream_0_0, '0', blocks_file_sink_0_0_0_0_0_0_0, '0']
-- [blocks_stream_to_tagged_stream_0_0, '0', header_bits_0, '0']
-- [blocks_stream_to_tagged_stream_0_0_0, '0', digital_crc32_bb_0, '0']
+- [blocks_stream_to_tagged_stream_0_0_0, '0', blocks_tagged_stream_multiply_length_0_0,
+  '0']
 - [blocks_stream_to_vector_0, '0', dtv_dvbt_reed_solomon_dec_0, '0']
 - [blocks_stream_to_vector_1, '0', dtv_dvbt_reed_solomon_enc_0, '0']
+- [blocks_tagged_stream_multiply_length_0, '0', blocks_char_to_float_0_0_0_0, '0']
+- [blocks_tagged_stream_multiply_length_0, '0', header_bits_0, '0']
+- [blocks_tagged_stream_multiply_length_0_0, '0', digital_crc32_bb_0, '0']
 - [blocks_tagged_stream_mux_0, '0', virtual_sink_0_0_0_0, '0']
 - [blocks_vector_source_x_0_1_0, '0', blocks_stream_to_tagged_stream_0, '0']
-- [blocks_vector_to_stream_0, '0', blocks_stream_to_tagged_stream_0_0, '0']
+- [blocks_vector_to_stream_0, '0', blocks_char_to_float_0_0_0, '0']
+- [blocks_vector_to_stream_0, '0', blocks_tagged_stream_multiply_length_0, '0']
 - [blocks_vector_to_stream_0_0, '0', blocks_stream_to_tagged_stream_0_0_0, '0']
 - [channels_channel_model_0, '0', blocks_delay_0, '0']
 - [channels_channel_model_0, '0', digital_ofdm_sync_sc_cfb_0, '0']
