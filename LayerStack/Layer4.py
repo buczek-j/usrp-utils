@@ -65,7 +65,7 @@ class Layer4(Network_Layer):
 
         self.unacked_packets = []
         self.window_ack_list = []
-        for ii in window:
+        for ii in range(window):
             self.unacked_packets.append(None)
             self.window_ack_list.append(False)
                 
