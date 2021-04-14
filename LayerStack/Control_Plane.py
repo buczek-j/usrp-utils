@@ -3,7 +3,7 @@
 '''
 Control Plane object: Runs alongside layer stack to receive l2 and l4 acks and state commands
 '''
-
+from threading import Thread
 from socket import socket, AF_INET, SOCK_DGRAM, SOL_SOCKET, SO_REUSEADDR, SO_BROADCAST
 from enum import Enum
 import struct
@@ -80,38 +80,7 @@ class Control_Plane():
         '''
         Method to propmt other nodes to send state messages
         '''
-        self.broadcast_socket.sendto((CP_Codes.GET_STATE.value), ('255.255.255.255', self.cc_port))
-
-    # def listening_socket(self, l2_recv_ack, l4_recv_ack, state_recv, handle_get_state, stop):
-    #     '''
-    #     Method to listen to the control plane udp socket, parse data, and perform cooresponding actions
-    #     :param l2_recv_ack: l2 method for a recived packet ack
-    #     :param l4_recv_ack: l4 method for a recived packet ack
-    #     :param state_recv: method to handle state messages
-    #     :param stop: method returning true/false to stop the thread
-    #     '''
-    #     while not stop():
-    #         packet, addr = self.recv_sock.recvfrom(1024)
-    #         control_code = packet[0:2] 
-    #         # print(packet, control_code == CP_Codes.STATE.value)
-    #         packet = packet[2:]
-    #         if control_code == CP_Codes.L2_ACK.value:
-    #             (ack,) = struct.unpack('h', packet[0:2])
-    #             l2_recv_ack(ack)
-
-    #         elif control_code == CP_Codes.L4_ACK.value:
-    #             (ack,)=struct.unpack('l', packet[0:8])
-    #             (time_sent,) = struct.unpack('d', packet[8:16])
-    #             l4_recv_ack(ack, time_sent)
-
-    #         elif control_code == CP_Codes.STATE.value:
-    #             # [node index #],[location index #],[power index #]
-    #             msg = packet.decode('utf-8').split(',')
-    #             # print('RCVD STATE:', int(msg[0]), int(msg[1]), int(msg[2]))
-    #             state_recv(int(msg[0]), int(msg[1]), int(msg[2]))
-    #         elif control_code == CP_Codes.GET_STATE.value:
-    #             handle_get_state()
-                
+        self.broadcast_socket.sendto((CP_Codes.GET_STATE.value), ('255.255.255.255', self.cc_port))              
 
     def listen_l2(self, l2_recv_ack, stop):
         '''
@@ -126,7 +95,8 @@ class Control_Plane():
             packet = packet[2:]
             if control_code == CP_Codes.L2_ACK.value:
                 (ack,) = struct.unpack('h', packet[0:2])
-                l2_recv_ack(ack)
+                a = Thread(target=l2_recv_ack, args=(ack,))
+                a.start()
 
     def listen_l4(self, l4_recv_ack, stop):
         '''
@@ -143,7 +113,8 @@ class Control_Plane():
             if control_code == CP_Codes.L4_ACK.value:
                 (ack,)=struct.unpack('L', packet[0:8])
                 (time_sent,) = struct.unpack('d', packet[8:16])
-                l4_recv_ack(ack, time_sent)
+                a = Thread(target=l4_recv_ack, args=(ack,time_sent, ))  # create thread to handle the recv funciton
+                a.start()
 
     def listen_cc(self, state_recv, handle_get_state, stop):
         '''

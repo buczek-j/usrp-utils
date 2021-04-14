@@ -1,6 +1,7 @@
 options:
   parameters:
     author: root
+    catch_exceptions: 'True'
     category: '[GRC Hier Blocks]'
     cmake_opt: ''
     comment: ''
@@ -8,7 +9,7 @@ options:
     description: ''
     gen_cmake: 'On'
     gen_linking: dynamic
-    generate_options: no_gui
+    generate_options: qt_gui
     hier_block_src_path: '.:'
     id: tranceiver_ofdm_usrp_RS
     max_nouts: '0'
@@ -22,7 +23,6 @@ options:
     sizing_mode: fixed
     thread_safe_setters: ''
     title: tranceiver_ofdm_usrp_RS
-    window_size: ''
   states:
     bus_sink: false
     bus_source: false
@@ -177,7 +177,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [259, 336]
+    coordinate: [280, 356]
     rotation: 0
     state: enabled
 - name: packet_len
@@ -500,7 +500,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1363, 2232]
+    coordinate: [1738, 2278]
     rotation: 0
     state: disabled
 - name: blocks_file_sink_0_0_0_0_0_0_0_0_0_0
@@ -518,7 +518,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1669, 2178]
+    coordinate: [2014, 2186]
     rotation: 0
     state: disabled
 - name: blocks_file_sink_0_0_0_0_0_0_0_0_1
@@ -689,7 +689,7 @@ blocks:
     bus_structure: null
     coordinate: [1293, 2066]
     rotation: 0
-    state: enabled
+    state: bypassed
 - name: blocks_stream_to_vector_0
   id: blocks_stream_to_vector
   parameters:
@@ -707,7 +707,7 @@ blocks:
     bus_structure: null
     coordinate: [1127, 1956]
     rotation: 0
-    state: enabled
+    state: bypassed
 - name: blocks_stream_to_vector_1
   id: blocks_stream_to_vector
   parameters:
@@ -725,7 +725,7 @@ blocks:
     bus_structure: null
     coordinate: [926, 289]
     rotation: 0
-    state: enabled
+    state: bypassed
 - name: blocks_tagged_stream_multiply_length_0
   id: blocks_tagged_stream_multiply_length
   parameters:
@@ -763,7 +763,7 @@ blocks:
     bus_structure: null
     coordinate: [1287, 2163]
     rotation: 0
-    state: true
+    state: disabled
 - name: blocks_tagged_stream_mux_0
   id: blocks_tagged_stream_mux
   parameters:
@@ -784,6 +784,25 @@ blocks:
     coordinate: [1341, 599]
     rotation: 0
     state: enabled
+- name: blocks_throttle_0
+  id: blocks_throttle
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    ignoretag: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samples_per_second: samp_rate
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [978, 1128]
+    rotation: 180
+    state: true
 - name: blocks_vector_source_x_0_1_0
   id: blocks_vector_source_x
   parameters:
@@ -821,7 +840,7 @@ blocks:
     bus_structure: null
     coordinate: [1306, 323]
     rotation: 0
-    state: enabled
+    state: bypassed
 - name: blocks_vector_to_stream_0_0
   id: blocks_vector_to_stream
   parameters:
@@ -839,7 +858,7 @@ blocks:
     bus_structure: null
     coordinate: [1095, 2117]
     rotation: 0
-    state: true
+    state: bypassed
 - name: channels_channel_model_0
   id: channels_channel_model
   parameters:
@@ -851,14 +870,14 @@ blocks:
     freq_offset: '0'
     maxoutbuf: '0'
     minoutbuf: '0'
-    noise_voltage: '0.12'
+    noise_voltage: '0.100'
     seed: '0'
     taps: 0.3 + 0.8j
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [852, 1088]
+    coordinate: [763, 1108]
     rotation: 180
     state: enabled
 - name: digital_chunks_to_symbols_xx_0
@@ -948,7 +967,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1805, 2017]
+    coordinate: [1606, 1977]
     rotation: 0
     state: enabled
 - name: digital_crc32_bb_0_0
@@ -1217,7 +1236,7 @@ blocks:
     bus_structure: null
     coordinate: [874, 2067]
     rotation: 0
-    state: enabled
+    state: bypassed
 - name: dtv_dvbt_reed_solomon_enc_0
   id: dtv_dvbt_reed_solomon_enc
   parameters:
@@ -1240,7 +1259,7 @@ blocks:
     bus_structure: null
     coordinate: [1104, 224]
     rotation: 0
-    state: enabled
+    state: bypassed
 - name: fft_vxx_0
   id: fft_vxx
   parameters:
@@ -1835,6 +1854,38 @@ blocks:
     gain7: '0'
     gain8: '0'
     gain9: '0'
+    gain_type0: default
+    gain_type1: default
+    gain_type10: default
+    gain_type11: default
+    gain_type12: default
+    gain_type13: default
+    gain_type14: default
+    gain_type15: default
+    gain_type16: default
+    gain_type17: default
+    gain_type18: default
+    gain_type19: default
+    gain_type2: default
+    gain_type20: default
+    gain_type21: default
+    gain_type22: default
+    gain_type23: default
+    gain_type24: default
+    gain_type25: default
+    gain_type26: default
+    gain_type27: default
+    gain_type28: default
+    gain_type29: default
+    gain_type3: default
+    gain_type30: default
+    gain_type31: default
+    gain_type4: default
+    gain_type5: default
+    gain_type6: default
+    gain_type7: default
+    gain_type8: default
+    gain_type9: default
     len_tag_name: packet_length_tag_key
     lo_export0: 'False'
     lo_export1: 'False'
@@ -1903,38 +1954,6 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     nchan: '1'
-    norm_gain0: 'False'
-    norm_gain1: 'False'
-    norm_gain10: 'False'
-    norm_gain11: 'False'
-    norm_gain12: 'False'
-    norm_gain13: 'False'
-    norm_gain14: 'False'
-    norm_gain15: 'False'
-    norm_gain16: 'False'
-    norm_gain17: 'False'
-    norm_gain18: 'False'
-    norm_gain19: 'False'
-    norm_gain2: 'False'
-    norm_gain20: 'False'
-    norm_gain21: 'False'
-    norm_gain22: 'False'
-    norm_gain23: 'False'
-    norm_gain24: 'False'
-    norm_gain25: 'False'
-    norm_gain26: 'False'
-    norm_gain27: 'False'
-    norm_gain28: 'False'
-    norm_gain29: 'False'
-    norm_gain3: 'False'
-    norm_gain30: 'False'
-    norm_gain31: 'False'
-    norm_gain4: 'False'
-    norm_gain5: 'False'
-    norm_gain6: 'False'
-    norm_gain7: 'False'
-    norm_gain8: 'False'
-    norm_gain9: 'False'
     num_mboards: '1'
     otw: ''
     samp_rate: tx_bw
@@ -1947,6 +1966,7 @@ blocks:
     sd_spec6: ''
     sd_spec7: ''
     show_lo_controls: 'False'
+    start_time: '-1.0'
     stream_args: ''
     stream_chans: '[]'
     sync: pc_clock
@@ -2143,6 +2163,38 @@ blocks:
     gain7: '0'
     gain8: '0'
     gain9: '0'
+    gain_type0: default
+    gain_type1: default
+    gain_type10: default
+    gain_type11: default
+    gain_type12: default
+    gain_type13: default
+    gain_type14: default
+    gain_type15: default
+    gain_type16: default
+    gain_type17: default
+    gain_type18: default
+    gain_type19: default
+    gain_type2: default
+    gain_type20: default
+    gain_type21: default
+    gain_type22: default
+    gain_type23: default
+    gain_type24: default
+    gain_type25: default
+    gain_type26: default
+    gain_type27: default
+    gain_type28: default
+    gain_type29: default
+    gain_type3: default
+    gain_type30: default
+    gain_type31: default
+    gain_type4: default
+    gain_type5: default
+    gain_type6: default
+    gain_type7: default
+    gain_type8: default
+    gain_type9: default
     iq_imbal_enb0: '""'
     iq_imbal_enb1: '""'
     iq_imbal_enb10: '""'
@@ -2242,38 +2294,6 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     nchan: '1'
-    norm_gain0: 'False'
-    norm_gain1: 'False'
-    norm_gain10: 'False'
-    norm_gain11: 'False'
-    norm_gain12: 'False'
-    norm_gain13: 'False'
-    norm_gain14: 'False'
-    norm_gain15: 'False'
-    norm_gain16: 'False'
-    norm_gain17: 'False'
-    norm_gain18: 'False'
-    norm_gain19: 'False'
-    norm_gain2: 'False'
-    norm_gain20: 'False'
-    norm_gain21: 'False'
-    norm_gain22: 'False'
-    norm_gain23: 'False'
-    norm_gain24: 'False'
-    norm_gain25: 'False'
-    norm_gain26: 'False'
-    norm_gain27: 'False'
-    norm_gain28: 'False'
-    norm_gain29: 'False'
-    norm_gain3: 'False'
-    norm_gain30: 'False'
-    norm_gain31: 'False'
-    norm_gain4: 'False'
-    norm_gain5: 'False'
-    norm_gain6: 'False'
-    norm_gain7: 'False'
-    norm_gain8: 'False'
-    norm_gain9: 'False'
     num_mboards: '1'
     otw: ''
     rx_agc0: Default
@@ -2318,6 +2338,7 @@ blocks:
     sd_spec6: ''
     sd_spec7: ''
     show_lo_controls: 'False'
+    start_time: '-1.0'
     stream_args: ''
     stream_chans: '[]'
     sync: pc_clock
@@ -2527,6 +2548,7 @@ blocks:
     alias: ''
     comment: ''
     hwm: '-1'
+    key: ''
     pass_tags: 'False'
     timeout: '100'
     type: byte
@@ -2535,7 +2557,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1393, 1962]
+    coordinate: [1925, 1969]
     rotation: 0
     state: enabled
 - name: zeromq_sub_source_0
@@ -2546,6 +2568,7 @@ blocks:
     alias: ''
     comment: ''
     hwm: '-1'
+    key: ''
     maxoutbuf: '0'
     minoutbuf: '0'
     pass_tags: 'False'
@@ -2556,7 +2579,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [402, 162]
+    coordinate: [469, 411]
     rotation: 0
     state: enabled
 
@@ -2566,7 +2589,7 @@ connections:
 - [blocks_char_to_float_0_0_0, '0', qtgui_time_sink_x_0_0, '0']
 - [blocks_char_to_float_0_0_0_0, '0', qtgui_time_sink_x_0_0, '1']
 - [blocks_delay_0, '0', blocks_multiply_xx_0, '1']
-- [blocks_multiply_const_vxx_0, '0', channels_channel_model_0, '0']
+- [blocks_multiply_const_vxx_0, '0', blocks_throttle_0, '0']
 - [blocks_multiply_const_vxx_0, '0', uhd_usrp_sink_0, '0']
 - [blocks_multiply_xx_0, '0', digital_header_payload_demux_0, '0']
 - [blocks_repack_bits_bb_0, '0', blocks_file_sink_0_0_0_0_0_0_0_0, '0']
@@ -2577,12 +2600,14 @@ connections:
 - [blocks_stream_to_tagged_stream_0, '0', digital_crc32_bb_0_0, '0']
 - [blocks_stream_to_tagged_stream_0_0_0, '0', blocks_tagged_stream_multiply_length_0_0,
   '0']
+- [blocks_stream_to_tagged_stream_0_0_0, '0', digital_crc32_bb_0, '0']
 - [blocks_stream_to_vector_0, '0', dtv_dvbt_reed_solomon_dec_0, '0']
 - [blocks_stream_to_vector_1, '0', dtv_dvbt_reed_solomon_enc_0, '0']
 - [blocks_tagged_stream_multiply_length_0, '0', blocks_char_to_float_0_0_0_0, '0']
 - [blocks_tagged_stream_multiply_length_0, '0', header_bits_0, '0']
 - [blocks_tagged_stream_multiply_length_0_0, '0', digital_crc32_bb_0, '0']
 - [blocks_tagged_stream_mux_0, '0', virtual_sink_0_0_0_0, '0']
+- [blocks_throttle_0, '0', channels_channel_model_0, '0']
 - [blocks_vector_source_x_0_1_0, '0', blocks_stream_to_tagged_stream_0, '0']
 - [blocks_vector_to_stream_0, '0', blocks_char_to_float_0_0_0, '0']
 - [blocks_vector_to_stream_0, '0', blocks_tagged_stream_multiply_length_0, '0']

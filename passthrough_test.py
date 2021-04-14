@@ -12,9 +12,9 @@ if __name__ == '__main__':
     context = zmq.Context()
     socket = context.socket(zmq.PUB)
     socket.bind("tcp://127.0.0.1:55555") # connect, not bind, the PUB will bind, only 1 can bind
-    msg = np.ones(256, dtype=np.byte)
+    # msg = np.ones(256, dtype=np.byte)
     #msg = (64)*"1234"
-
+    msg = b'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy'
     #reader
     rcv_socket = context.socket(zmq.SUB)
     rcv_socket.connect("tcp://127.0.0.1:55556") # connect, not bind, the PUB will bind, only 1 can bind
@@ -30,7 +30,7 @@ if __name__ == '__main__':
             rvcd_pkts += 1
             print(len(msg)) # size of msg
             data = np.frombuffer(msg, dtype=np.byte, count=-1) 
-            print(data)
+            print(data.tobytes())
 
         else:
             time.sleep(0.1) # wait 100ms and try again

@@ -115,7 +115,7 @@ class Layer4(Network_Layer):
 
         if pktno in self.unacked_packets:
             self.window_ack_list[self.unacked_packets.index(pktno)]=True
-            self.unacked_packets[self.unacked_packets.index(pktno)] = None
+            self.unacked_packets[self.unacked_packets.index(pktno)]=None
     
 
     def pass_up(self, stop):
@@ -129,14 +129,8 @@ class Layer4(Network_Layer):
             packet_source = self.unpad(l4_packet[8:28])
             packet_destination = self.unpad(l4_packet[28:48])
             
-            self.n_recv = self.n_recv + len(l4_packet)
             if self.debug:
                 print('L4 RCV', struct.unpack('L', l4_packet[0:8]))
-
-            # if self.debug:
-            #     (timestamp,) = struct.unpack('d', l4_packet[48:56])
-            #     (pktno_l4,) = struct.unpack('l', l4_packet[:8])	
-            #     print('l4', pktno_l4, packet_source, packet_destination, timestamp)
 
             if packet_destination == self.my_pc:    # if this is the destination, then pass payload to the application layer
                 self.up_queue.put(l4_packet[56:], True)
@@ -145,7 +139,6 @@ class Layer4(Network_Layer):
 
             else:   # relay/forward message
                 self.prev_down_queue.put(l4_packet, True)
-
                 l4_packet = b''
 
     def pass_down(self, stop, window_index=0):
@@ -159,15 +152,11 @@ class Layer4(Network_Layer):
             act_rt=0 # retransmission counter
             l4_packet = self.prev_down_queue.get(True)
             packet_source = self.unpad(l4_packet[8:28])
-            self.n_sent = self.n_sent + len(l4_packet)      # record number of bytes
             
             if self.debug:
                 print('L4 Sent', struct.unpack('L', l4_packet[0:8])[0])
 
-            try:
-                self.unacked_packets[window_index] = struct.unpack('L', l4_packet[0:8])[0]
-            except:
-                pass
+            self.unacked_packets[window_index] = struct.unpack('L', l4_packet[0:8])[0]
 
             pkt_no_mac = 1  # mac (l2) packet number counter
             l4_down_access.acquire()
@@ -175,7 +164,7 @@ class Layer4(Network_Layer):
             while pkt_no_mac <= self.num_frames:
                 chunk = l4_packet[(pkt_no_mac-1)*self.chunk_size : min((pkt_no_mac)*self.chunk_size,len(l4_packet)) ]
                 l2_packet = struct.pack('H', pkt_no_mac & 0xffff ) + l4_packet[8:28] + l4_packet[28:48] + chunk  # packet source not needed, it gets replaced in l3, similarly, in l3 the dest is replaced by the mac address
-                self.down_queue.put(l2_packet, True)    # TODO check that a full l2 packet is made and pad otherwise
+                self.down_queue.put(l2_packet, True)    
 
                 pkt_no_mac +=1
                 l2_packet=b''
@@ -184,34 +173,32 @@ class Layer4(Network_Layer):
             # if l4 packet originated from this node, then wait for ack
             if packet_source == self.my_pc:
                 while not stop():
-                    start_time = time()
-                    if self.unacked_packets[window_index]==True: # ack received
-                        self.unacked_packets[window_index]==False
+                    if self.window_ack_list[window_index]==True: # ack received
                         # TODO measurements
                         break
 
-                    elif act_rt < self.n_retrans:       # check num of retransmissions
-                        act_rt += 1 
-                        self.n_sent = self.n_sent + len(l4_packet)
-
-                        pkt_no_mac = 1  # mac (l2) packet number counter
-                        l4_down_access.acquire()
-                        # repeated transmission block 
-                        while pkt_no_mac <= self.num_frames:
-                            chunk = l4_packet[(pkt_no_mac-1)*self.chunk_size : min((pkt_no_mac)*self.chunk_size,len(l4_packet)) ]
-                            l2_packet = struct.pack('h', pkt_no_mac & 0xffff) + l4_packet[8:28] + l4_packet[28:48] + chunk  # packet source not needed, it gets replaced in l3, similarly, in l3 the dest is replaced by the mac address
-                            self.down_queue.put(l2_packet, True)    # TODO check that a full l2 packet is made and pad otherwise
-
-                            pkt_no_mac +=1
-                            l2_packet=b''
-                        l4_down_access.release()
-
                     else:
-                        if self.debug:
-                            print("FATAL ERROR: L4 retransmit limit reached for pktno ", self.unacked_packets[window_index])
-                        try:
-                            globals()["l4_ack"].set()
-                        except:
-                            pass
-                        break
+                        if act_rt < self.n_retrans:       # check num of retransmissions
+                            act_rt += 1 
+                            
+                            pkt_no_mac = 1  # mac (l2) packet number counter
+                            l4_down_access.acquire()
+                            # repeated transmission block 
+                            while pkt_no_mac <= self.num_frames:
+                                chunk = l4_packet[(pkt_no_mac-1)*self.chunk_size : min((pkt_no_mac)*self.chunk_size,len(l4_packet)) ]
+                                l2_packet = struct.pack('h', pkt_no_mac & 0xffff) + l4_packet[8:28] + l4_packet[28:48] + chunk  # packet source not needed, it gets replaced in l3, similarly, in l3 the dest is replaced by the mac address
+                                self.down_queue.put(l2_packet, True)    # TODO check that a full l2 packet is made and pad otherwise
+
+                                pkt_no_mac +=1
+                                l2_packet=b''
+                            l4_down_access.release()
+
+                        else:
+                            if self.debug:
+                                print("FATAL ERROR: L4 retransmit limit reached for pktno ", self.unacked_packets[window_index])
+                            try:
+                                globals()["l4_ack"].set()
+                            except:
+                                pass
+                            break
 

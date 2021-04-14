@@ -4,7 +4,6 @@
 DQN experiment node object
 
 TODO:
-- Determine Normalized power levels
 - Debug
 - runtime of 5min once last action, stay until runtime finishes, then land
 
@@ -18,16 +17,11 @@ TODO:
     - -20dBm to 20dBm
     - 2 dbm steps (20 total)
 
-- determine the max power of a b210
-    - 35 -> 20dBm -> 
-    - 33 -> 17dBm ->
-    - 
     
 - Mask tells you which drone that you have on the field
 - Only specify one or two drones
 
 - convert to state for csv read in
-
 
 '''
 

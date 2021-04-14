@@ -51,7 +51,7 @@ class UAV_Node():
         # Initalize Network Stack
         self.control_plane = Control_Plane.Control_Plane(my_config.pc_ip)
         
-        self.layer4 = Layer4.Layer4(self.my_config, self.control_plane.send_l4_ack, debug=l4_debug)
+        self.layer4 = Layer4.Layer4(self.my_config, self.control_plane.send_l4_ack, debug=l4_debug, window=2)
         self.layer3 = Layer3.Layer3(self.my_config, debug=l3_debug)
         self.layer2 = Layer2.Layer2(self.my_config.usrp_ip, send_ack=self.control_plane.send_l2_ack, debug=l2_debug)
         self.layer1 = Layer1.Layer1(self.my_config, debug=l1_debug)
@@ -64,14 +64,11 @@ class UAV_Node():
         self.layer4.init_layers(upper=self.layer5, lower=self.layer3)  # link l4 to this class object
         self.layer5.init_layers(upper=None, lower=self.layer4)
 
-
         # Neural Net params
         self.node_index = node_index    # 0 to num_nodes
         self.loc_index = self.my_config.location_index  # 11x11 maxtix index (x,y) 0:(0,0), 1:(0,1), 11:(1,0), 12:(1,1)...
         self.pow_index = pow_index      # [2,3,4]
         self.action = None
-
-
 
         self.min_time = min_iteration_time
         self.state_buf = [None]*(2*num_nodes)
@@ -88,9 +85,6 @@ class UAV_Node():
         print("~ ~ Starting Threads ~ ~", end='\n\n')
 
         # Initialize threads
-        # self.threads["control_layer"] = Thread(target=self.control_plane.listening_socket, args=(self.layer2.recv_ack, self.layer4.recv_ack, self.handle_state, self.handle_get_state, lambda : self.stop_threads, ))
-        # self.threads["control_layer"].start()
-
         self.threads["L2_ACK_RCV"] = Thread(target=self.control_plane.listen_l2, args=(self.layer2.recv_ack, lambda : self.stop_threads, ))
         self.threads["L2_ACK_RCV"].start()
 
@@ -101,10 +95,12 @@ class UAV_Node():
         self.threads["STATE_RCV"].start()
 
         for layer in [self.layer1, self.layer2, self.layer3, self.layer4]:
+            
             self.threads[layer.layer_name + "_pass_up"] = Thread(target=layer.pass_up, args=(lambda : self.stop_threads,))
             self.threads[layer.layer_name + "_pass_up"].start()
-            self.threads[layer.layer_name + "_pass_down"] = Thread(target=layer.pass_down, args=(lambda : self.stop_threads,))
-            self.threads[layer.layer_name + "_pass_down"].start() 
+            for jj in layer.window:
+                self.threads[layer.layer_name + "_pass_down_"+str(jj)] = Thread(target=layer.pass_down, args=(lambda : self.stop_threads,))
+                self.threads[layer.layer_name + "_pass_down_"+str(jj)].start() 
         
         if self.my_config.role == 'tx':
             self.threads[self.layer5.layer_name + "_pass_down"] = Thread(target=self.layer5.pass_down, args=(lambda : self.stop_threads,))
