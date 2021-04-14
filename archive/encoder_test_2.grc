@@ -434,9 +434,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [654, 319]
+    coordinate: [654, 320]
     rotation: 180
-    state: enabled
+    state: bypassed
 - name: blocks_stream_to_tagged_stream_0_0
   id: blocks_stream_to_tagged_stream
   parameters:
@@ -578,9 +578,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [489, 344]
+    coordinate: [489, 343]
     rotation: 180
-    state: enabled
+    state: bypassed
 - name: fec_async_decoder_0
   id: fec_async_decoder
   parameters:
@@ -592,7 +592,7 @@ blocks:
     minoutbuf: '0'
     mtu: '1500'
     packed: 'True'
-    rev_pack: 'True'
+    rev_pack: 'False'
   states:
     bus_sink: false
     bus_source: false
@@ -611,13 +611,13 @@ blocks:
     minoutbuf: '0'
     mtu: '1500'
     packed: 'True'
-    rev_pack: 'True'
+    rev_pack: 'False'
     rev_unpack: 'True'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [720, 130]
+    coordinate: [720, 129]
     rotation: 0
     state: enabled
 - name: frame_size
