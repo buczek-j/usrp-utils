@@ -4,7 +4,8 @@
 Layer 1 object: Physical layer 
 '''
 
-from LayerStack.L1_protocols.TRX_ODFM_USRP import TRX_ODFM_USRP, TRX_ODFM_USRP_ENCODED
+from LayerStack.L1_protocols.TRX_ODFM_USRP import TRX_ODFM_USRP
+from LayerStack.L1_protocols.TRX_ODFM_USRP_ENCODED import TRX_ODFM_USRP_ENCODED
 from LayerStack.Network_Layer import Network_Layer
 import signal, time, sys, pmt, zmq, os, struct
 from numpy import byte, frombuffer

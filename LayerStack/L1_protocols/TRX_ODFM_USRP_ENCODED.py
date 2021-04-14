@@ -28,7 +28,7 @@ from gnuradio import zeromq
 from gnuradio.digital.utils import tagged_streams
 
 
-class TRX_ODFM_USRP(gr.top_block):
+class TRX_ODFM_USRP_ENCODED(gr.top_block):
     def __init__(self, input_port_num="55555", output_port_num="55556", rx_bw=0.5e6, rx_freq=2e9, rx_gain=0.8, serial_num="31C9237", tx_bw=0.5e6, tx_freq=2.0e9, tx_gain=1):
         gr.top_block.__init__(self, "tranceiver_ofdm_usrp_RS")
 
