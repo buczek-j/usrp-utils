@@ -17,7 +17,7 @@ from Utils.Transforms import global_to_NED
 
 
 class UAV_Node():
-    def __init__(self, my_config, l1_debug=False, l2_debug=False, l3_debug=False, l4_debug=False, l5_debug=False, dqn_config=None, alt=5, num_nodes=3, min_iteration_time=10.0, pow_index=3, node_index=0, log_base_name="~/Documents/usrp-utils/Logs/log_", csv_in=False, model_path='~/Documents/usrp-utils/saved_models/asym_scenarios_50container_loc/', model_stage=270):
+    def __init__(self, my_config, l1_debug=False, l2_debug=False, l3_debug=False, l4_debug=False, l5_debug=False, dqn_config=None, alt=5, num_nodes=3, min_iteration_time=10.0, pow_index=3, node_index=0, log_base_name="~/Documents/usrp-utils/Logs/log_", csv_in=False, model_path='~/Documents/usrp-utils/saved_models/asym_scenarios_50container_loc/', encoded=False):
         '''
         Emane Node class for network stack
         :param my_config: Node_Config class object
@@ -525,8 +525,6 @@ class UAV_Node():
 
     
 
-
-
 def main():
     '''
     Main Method
@@ -549,6 +547,7 @@ def main():
     parser.add_argument('--l2', type=str, default='n', help='layer 2 debug (y/n)')
     parser.add_argument('--l3', type=str, default='n', help='layer 3 debug (y/n)')
     parser.add_argument('--l4', type=str, default='n', help='layer 4 debug (y/n)')
+    parser.add_argument('--encoded', type=str, default='n', help='encode L1 (y/n)')
     options = parser.parse_args()
 
     # Configure hops for route 1
@@ -578,7 +577,7 @@ def main():
         print('INVALID INDEX')
         exit(0)
     
-    uav_node = UAV_Node(my_config, node_index=int(options.index), l1_debug=(options.l1=='y' or options.l1 == 'Y'), l2_debug=(options.l2=='y' or options.l2 == 'Y'), l3_debug=(options.l3=='y' or options.l3 == 'Y'), l4_debug=(options.l4=='y' or options.l4 == 'Y'), csv_in=True)
+    uav_node = UAV_Node(my_config, node_index=int(options.index), l1_debug=(options.l1=='y' or options.l1 == 'Y'), l2_debug=(options.l2=='y' or options.l2 == 'Y'), l3_debug=(options.l3=='y' or options.l3 == 'Y'), l4_debug=(options.l4=='y' or options.l4 == 'Y'), csv_in=True, encoded=(options.encoded=='y' or options.encoded=='Y'))
     try:
         uav_node.run()
     except Exception as e:

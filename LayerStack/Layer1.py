@@ -4,14 +4,14 @@
 Layer 1 object: Physical layer 
 '''
 
-from LayerStack.L1_protocols.TRX_ODFM_USRP import TRX_ODFM_USRP
+from LayerStack.L1_protocols.TRX_ODFM_USRP import TRX_ODFM_USRP, TRX_ODFM_USRP_ENCODED
 from LayerStack.Network_Layer import Network_Layer
 import signal, time, sys, pmt, zmq, os, struct
 from numpy import byte, frombuffer
 from argparse import ArgumentParser
    
 class Layer1(Network_Layer):
-    def __init__(self, mynode, input_port='55555', output_port='55556', debug=False):
+    def __init__(self, mynode, input_port='55555', output_port='55556', debug=False, encoded=False):
         '''
         Object to send and receive bytes via uarp radios through tcp connections to GNU radio object
         :param mynode: Node_Config object for the current node USRP configuration information
@@ -35,7 +35,10 @@ class Layer1(Network_Layer):
         self.n_recv = 0
 
         # USRP Object
-        self.tb = TRX_ODFM_USRP(input_port_num=str(input_port), output_port_num=str(output_port), rx_bw=int(mynode.rx_bw), rx_freq=int(mynode.rx_freq), rx_gain=mynode.rx_gain, tx_bw=int(mynode.tx_bw), tx_freq=int(mynode.tx_freq), tx_gain=mynode.tx_gain)
+        if encoded:
+            self.tb = TRX_ODFM_USRP_ENCODED(input_port_num=str(input_port), output_port_num=str(output_port), rx_bw=int(mynode.rx_bw), rx_freq=int(mynode.rx_freq), rx_gain=mynode.rx_gain, tx_bw=int(mynode.tx_bw), tx_freq=int(mynode.tx_freq), tx_gain=mynode.tx_gain)
+        else:
+            self.tb = TRX_ODFM_USRP(input_port_num=str(input_port), output_port_num=str(output_port), rx_bw=int(mynode.rx_bw), rx_freq=int(mynode.rx_freq), rx_gain=mynode.rx_gain, tx_bw=int(mynode.tx_bw), tx_freq=int(mynode.tx_freq), tx_gain=mynode.tx_gain)
         def sig_handler(sig=None, frame=None):
             self.tb.stop()
             self.tb.wait()
@@ -144,7 +147,7 @@ if __name__ == '__main__':
     if options.role == 'tx':
         while True:
             msg = input("MSG to send:").encode('utf-8')
-            for ii in range(256 - (len(msg)%256)):  # pad 
+            for ii in range(200 - (len(msg)%200)):  # pad 
                 msg = msg+struct.pack('x')
             send_socket.send(msg)
 
