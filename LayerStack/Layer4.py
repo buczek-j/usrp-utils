@@ -104,13 +104,14 @@ class Layer4(Network_Layer):
         if not pktno in self.ack_list:
             self.ack_list.append(pktno)
             self.n_ack += 1
+            ack_time = time()
+            rtt = ack_time - time_sent 
 
             if self.debug:
-                print("L4 ACK:", pktno)
+                print("L4 ACK:", pktno, rtt)
             
             if self.log == True:
-                ack_time = time()
-                rtt = ack_time - time_sent 
+                
                 self.writer.writerow([pktno, time_sent, ack_time, rtt, 8.0*self.l4_size/rtt])
 
         if pktno in self.unacked_packets:
