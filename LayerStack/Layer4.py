@@ -32,7 +32,7 @@ l4_down_access = Lock()
 # l2_window=1
 
 class Layer4(Network_Layer):
-    def __init__(self, my_config, send_ack, window=1, num_frames=1, l2_header=42, l2_size=100, timeout=0.4, n_retrans=0, debug=False, l4_header=56, l4_log_base_name="~/Documents/usrp-utils/Logs/l4_acks_",  log=True):
+    def __init__(self, my_config, send_ack, window=1, num_frames=1, l2_header=42, l2_size=200, timeout=0.4, n_retrans=0, debug=False, l4_header=56, l4_log_base_name="~/Documents/usrp-utils/Logs/l4_acks_",  log=True):
         '''
         Layer 4 Transport layer object
         :param my_config: Node_Config object for the current node
