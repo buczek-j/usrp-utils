@@ -17,7 +17,7 @@ from Utils.Transforms import global_to_NED
 
 
 class UAV_Node():
-    def __init__(self, my_config, l1_debug=False, l2_debug=False, l3_debug=False, l4_debug=False, l5_debug=False, dqn_config=None, alt=5, num_nodes=3, min_iteration_time=15.0, pow_index=6, node_index=0, log_base_name="~/Documents/usrp-utils/Logs/log_", csv_in=False, model_path='~/Documents/usrp-utils/saved_models/asym_scenarios_50container_loc/', encoded=False):
+    def __init__(self, my_config, l1_debug=False, l2_debug=False, l3_debug=False, l4_debug=False, l5_debug=False, dqn_config=None, alt=5, num_nodes=6, min_iteration_time=15.0, pow_index=3, node_index=0, log_base_name="~/Documents/usrp-utils/Logs/log_", csv_in=False, model_path='~/Documents/usrp-utils/saved_models/asym_scenarios_50container_loc/', encoded=False):
         '''
         Emane Node class for network stack
         :param my_config: Node_Config class object
