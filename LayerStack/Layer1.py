@@ -103,7 +103,6 @@ class Layer1(Network_Layer):
                 msg = self.recv_socket.recv()
                 received_pkt = frombuffer(msg, dtype=byte, count=-1)
                 self.up_queue.put(received_pkt.tobytes(), True)
-                print(received_pkt.tobytes())
                 received_pkt=None
 
 
@@ -172,3 +171,4 @@ if __name__ == '__main__':
         while True:
             msg = recv_socket.recv()
             received_pkt = frombuffer(msg, dtype=byte, count=-1)
+            print(received_pkt.tobytes().decode('utf-8'))
