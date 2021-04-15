@@ -177,7 +177,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [280, 356]
+    coordinate: [259, 336]
     rotation: 0
     state: enabled
 - name: packet_len
@@ -500,7 +500,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1738, 2278]
+    coordinate: [1363, 2232]
     rotation: 0
     state: disabled
 - name: blocks_file_sink_0_0_0_0_0_0_0_0_0_0
@@ -518,7 +518,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [2014, 2186]
+    coordinate: [1669, 2178]
     rotation: 0
     state: disabled
 - name: blocks_file_sink_0_0_0_0_0_0_0_0_1
@@ -763,7 +763,7 @@ blocks:
     bus_structure: null
     coordinate: [1287, 2163]
     rotation: 0
-    state: disabled
+    state: true
 - name: blocks_tagged_stream_mux_0
   id: blocks_tagged_stream_mux
   parameters:
@@ -784,25 +784,6 @@ blocks:
     coordinate: [1341, 599]
     rotation: 0
     state: enabled
-- name: blocks_throttle_0
-  id: blocks_throttle
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    ignoretag: 'True'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    samples_per_second: samp_rate
-    type: complex
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [978, 1128]
-    rotation: 180
-    state: disabled
 - name: blocks_vector_source_x_0_1_0
   id: blocks_vector_source_x
   parameters:
@@ -858,7 +839,7 @@ blocks:
     bus_structure: null
     coordinate: [1095, 2117]
     rotation: 0
-    state: enabled
+    state: true
 - name: channels_channel_model_0
   id: channels_channel_model
   parameters:
@@ -870,14 +851,14 @@ blocks:
     freq_offset: '0'
     maxoutbuf: '0'
     minoutbuf: '0'
-    noise_voltage: '0.100'
+    noise_voltage: '0.12'
     seed: '0'
     taps: 0.3 + 0.8j
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [763, 1108]
+    coordinate: [852, 1088]
     rotation: 180
     state: disabled
 - name: digital_chunks_to_symbols_xx_0
@@ -967,7 +948,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1606, 1977]
+    coordinate: [1805, 2017]
     rotation: 0
     state: enabled
 - name: digital_crc32_bb_0_0
@@ -2557,7 +2538,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1925, 1969]
+    coordinate: [1393, 1962]
     rotation: 0
     state: enabled
 - name: zeromq_sub_source_0
@@ -2579,7 +2560,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [469, 411]
+    coordinate: [402, 162]
     rotation: 0
     state: enabled
 
@@ -2589,7 +2570,7 @@ connections:
 - [blocks_char_to_float_0_0_0, '0', qtgui_time_sink_x_0_0, '0']
 - [blocks_char_to_float_0_0_0_0, '0', qtgui_time_sink_x_0_0, '1']
 - [blocks_delay_0, '0', blocks_multiply_xx_0, '1']
-- [blocks_multiply_const_vxx_0, '0', blocks_throttle_0, '0']
+- [blocks_multiply_const_vxx_0, '0', channels_channel_model_0, '0']
 - [blocks_multiply_const_vxx_0, '0', uhd_usrp_sink_0, '0']
 - [blocks_multiply_xx_0, '0', digital_header_payload_demux_0, '0']
 - [blocks_repack_bits_bb_0, '0', blocks_file_sink_0_0_0_0_0_0_0_0, '0']
@@ -2600,14 +2581,12 @@ connections:
 - [blocks_stream_to_tagged_stream_0, '0', digital_crc32_bb_0_0, '0']
 - [blocks_stream_to_tagged_stream_0_0_0, '0', blocks_tagged_stream_multiply_length_0_0,
   '0']
-- [blocks_stream_to_tagged_stream_0_0_0, '0', digital_crc32_bb_0, '0']
 - [blocks_stream_to_vector_0, '0', dtv_dvbt_reed_solomon_dec_0, '0']
 - [blocks_stream_to_vector_1, '0', dtv_dvbt_reed_solomon_enc_0, '0']
 - [blocks_tagged_stream_multiply_length_0, '0', blocks_char_to_float_0_0_0_0, '0']
 - [blocks_tagged_stream_multiply_length_0, '0', header_bits_0, '0']
 - [blocks_tagged_stream_multiply_length_0_0, '0', digital_crc32_bb_0, '0']
 - [blocks_tagged_stream_mux_0, '0', virtual_sink_0_0_0_0, '0']
-- [blocks_throttle_0, '0', channels_channel_model_0, '0']
 - [blocks_vector_source_x_0_1_0, '0', blocks_stream_to_tagged_stream_0, '0']
 - [blocks_vector_to_stream_0, '0', blocks_char_to_float_0_0_0, '0']
 - [blocks_vector_to_stream_0, '0', blocks_tagged_stream_multiply_length_0, '0']

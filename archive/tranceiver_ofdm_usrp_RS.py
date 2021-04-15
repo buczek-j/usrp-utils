@@ -146,6 +146,7 @@ class tranceiver_ofdm_usrp_RS(gr.top_block):
         self.blocks_vector_to_stream_0_0 = blocks.vector_to_stream(gr.sizeof_char*1, k)
         self.blocks_vector_to_stream_0 = blocks.vector_to_stream(gr.sizeof_char*1, n)
         self.blocks_tagged_stream_mux_0 = blocks.tagged_stream_mux(gr.sizeof_gr_complex*1, packet_length_tag_key, 0)
+        self.blocks_tagged_stream_multiply_length_0_0 = blocks.tagged_stream_multiply_length(gr.sizeof_char*1, packet_length_tag_key, k/n)
         self.blocks_tagged_stream_multiply_length_0 = blocks.tagged_stream_multiply_length(gr.sizeof_char*1, packet_length_tag_key, n/k)
         self.blocks_stream_to_vector_1 = blocks.stream_to_vector(gr.sizeof_char*1, k)
         self.blocks_stream_to_vector_0 = blocks.stream_to_vector(gr.sizeof_char*1, n)
@@ -172,11 +173,12 @@ class tranceiver_ofdm_usrp_RS(gr.top_block):
         self.connect((self.blocks_repack_bits_bb_0_0, 0), (self.digital_chunks_to_symbols_xx_0, 0))
         self.connect((self.blocks_repack_bits_bb_0_1, 0), (self.digital_chunks_to_symbols_xx_0_0, 0))
         self.connect((self.blocks_stream_to_tagged_stream_0, 0), (self.digital_crc32_bb_0_0, 0))
-        self.connect((self.blocks_stream_to_tagged_stream_0_0_0, 0), (self.digital_crc32_bb_0, 0))
+        self.connect((self.blocks_stream_to_tagged_stream_0_0_0, 0), (self.blocks_tagged_stream_multiply_length_0_0, 0))
         self.connect((self.blocks_stream_to_vector_0, 0), (self.dtv_dvbt_reed_solomon_dec_0, 0))
         self.connect((self.blocks_stream_to_vector_1, 0), (self.dtv_dvbt_reed_solomon_enc_0, 0))
         self.connect((self.blocks_tagged_stream_multiply_length_0, 0), (self.blocks_repack_bits_bb_0_1, 0))
         self.connect((self.blocks_tagged_stream_multiply_length_0, 0), (self.digital_protocol_formatter_bb_0, 0))
+        self.connect((self.blocks_tagged_stream_multiply_length_0_0, 0), (self.digital_crc32_bb_0, 0))
         self.connect((self.blocks_tagged_stream_mux_0, 0), (self.digital_ofdm_carrier_allocator_cvc_0, 0))
         self.connect((self.blocks_vector_to_stream_0, 0), (self.blocks_tagged_stream_multiply_length_0, 0))
         self.connect((self.blocks_vector_to_stream_0_0, 0), (self.blocks_stream_to_tagged_stream_0_0_0, 0))
@@ -323,6 +325,7 @@ class tranceiver_ofdm_usrp_RS(gr.top_block):
         self.n = n
         self.set_t(int((self.n*self.blocks_RS-self.k)/2))
         self.blocks_tagged_stream_multiply_length_0.set_scalar(self.n/self.k)
+        self.blocks_tagged_stream_multiply_length_0_0.set_scalar(self.k/self.n)
 
     def get_length_tag_key(self):
         return self.length_tag_key
@@ -341,6 +344,7 @@ class tranceiver_ofdm_usrp_RS(gr.top_block):
         self.blocks_stream_to_tagged_stream_0_0_0.set_packet_len(self.k)
         self.blocks_stream_to_tagged_stream_0_0_0.set_packet_len_pmt(self.k)
         self.blocks_tagged_stream_multiply_length_0.set_scalar(self.n/self.k)
+        self.blocks_tagged_stream_multiply_length_0_0.set_scalar(self.k/self.n)
 
     def get_header_mod(self):
         return self.header_mod
