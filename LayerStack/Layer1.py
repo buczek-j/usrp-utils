@@ -111,7 +111,6 @@ class Layer1(Network_Layer):
         while not stop():
             msg = self.prev_down_queue.get(True)    #  get message from previous layer down queue
             self.send_socket.send(msg) # send 2 messages
-            print(len(msg))
 
 
 if __name__ == '__main__':
