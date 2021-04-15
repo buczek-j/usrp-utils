@@ -55,15 +55,21 @@ class Layer1(Network_Layer):
         '''
         Method to display the L1 usrp settings
         '''
-        print("- - - USRP SETTINGS - - -\n")
+        print("- - - USRP SETTINGS - - -")
         print( 
-            "\tRX Freq:", self.tb.get_rx_freq()," Hz\n",
-            "\tRX BW:", self.tb.get_rx_bw()," Hz\n",
-            "\tRX Gain:", self.tb.get_rx_gain()," / 1.0\n",
-            "\tTX Freq:", self.tb.get_tx_freq(), " Hz\n",
-            "\tTX BW:", self.tb.get_tx_bw(), " Hz\n",
-            "\tTX Gain:", self.tb.get_tx_gain(), " / 1.0\n",
-            "\tPKT Len:", self.tb.get_packet_len(), " Bytes\n"
+            '~\t~\t~\t~\t~\t~\t~',
+            "\tSerial:\t", tb.uhd_usrp_sink_0.get_usrp_info().vals()[2],
+            "\n\tRX Settings:",
+            "\tCenter Freq RX:\t", tb.uhd_usrp_source_0.get_center_freq()/1e9, "GHz",
+            "\tBandwidth RX:\t", tb.uhd_usrp_source_0.get_bandwidth()/1e6, "Mhz",
+            "\tNorm. Gain RX:\t", tb.uhd_usrp_source_0.get_normalized_gain(), "/ 1.0",
+            "\tGain RX:\t", tb.uhd_usrp_source_0.get_gain(), "dB",
+            "\n\tTX Settings:",
+            "\tCenter Freq TX:\t", tb.uhd_usrp_sink_0.get_center_freq()/1e9, "GHz",
+            "\tBandwidth TX:\t", tb.uhd_usrp_sink_0.get_bandwidth()/1e6, "Mhz",
+            "\tNorm. Gain TX:\t", tb.uhd_usrp_sink_0.get_normalized_gain(), "/ 1.0",
+            "\tGain TX:\t", tb.uhd_usrp_sink_0.get_gain(), "dB",  
+            '~\t~\t~\t~\t~\t~\t~'        
         )
     
 
