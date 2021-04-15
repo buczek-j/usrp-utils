@@ -144,6 +144,19 @@ if __name__ == '__main__':
     signal.signal(signal.SIGTERM, sig_handler)
     tb.start()
 
+    # print(tb.uhd_usrp_sink_0.get_center_freq())
+    print('~\t~\t~\t~\t~\t~\t~')
+    print("Serial::\t", tb.uhd_usrp_sink_0.get_usrp_info().vals()[2])
+    print('~\t~\t~\t~\t~\t~\t~')
+    print("Center Freq RX:\t", tb.uhd_usrp_source_0.get_center_freq()/1e9, "GHz")
+    print("Bandwidth RX:\t", tb.uhd_usrp_source_0.get_bandwidth()/1e6, "Mhz")
+    print('~\t~\t~\t~\t~\t~\t~')
+    print("Center Freq TX:\t", tb.uhd_usrp_sink_0.get_center_freq()/1e9, "GHz")
+    print("Norm. Gain TX:\t", tb.uhd_usrp_sink_0.get_normalized_gain(), "/ 1.0")
+    print("Gain TX:\t", tb.uhd_usrp_sink_0.get_gain(), "dB")
+    print("Bandwidth TX:\t", tb.uhd_usrp_sink_0.get_bandwidth()/1e6, "Mhz")
+    print('~\t~\t~\t~\t~\t~\t~')
+
     if options.role == 'tx':
         while True:
             msg = input("MSG to send:").encode('utf-8')
