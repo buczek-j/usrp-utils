@@ -172,4 +172,3 @@ if __name__ == '__main__':
         while True:
             msg = recv_socket.recv()
             received_pkt = frombuffer(msg, dtype=byte, count=-1)
-            print(received_pkt.tobytes().decode('utf-8'))
