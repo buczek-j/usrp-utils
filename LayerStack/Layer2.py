@@ -6,7 +6,7 @@ Layer 2 object: Mac address layer (Datalink)
 
 from LayerStack.Network_Layer import Network_Layer
 from enum import Enum 
-from threading import  Event
+from threading import  Event, Thread
 from time import time
 import struct
 
@@ -93,7 +93,9 @@ class Layer2(Network_Layer):
 
                 if pktno_mac == L2_ENUMS.MSG.value:
                     self.mac_pkt_dict[mac_source_ip] = pktno_mac        # update last received pkt number 
-                    self.send_ack(mac_packet[0:2], mac_source_ip)  # send ack
+                    a = Thread(target=self.send_ack_wifi, args=(mac_packet[0:2], mac_source_ip,))
+                    a.start()
+                    # self.send_ack(mac_packet[0:2], mac_source_ip)  # send ack
                     self.up_pkt[mac_source_ip] = mac_packet[42:]
                     mac_packet = b''
 
@@ -109,7 +111,10 @@ class Layer2(Network_Layer):
 
                 elif pktno_mac == (self.mac_pkt_dict[mac_source_ip]+1):  # next sequential message 
                     self.mac_pkt_dict[mac_source_ip] = pktno_mac        # update last received pkt number 
-                    self.send_ack(mac_packet[0:2], mac_source_ip)  # send ack
+                    
+                    a = Thread(target=self.send_ack_wifi, args=(mac_packet[0:2], mac_source_ip,))
+                    a.start()
+                    # self.send_ack(mac_packet[0:2], mac_source_ip)  # send ack
                     self.up_pkt[mac_source_ip] += mac_packet[42:]
                     mac_packet = b''
 
