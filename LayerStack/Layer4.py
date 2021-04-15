@@ -32,15 +32,14 @@ l4_down_access = Lock()
 # l2_window=1
 
 class Layer4(Network_Layer):
-    def __init__(self, my_config, send_ack, window=1, num_frames=1, num_blocks=2, l2_header=42, l2_block_size=100, timeout=0.4, n_retrans=0, debug=False, l4_header=56, l4_log_base_name="~/Documents/usrp-utils/Logs/l4_acks_",  log=True):
+    def __init__(self, my_config, send_ack, window=1, num_frames=1, l2_header=42, l2_size=100, timeout=0.4, n_retrans=0, debug=False, l4_header=56, l4_log_base_name="~/Documents/usrp-utils/Logs/l4_acks_",  log=True):
         '''
         Layer 4 Transport layer object
         :param my_config: Node_Config object for the current node
         :param send_ack: function to call to send an acknowledgement
         :param num_frames: int for the number of l2 frames in one l4 packet
-        :param num_blocks: int for the number of blocks in an l2 message
         :param l2_header: int for the byte length of the l2 header
-        :param l2_block_size: int for the byte length for one l2 block
+        :param l2_size: int for the byte length for one l2 frame
         :param timeout: int for the l4 ack timeout
         :param n_retrans: int for the number of times to retransmit a l4 message
         :param debug: bool for debug outputs or not
@@ -70,13 +69,13 @@ class Layer4(Network_Layer):
             self.window_ack_list.append(False)
                 
         self.num_frames = num_frames
-        self.chunk_size = l2_block_size*num_blocks - l2_header
+        self.chunk_size = l2_size - l2_header
         self.timeout=timeout
         self.n_retrans = n_retrans
         
         self.ack_list = []
         
-        self.l4_size = num_blocks*l2_block_size*num_frames
+        self.l4_size = l2_size*num_frames
         self.l4_header = l4_header
 
         # Measurements
