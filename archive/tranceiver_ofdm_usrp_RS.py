@@ -75,8 +75,8 @@ class tranceiver_ofdm_usrp_RS(gr.top_block):
         ##################################################
         # Blocks
         ##################################################
-        self.zeromq_sub_source_0 = zeromq.sub_source(gr.sizeof_char, 1, "tcp://127.0.0.1:"+input_port_num, 100, False, -1)
-        self.zeromq_pub_sink_0 = zeromq.pub_sink(gr.sizeof_char, 1, "tcp://127.0.0.1:55556", 100, False, -1)
+        self.zeromq_sub_source_0 = zeromq.sub_source(gr.sizeof_char, 1, "tcp://127.0.0.1:"+input_port_num, 100, False, -1, '')
+        self.zeromq_pub_sink_0 = zeromq.pub_sink(gr.sizeof_char, 1, "tcp://127.0.0.1:55556", 100, False, -1, '')
         self.uhd_usrp_source_0 = uhd.usrp_source(
             ",".join(("", "")),
             uhd.stream_args(
