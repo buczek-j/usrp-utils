@@ -58,16 +58,16 @@ class Layer1(Network_Layer):
         print("- - - USRP SETTINGS - - -")
         print( 
             '~\t~\t~\t~\t~\t~\t~',
-            "\tSerial:\t", self.tb.uhd_usrp_sink_0.get_usrp_info().vals()[2],
+            "\n\tSerial:\t", self.tb.uhd_usrp_sink_0.get_usrp_info().vals()[2],
             "\n\tRX Settings:",
             "\tCenter Freq RX:\t", self.tb.uhd_usrp_source_0.get_center_freq()/1e9, "GHz",
             "\tBandwidth RX:\t", self.tb.uhd_usrp_source_0.get_bandwidth()/1e6, "Mhz",
-            "\tNorm. Gain RX:\t", self.tb.uhd_usrp_source_0.get_normalized_gain(), "/ 1.0",
+            "\tNorm. Gain RX:\t", round(self.tb.uhd_usrp_source_0.get_normalized_gain(),2), "/ 1.0",
             "\tGain RX:\t", self.tb.uhd_usrp_source_0.get_gain(), "dB",
             "\n\tTX Settings:",
             "\tCenter Freq TX:\t", self.tb.uhd_usrp_sink_0.get_center_freq()/1e9, "GHz",
             "\tBandwidth TX:\t", self.tb.uhd_usrp_sink_0.get_bandwidth()/1e6, "Mhz",
-            "\tNorm. Gain TX:\t", self.tb.uhd_usrp_sink_0.get_normalized_gain(), "/ 1.0",
+            "\tNorm. Gain TX:\t", round(self.tb.uhd_usrp_sink_0.get_normalized_gain(),2), "/ 1.0",
             "\tGain TX:\t", self.tb.uhd_usrp_sink_0.get_gain(), "dB",  
             '~\t~\t~\t~\t~\t~\t~'        
         )
