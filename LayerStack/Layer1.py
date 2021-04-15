@@ -58,17 +58,17 @@ class Layer1(Network_Layer):
         print("- - - USRP SETTINGS - - -")
         print( 
             '~\t~\t~\t~\t~\t~\t~',
-            "\tSerial:\t", tb.uhd_usrp_sink_0.get_usrp_info().vals()[2],
+            "\tSerial:\t", self.tb.uhd_usrp_sink_0.get_usrp_info().vals()[2],
             "\n\tRX Settings:",
-            "\tCenter Freq RX:\t", tb.uhd_usrp_source_0.get_center_freq()/1e9, "GHz",
-            "\tBandwidth RX:\t", tb.uhd_usrp_source_0.get_bandwidth()/1e6, "Mhz",
-            "\tNorm. Gain RX:\t", tb.uhd_usrp_source_0.get_normalized_gain(), "/ 1.0",
-            "\tGain RX:\t", tb.uhd_usrp_source_0.get_gain(), "dB",
+            "\tCenter Freq RX:\t", self.tb.uhd_usrp_source_0.get_center_freq()/1e9, "GHz",
+            "\tBandwidth RX:\t", self.tb.uhd_usrp_source_0.get_bandwidth()/1e6, "Mhz",
+            "\tNorm. Gain RX:\t", self.tb.uhd_usrp_source_0.get_normalized_gain(), "/ 1.0",
+            "\tGain RX:\t", self.tb.uhd_usrp_source_0.get_gain(), "dB",
             "\n\tTX Settings:",
-            "\tCenter Freq TX:\t", tb.uhd_usrp_sink_0.get_center_freq()/1e9, "GHz",
-            "\tBandwidth TX:\t", tb.uhd_usrp_sink_0.get_bandwidth()/1e6, "Mhz",
-            "\tNorm. Gain TX:\t", tb.uhd_usrp_sink_0.get_normalized_gain(), "/ 1.0",
-            "\tGain TX:\t", tb.uhd_usrp_sink_0.get_gain(), "dB",  
+            "\tCenter Freq TX:\t", self.tb.uhd_usrp_sink_0.get_center_freq()/1e9, "GHz",
+            "\tBandwidth TX:\t", self.tb.uhd_usrp_sink_0.get_bandwidth()/1e6, "Mhz",
+            "\tNorm. Gain TX:\t", self.tb.uhd_usrp_sink_0.get_normalized_gain(), "/ 1.0",
+            "\tGain TX:\t", self.tb.uhd_usrp_sink_0.get_gain(), "dB",  
             '~\t~\t~\t~\t~\t~\t~'        
         )
     
