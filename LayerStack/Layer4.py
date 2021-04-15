@@ -5,7 +5,7 @@ Layer 4 object: Transport layer
 '''
 
 from LayerStack.Network_Layer import Network_Layer
-from threading import  Event, Lock
+from threading import  Event, Lock, Thread
 from time import time
 import struct, csv, os
 
@@ -135,6 +135,7 @@ class Layer4(Network_Layer):
 
             if packet_destination == self.my_pc:    # if this is the destination, then pass payload to the application layer
                 self.up_queue.put(l4_packet[56:], True)
+                a = Thread(target=self.send_ack_wifi, args=(l4_packet[:8], packet_source, l4_packet[48:56],))
                 self.send_ack(l4_packet[:8], packet_source, l4_packet[48:56])  # send l4 ack
                 l4_packet = b''
 
