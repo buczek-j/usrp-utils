@@ -11,10 +11,11 @@ TODO:
     - -20dBm to 20dBm
     - 2 dbm steps (20 total)
 
-- Mask tells you which drone that you have on the field
 - Only specify one or two drones
 
 - convert to state for csv read in
+
+- humanreadable log time
 
 '''
 
@@ -41,7 +42,7 @@ class UAV_Node():
                     l3_debug=False, 
                     l4_debug=False, 
                     l5_debug=False, 
-                    test_debug=False,
+                    wait=True,
                     dqn_config=None, 
                     alt=5, 
                     num_nodes=3, 
@@ -49,6 +50,7 @@ class UAV_Node():
                     pow_index=3, 
                     node_index=0, 
                     log_base_name="~/Documents/usrp-utils/Logs/log_", 
+                    state_dir='~/Documents/usrp-utils/FromCsv/performance_data_',
                     csv_in=False, 
                     model_path='~/Documents/usrp-utils/saved_models/asym_scenarios_50container_loc/', 
                     model_stage=270,
@@ -81,14 +83,14 @@ class UAV_Node():
         self.writer = csv.writer(self.file)
         self.writer.writerow(row_list)
 
-        self.debug = test_debug
+        self.wait = wait
         self.fly_drone = fly_drone
 
         # csv_input
         if csv_in:
             self.csv_in = True
-            self.action_csv = open(os.path.expanduser('~/Documents/usrp-utils/actions.csv'), 'r',  newline='')
-            self.action_reader = csv.reader(self.action_csv)
+            self.state_csv = open(os.path.expanduser(state_dir+my_config.role+'.csv'), 'r', newline='')
+            self.state_reader = csv.reader(self.state_csv)
 
         self.my_config = my_config
         self.stop_threads = False
@@ -118,7 +120,7 @@ class UAV_Node():
             self.my_alt = alt
 
         # Neural Net params
-        self.node_index = node_index    # 0 to num_nodes
+        self.node_index = node_index    # 0 to num_nodes-1
         self.loc_index = self.my_config.location_index  # 11x11 maxtix index (x,y) 0:(0,0), 1:(0,1), 11:(1,0), 12:(1,1)...
         self.pow_index = pow_index      # [2,3,4]
         self.action = None
@@ -132,7 +134,7 @@ class UAV_Node():
             self.neural_net.set_session(self.session)
             self.saver.restore(self.neural_net.session, os.path.expanduser(str(model_path + "tf_model_{}-{}") ).format("rly11", model_stage))
 
-
+        # state buffer vars
         self.min_time = min_iteration_time
         self.state_buf = [None]*(2*num_nodes)
         self.num_nodes = num_nodes
@@ -213,6 +215,39 @@ class UAV_Node():
         '''
         self.get_state_msg = True
 
+    def state_loop(self):
+        '''
+        Method to prompt and wait for node states (synchronize)
+        '''
+        if self.wait:
+            state_loop = True
+            state_timeout = time()
+            print('Waiting for state buffer. . .')
+            while state_loop:
+                if None in self.state_buf:
+                    self.control_plane.get_state_msgs()  
+                    state_timeout = time()
+                
+                if self.get_state_msg == True:
+                    self.get_state_msg = False
+                    self.control_plane.broadcast_state(str(self.node_index) + ',' + str(self.loc_index) + ',' + str(self.pow_index))
+                    state_timeout = time()
+                
+                if time() - state_timeout > 1:
+                    state_loop = False
+
+                sleep(0.1)
+
+    def test_throughput(self):
+        '''
+        method to test the network throughput
+        '''
+        self.layer5.transmit=True
+        start_time = time()
+        # Wait for desired min iteration time to pass
+        while time()-start_time<self.min_time:
+            sleep(0.01)
+        self.layer5.transmit=False
 
     def run(self):
         '''
@@ -265,48 +300,27 @@ class UAV_Node():
             
             else: # actions from CSV
                 print('~ ~ Reading From CSV ~ ~\n')
-                for action in self.action_reader:
+                for Exp_Ind, Loc_x, Loc_y, Loc_z, TxPower, sessRate, runTime, l2Ack, l2Time, l4Ack, l4Time, rtDelay, l2TxQueue, l4TxQueue, l2Sent in self.state_reader:
                     print('\n~~ Iteration', iteration_num, ' ~~')
                     if self.layer4.log:
                         self.layer4.writer.writerow(["Iteration Number: " +str(iteration_num)])
 
                     # goto state
-                    self.handle_action()
+                    self.action_move([Loc_y, Loc_x])
+                    self.action_tx_gain(TxPower/90)     # TODO
 
                     # Broadcast State
-                    state_loop = True
-                    state_timeout = time()
-                    print('Waiting for state buffer. . .')
-                    while state_loop:
-                        if None in self.state_buf:
-                          self.control_plane.get_state_msgs()  
-                          state_timeout = time()
-                        
-                        if self.get_state_msg == True:
-                            self.get_state_msg = False
-                            self.control_plane.broadcast_state(str(self.node_index) + ',' + str(self.loc_index) + ',' + str(self.pow_index))
-                            state_timeout = time()
-                        
-                        if time() - state_timeout > 1:
-                            state_loop = False
+                    self.state_loop()
 
-                        sleep(0.1)
-
-                    self.layer5.transmit=True
-                    start_time = time()
-                    # Wait for desired min iteration time to pass
-                    while time()-start_time<self.min_time:
-                        sleep(0.01)
-                    self.layer5.transmit=False
-
-                    self.action = [int(action[self.node_index]), int(action[self.node_index+self.num_nodes])]    # read in action array and cast as ints
+                    # Run throuhgput test
+                    self.test_throughput()
 
                     # Log Data
-                    self.writer.writerow([iteration_num]+self.state_buf+[self.layer4.n_ack])
+                    self.writer.writerow([iteration_num]+self.state_buf+[self.layer4.n_ack, self.min_time])
                     print(" - log data")
-                    print("num acks:", self.layer4.n_ack)
+                    print("num acks:", self.layer4.n_ack, "time:", self.min_time)
 
-                    # Reset State Buffer
+                    # Reset 
                     self.layer4.n_ack = 0
                     self.state_buf = [None]*(2*self.num_nodes)
                     
@@ -419,7 +433,6 @@ class UAV_Node():
         print('TX Gain:', gain)
 
 
-
 def main():
     '''
     Main Method
@@ -482,7 +495,7 @@ def main():
                                 l4_debug=(options.l4=='y' or options.l4 == 'Y'), 
                                 csv_in=(options.csv=='y' or options,csv=='Y'), 
                                 fly_drone=fly_drone, 
-                                test_debug=(options.wait=='y' or options.wait=='Y'))
+                                wait=(options.wait=='y' or options.wait=='Y'))
     try:
         uav_node.run()
     except Exception as e:
@@ -491,6 +504,7 @@ def main():
             uav_node.my_drone.handle_landing()
         uav_node.close_threads()
         exit(0)
+
 
 if __name__ == '__main__':
     main()
