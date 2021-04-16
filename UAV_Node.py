@@ -301,31 +301,32 @@ class UAV_Node():
             else: # actions from CSV
                 print('~ ~ Reading From CSV ~ ~\n')
                 for Exp_Ind, Loc_x, Loc_y, Loc_z, TxPower, sessRate, runTime, l2Ack, l2Time, l4Ack, l4Time, rtDelay, l2TxQueue, l4TxQueue, l2Sent in self.state_reader:
-                    print('\n~~ Iteration', iteration_num, ' ~~')
-                    if self.layer4.log:
-                        self.layer4.writer.writerow(["Iteration Number: " +str(iteration_num)])
+                    if Loc_y != 'Loc_y':
+                        print('\n~~ Iteration', iteration_num, ' ~~')
+                        if self.layer4.log:
+                            self.layer4.writer.writerow(["Iteration Number: " +str(iteration_num)])
 
-                    # goto state
-                    self.action_move([float(Loc_y), float(Loc_x)])
-                    self.action_tx_gain(float(TxPower)/90)     # TODO
+                        # goto state
+                        self.action_move([float(Loc_y), float(Loc_x)])
+                        self.action_tx_gain(float(TxPower)/90)     # TODO
 
-                    # Broadcast State
-                    self.state_loop()
+                        # Broadcast State
+                        self.state_loop()
 
-                    # Run throuhgput test
-                    self.test_throughput()
+                        # Run throuhgput test
+                        self.test_throughput()
 
-                    # Log Data
-                    self.writer.writerow([iteration_num]+self.state_buf+[self.layer4.n_ack, self.min_time])
-                    print(" - log data")
-                    print("num acks:", self.layer4.n_ack, "time:", self.min_time)
+                        # Log Data
+                        self.writer.writerow([iteration_num]+self.state_buf+[self.layer4.n_ack, self.min_time])
+                        print(" - log data")
+                        print("num acks:", self.layer4.n_ack, "time:", self.min_time)
 
-                    # Reset 
-                    self.layer4.n_ack = 0
-                    self.state_buf = [None]*(2*self.num_nodes)
-                    
-                    iteration_num += 1
-                    print(" - reset")
+                        # Reset 
+                        self.layer4.n_ack = 0
+                        self.state_buf = [None]*(2*self.num_nodes)
+                        
+                        iteration_num += 1
+                        print(" - reset")
                 
             print("~ ~ Finished Successfully ~ ~")
             if self.fly_drone:
