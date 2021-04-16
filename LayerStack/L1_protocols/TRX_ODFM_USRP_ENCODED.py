@@ -26,6 +26,7 @@ from gnuradio import uhd
 import time
 from gnuradio import zeromq
 from gnuradio.digital.utils import tagged_streams
+import foo
 
 
 class TRX_ODFM_USRP_ENCODED(gr.top_block):
