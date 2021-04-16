@@ -89,7 +89,7 @@ class UAV_Node():
         # csv_input
         if csv_in:
             self.csv_in = True
-            self.state_csv = open(os.path.expanduser(state_dir+my_config.role+'.csv'), 'r', newline='')
+            self.state_csv = open(os.path.expanduser(state_dir+my_config.id+'.csv'), 'r', newline='')
             self.state_reader = csv.reader(self.state_csv)
 
         self.my_config = my_config
