@@ -17,6 +17,8 @@ TODO:
 
 - humanreadable log time
 
+- 
+
 '''
 
 
@@ -242,6 +244,7 @@ class UAV_Node():
         '''
         method to test the network throughput
         '''
+        print("Testing . . .")
         self.layer5.transmit=True
         start_time = time()
         # Wait for desired min iteration time to pass
@@ -327,6 +330,9 @@ class UAV_Node():
                         
                         iteration_num += 1
                         print(" - reset")
+
+                        # if int(Exp_Ind)>30:
+                        #     break
                 
             print("~ ~ Finished Successfully ~ ~")
             if self.fly_drone:
