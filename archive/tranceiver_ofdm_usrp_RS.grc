@@ -1821,7 +1821,7 @@ blocks:
     clock_source6: ''
     clock_source7: ''
     comment: ''
-    dev_addr: '"addr0=192.168.10.34"'
+    dev_addr: '"serial=318D2A3"'
     dev_args: '""'
     gain0: tx_gain
     gain1: '0'
@@ -1967,6 +1967,7 @@ blocks:
     sd_spec6: ''
     sd_spec7: ''
     show_lo_controls: 'False'
+    start_time: '-1.0'
     stream_args: ''
     stream_chans: '[]'
     sync: pc_clock
@@ -2129,7 +2130,7 @@ blocks:
     dc_offs_enb7: '""'
     dc_offs_enb8: '""'
     dc_offs_enb9: '""'
-    dev_addr: '"addr0=192.168.10.38"'
+    dev_addr: '"serial=318D2DD"'
     dev_args: '""'
     gain0: rx_gain
     gain1: '0'
@@ -2338,6 +2339,7 @@ blocks:
     sd_spec6: ''
     sd_spec7: ''
     show_lo_controls: 'False'
+    start_time: '-1.0'
     stream_args: ''
     stream_chans: '[]'
     sync: pc_clock
