@@ -35,7 +35,25 @@ from Utils.DQN import DQN, DQN_Config
 
 
 class UAV_Node():
-    def __init__(self, my_config, l1_debug=False, l2_debug=False, l3_debug=False, l4_debug=False, l5_debug=False, dqn_config=None, alt=5, num_nodes=3, min_iteration_time=5.0, pow_index=3, node_index=0, log_base_name="~/Documents/usrp-utils/Logs/log_", csv_in=False, model_path='~/Documents/usrp-utils/saved_models/asym_scenarios_50container_loc/', model_stage=270):
+    def __init__(self, my_config, 
+                    l1_debug=False, 
+                    l2_debug=False, 
+                    l3_debug=False, 
+                    l4_debug=False, 
+                    l5_debug=False, 
+                    test_debug=False,
+                    dqn_config=None, 
+                    alt=5, 
+                    num_nodes=3, 
+                    min_iteration_time=5.0, 
+                    pow_index=3, 
+                    node_index=0, 
+                    log_base_name="~/Documents/usrp-utils/Logs/log_", 
+                    csv_in=False, 
+                    model_path='~/Documents/usrp-utils/saved_models/asym_scenarios_50container_loc/', 
+                    model_stage=270,
+                    fly_drone=True,
+                    ):
         '''
         Emane Node class for network stack
         :param my_config: Node_Config class object
@@ -53,6 +71,7 @@ class UAV_Node():
         :param log_base_name: string for the directory and base name to save log files
         :param csv_in: bool for if actions should be determined from the csv file or the neural network
         :param model_path: string for the directory for the neural network model
+        TODO
         '''
         
         # Setup Log File
@@ -61,6 +80,9 @@ class UAV_Node():
         self.file = open(os.path.expanduser(self.csv_name), 'a', newline='')
         self.writer = csv.writer(self.file)
         self.writer.writerow(row_list)
+
+        self.debug = test_debug
+        self.fly_drone = fly_drone
 
         # csv_input
         if csv_in:
@@ -89,10 +111,11 @@ class UAV_Node():
         self.layer5.init_layers(upper=None, lower=self.layer4)
 
         # Drone parameters
-        # self.my_drone = BasicArdu(frame=Frames.NED, connection_string='/dev/ttyACM0', global_home=[42.47777625687639,-71.19357940183706,174.0]) 
-        self.my_drone = BasicArdu(frame=Frames.NED, connection_string='tcp:192.168.10.2:'+str(5762+10*node_index), global_home=[42.47777625687639,-71.19357940183706,174.0]) 
-        self.my_location = None
-        self.my_alt = alt
+        if self.fly_drone:
+            # self.my_drone = BasicArdu(frame=Frames.NED, connection_string='/dev/ttyACM0', global_home=[42.47777625687639,-71.19357940183706,174.0]) 
+            self.my_drone = BasicArdu(frame=Frames.NED, connection_string='tcp:192.168.10.2:'+str(5762+10*node_index), global_home=[42.47777625687639,-71.19357940183706,174.0]) 
+            self.my_location = None
+            self.my_alt = alt
 
         # Neural Net params
         self.node_index = node_index    # 0 to num_nodes
@@ -199,9 +222,10 @@ class UAV_Node():
             self.start_threads()
             sleep(10)   # wait 10 sec for usrp to init
 
-            # takeoff 
-            self.my_drone.handle_takeoff(abs(self.my_alt))
-            self.my_drone.wait_for_target()   
+            if self.fly_drone:
+                # takeoff 
+                self.my_drone.handle_takeoff(abs(self.my_alt))
+                self.my_drone.wait_for_target()   
 
             # iterate
             iteration_num = 0
@@ -290,13 +314,15 @@ class UAV_Node():
                     print(" - reset")
                 
             print("~ ~ Finished Successfully ~ ~")
-            self.my_drone.handle_landing()
+            if self.fly_drone:
+                self.my_drone.handle_landing()
             self.close_threads()
                 
                    
         except Exception as e:
             print(e)
-            self.my_drone.handle_landing()
+            if self.fly_drone:
+                self.my_drone.handle_landing()
             self.close_threads()
             
             #sleep(5)
@@ -372,10 +398,10 @@ class UAV_Node():
         Method to perform a movement action on the drone
         :param coords: array of floats for the ned NED location [meters north, meters east, meters down]
         '''
-        self.my_drone.handle_waypoint(Frames.NED, coords[0], coords[1], -1.0*abs(self.my_alt), 0)
-        self.my_drone.wait_for_target()
+        if self.fly_drone:
+            self.my_drone.handle_waypoint(Frames.NED, coords[0], coords[1], -1.0*abs(self.my_alt), 0)
+            self.my_drone.wait_for_target()
         print('Move:', coords[0], coords[1])
-        sleep(1)
 
     def action_rx_gain(self, gain):
         '''
@@ -412,6 +438,9 @@ def main():
 
     parser = ArgumentParser()
     parser.add_argument('--index', type=int, default='', help='node index number')
+    parser.add_argument('--csv', type=str, default='y', help='states from csv (y/n)')
+    parser.add_argument('--fly_drone', type=str, default='y', help='Node UAV takesoff (y/n)')
+    parser.add_argument('--wait', type=str, default='y', help='wait for other states before continuing (y/n)')
     parser.add_argument('--l1', type=str, default='n', help='layer 1 debug (y/n)')
     parser.add_argument('--l2', type=str, default='n', help='layer 2 debug (y/n)')
     parser.add_argument('--l3', type=str, default='n', help='layer 3 debug (y/n)')
@@ -444,13 +473,22 @@ def main():
     else:
         print('INVALID INDEX')
         exit(0)
+    fly_drone = (options.fly_drone=='y' or options.fly_drone=='Y')
     
-    uav_node = UAV_Node(my_config, node_index=int(options.index), l1_debug=(options.l1=='y' or options.l1 == 'Y'), l2_debug=(options.l2=='y' or options.l2 == 'Y'), l3_debug=(options.l3=='y' or options.l3 == 'Y'), l4_debug=(options.l4=='y' or options.l4 == 'Y'), csv_in=True)
+    uav_node = UAV_Node(my_config, node_index=int(options.index), 
+                                l1_debug=(options.l1=='y' or options.l1 == 'Y'), 
+                                l2_debug=(options.l2=='y' or options.l2 == 'Y'), 
+                                l3_debug=(options.l3=='y' or options.l3 == 'Y'), 
+                                l4_debug=(options.l4=='y' or options.l4 == 'Y'), 
+                                csv_in=(options.csv=='y' or options,csv=='Y'), 
+                                fly_drone=fly_drone, 
+                                test_debug=(options.wait=='y' or options.wait=='Y'))
     try:
         uav_node.run()
     except Exception as e:
         print(e)
-        uav_node.my_drone.handle_landing()
+        if fly_drone:
+            uav_node.my_drone.handle_landing()
         uav_node.close_threads()
         exit(0)
 
