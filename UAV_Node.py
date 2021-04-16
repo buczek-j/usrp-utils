@@ -7,17 +7,10 @@ TODO:
 - Debug
 - runtime of 5min once last action, stay until runtime finishes, then land
 
-- L4 throughput (# packets per second)
-- L4 windowing
-    - dic of packets out
-- See gain with single session
-- See gain with 2 sessions
-
 - power levels
     - -20dBm to 20dBm
     - 2 dbm steps (20 total)
 
-    
 - Mask tells you which drone that you have on the field
 - Only specify one or two drones
 
@@ -134,9 +127,6 @@ class UAV_Node():
         print("~ ~ Starting Threads ~ ~", end='\n\n')
 
         # Initialize threads
-        # self.threads["control_layer"] = Thread(target=self.control_plane.listening_socket, args=(self.layer2.recv_ack, self.layer4.recv_ack, self.handle_state, self.handle_get_state, lambda : self.stop_threads, ))
-        # self.threads["control_layer"].start()
-
         self.threads["L2_ACK_RCV"] = Thread(target=self.control_plane.listen_l2, args=(self.layer2.recv_ack, lambda : self.stop_threads, ))
         self.threads["L2_ACK_RCV"].start()
 
@@ -147,10 +137,12 @@ class UAV_Node():
         self.threads["STATE_RCV"].start()
 
         for layer in [self.layer1, self.layer2, self.layer3, self.layer4]:
+            
             self.threads[layer.layer_name + "_pass_up"] = Thread(target=layer.pass_up, args=(lambda : self.stop_threads,))
             self.threads[layer.layer_name + "_pass_up"].start()
-            self.threads[layer.layer_name + "_pass_down"] = Thread(target=layer.pass_down, args=(lambda : self.stop_threads,))
-            self.threads[layer.layer_name + "_pass_down"].start() 
+            for jj in range(layer.window):
+                self.threads[layer.layer_name + "_pass_down_"+str(jj)] = Thread(target=layer.pass_down, args=(lambda : self.stop_threads,))
+                self.threads[layer.layer_name + "_pass_down_"+str(jj)].start() 
         
         if self.my_config.role == 'tx':
             self.threads[self.layer5.layer_name + "_pass_down"] = Thread(target=self.layer5.pass_down, args=(lambda : self.stop_threads,))
