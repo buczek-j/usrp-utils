@@ -306,8 +306,8 @@ class UAV_Node():
                         self.layer4.writer.writerow(["Iteration Number: " +str(iteration_num)])
 
                     # goto state
-                    self.action_move([Loc_y, Loc_x])
-                    self.action_tx_gain(TxPower/90)     # TODO
+                    self.action_move([float(Loc_y), float(Loc_x)])
+                    self.action_tx_gain(float(TxPower)/90)     # TODO
 
                     # Broadcast State
                     self.state_loop()
