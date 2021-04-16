@@ -1,7 +1,6 @@
 options:
   parameters:
     author: root
-    catch_exceptions: 'True'
     category: '[GRC Hier Blocks]'
     cmake_opt: ''
     comment: ''
@@ -23,6 +22,7 @@ options:
     sizing_mode: fixed
     thread_safe_setters: ''
     title: tranceiver_ofdm_usrp_RS
+    window_size: ''
   states:
     bus_sink: false
     bus_source: false
@@ -545,7 +545,7 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    const: '0.08'
+    const: '0.05'
     maxoutbuf: '0'
     minoutbuf: '0'
     type: complex
@@ -554,7 +554,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [930, 990]
+    coordinate: [924, 976]
     rotation: 0
     state: enabled
 - name: blocks_multiply_xx_0
@@ -1304,6 +1304,26 @@ blocks:
     coordinate: [638, 1730]
     rotation: 0
     state: enabled
+- name: foo_packet_pad2_0
+  id: foo_packet_pad2
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    debug: 'False'
+    delay: 'False'
+    delay_sec: '0.001'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    pad_front: '100'
+    pad_tail: '1000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1173, 957]
+    rotation: 0
+    state: true
 - name: header_bits
   id: virtual_sink
   parameters:
@@ -1580,12 +1600,12 @@ blocks:
     label: rx_bw
     short_id: ''
     type: ''
-    value: 0.5e6
+    value: 1e6
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [344, 124]
+    coordinate: [342, 124]
     rotation: 0
     state: true
 - name: rx_freq
@@ -1597,12 +1617,12 @@ blocks:
     label: rx_freq
     short_id: ''
     type: ''
-    value: 2e9
+    value: 2.2e9
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [248, 124]
+    coordinate: [246, 124]
     rotation: 0
     state: true
 - name: rx_gain
@@ -1619,7 +1639,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [144, 124]
+    coordinate: [157, 132]
     rotation: 0
     state: true
 - name: serial_num
@@ -1648,12 +1668,12 @@ blocks:
     label: tx_bw
     short_id: ''
     type: ''
-    value: 0.5e6
+    value: 1e6
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [344, 204]
+    coordinate: [342, 204]
     rotation: 0
     state: true
 - name: tx_freq
@@ -1665,12 +1685,12 @@ blocks:
     label: tx_freq
     short_id: ''
     type: ''
-    value: 2.0e9
+    value: 2.2e9
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [248, 204]
+    coordinate: [246, 204]
     rotation: 0
     state: true
 - name: tx_gain
@@ -1682,12 +1702,12 @@ blocks:
     label: tx_gain
     short_id: ''
     type: ''
-    value: '1'
+    value: '0.8'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [144, 204]
+    coordinate: [157, 212]
     rotation: 0
     state: true
 - name: uhd_usrp_sink_0
@@ -1801,7 +1821,7 @@ blocks:
     clock_source6: ''
     clock_source7: ''
     comment: ''
-    dev_addr: '""'
+    dev_addr: '"addr0=192.168.10.34"'
     dev_args: '""'
     gain0: tx_gain
     gain1: '0'
@@ -1835,38 +1855,6 @@ blocks:
     gain7: '0'
     gain8: '0'
     gain9: '0'
-    gain_type0: normalized
-    gain_type1: default
-    gain_type10: default
-    gain_type11: default
-    gain_type12: default
-    gain_type13: default
-    gain_type14: default
-    gain_type15: default
-    gain_type16: default
-    gain_type17: default
-    gain_type18: default
-    gain_type19: default
-    gain_type2: default
-    gain_type20: default
-    gain_type21: default
-    gain_type22: default
-    gain_type23: default
-    gain_type24: default
-    gain_type25: default
-    gain_type26: default
-    gain_type27: default
-    gain_type28: default
-    gain_type29: default
-    gain_type3: default
-    gain_type30: default
-    gain_type31: default
-    gain_type4: default
-    gain_type5: default
-    gain_type6: default
-    gain_type7: default
-    gain_type8: default
-    gain_type9: default
     len_tag_name: packet_length_tag_key
     lo_export0: 'False'
     lo_export1: 'False'
@@ -1935,6 +1923,38 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     nchan: '1'
+    norm_gain0: 'True'
+    norm_gain1: 'False'
+    norm_gain10: 'False'
+    norm_gain11: 'False'
+    norm_gain12: 'False'
+    norm_gain13: 'False'
+    norm_gain14: 'False'
+    norm_gain15: 'False'
+    norm_gain16: 'False'
+    norm_gain17: 'False'
+    norm_gain18: 'False'
+    norm_gain19: 'False'
+    norm_gain2: 'False'
+    norm_gain20: 'False'
+    norm_gain21: 'False'
+    norm_gain22: 'False'
+    norm_gain23: 'False'
+    norm_gain24: 'False'
+    norm_gain25: 'False'
+    norm_gain26: 'False'
+    norm_gain27: 'False'
+    norm_gain28: 'False'
+    norm_gain29: 'False'
+    norm_gain3: 'False'
+    norm_gain30: 'False'
+    norm_gain31: 'False'
+    norm_gain4: 'False'
+    norm_gain5: 'False'
+    norm_gain6: 'False'
+    norm_gain7: 'False'
+    norm_gain8: 'False'
+    norm_gain9: 'False'
     num_mboards: '1'
     otw: ''
     samp_rate: tx_bw
@@ -1947,7 +1967,6 @@ blocks:
     sd_spec6: ''
     sd_spec7: ''
     show_lo_controls: 'False'
-    start_time: '-1.0'
     stream_args: ''
     stream_chans: '[]'
     sync: pc_clock
@@ -1964,7 +1983,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1200, 973]
+    coordinate: [1377, 980]
     rotation: 0
     state: enabled
 - name: uhd_usrp_source_0
@@ -2110,7 +2129,7 @@ blocks:
     dc_offs_enb7: '""'
     dc_offs_enb8: '""'
     dc_offs_enb9: '""'
-    dev_addr: '""'
+    dev_addr: '"addr0=192.168.10.38"'
     dev_args: '""'
     gain0: rx_gain
     gain1: '0'
@@ -2144,38 +2163,6 @@ blocks:
     gain7: '0'
     gain8: '0'
     gain9: '0'
-    gain_type0: normalized
-    gain_type1: default
-    gain_type10: default
-    gain_type11: default
-    gain_type12: default
-    gain_type13: default
-    gain_type14: default
-    gain_type15: default
-    gain_type16: default
-    gain_type17: default
-    gain_type18: default
-    gain_type19: default
-    gain_type2: default
-    gain_type20: default
-    gain_type21: default
-    gain_type22: default
-    gain_type23: default
-    gain_type24: default
-    gain_type25: default
-    gain_type26: default
-    gain_type27: default
-    gain_type28: default
-    gain_type29: default
-    gain_type3: default
-    gain_type30: default
-    gain_type31: default
-    gain_type4: default
-    gain_type5: default
-    gain_type6: default
-    gain_type7: default
-    gain_type8: default
-    gain_type9: default
     iq_imbal_enb0: '""'
     iq_imbal_enb1: '""'
     iq_imbal_enb10: '""'
@@ -2275,6 +2262,38 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     nchan: '1'
+    norm_gain0: 'True'
+    norm_gain1: 'False'
+    norm_gain10: 'False'
+    norm_gain11: 'False'
+    norm_gain12: 'False'
+    norm_gain13: 'False'
+    norm_gain14: 'False'
+    norm_gain15: 'False'
+    norm_gain16: 'False'
+    norm_gain17: 'False'
+    norm_gain18: 'False'
+    norm_gain19: 'False'
+    norm_gain2: 'False'
+    norm_gain20: 'False'
+    norm_gain21: 'False'
+    norm_gain22: 'False'
+    norm_gain23: 'False'
+    norm_gain24: 'False'
+    norm_gain25: 'False'
+    norm_gain26: 'False'
+    norm_gain27: 'False'
+    norm_gain28: 'False'
+    norm_gain29: 'False'
+    norm_gain3: 'False'
+    norm_gain30: 'False'
+    norm_gain31: 'False'
+    norm_gain4: 'False'
+    norm_gain5: 'False'
+    norm_gain6: 'False'
+    norm_gain7: 'False'
+    norm_gain8: 'False'
+    norm_gain9: 'False'
     num_mboards: '1'
     otw: ''
     rx_agc0: Default
@@ -2319,7 +2338,6 @@ blocks:
     sd_spec6: ''
     sd_spec7: ''
     show_lo_controls: 'False'
-    start_time: '-1.0'
     stream_args: ''
     stream_chans: '[]'
     sync: pc_clock
@@ -2336,7 +2354,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [387, 1332]
+    coordinate: [379, 1249]
     rotation: 0
     state: enabled
 - name: virtual_sink_0
@@ -2529,7 +2547,6 @@ blocks:
     alias: ''
     comment: ''
     hwm: '-1'
-    key: ''
     pass_tags: 'False'
     timeout: '100'
     type: byte
@@ -2549,7 +2566,6 @@ blocks:
     alias: ''
     comment: ''
     hwm: '-1'
-    key: ''
     maxoutbuf: '0'
     minoutbuf: '0'
     pass_tags: 'False'
@@ -2570,8 +2586,7 @@ connections:
 - [blocks_char_to_float_0_0_0, '0', qtgui_time_sink_x_0_0, '0']
 - [blocks_char_to_float_0_0_0_0, '0', qtgui_time_sink_x_0_0, '1']
 - [blocks_delay_0, '0', blocks_multiply_xx_0, '1']
-- [blocks_multiply_const_vxx_0, '0', channels_channel_model_0, '0']
-- [blocks_multiply_const_vxx_0, '0', uhd_usrp_sink_0, '0']
+- [blocks_multiply_const_vxx_0, '0', foo_packet_pad2_0, '0']
 - [blocks_multiply_xx_0, '0', digital_header_payload_demux_0, '0']
 - [blocks_repack_bits_bb_0, '0', blocks_file_sink_0_0_0_0_0_0_0_0, '0']
 - [blocks_repack_bits_bb_0, '0', blocks_stream_to_vector_0, '0']
@@ -2623,6 +2638,7 @@ connections:
 - [fft_vxx_0, '0', digital_ofdm_chanest_vcvc_0, '0']
 - [fft_vxx_0_0, '0', digital_ofdm_cyclic_prefixer_0, '0']
 - [fft_vxx_1, '0', digital_ofdm_frame_equalizer_vcvc_1, '0']
+- [foo_packet_pad2_0, '0', uhd_usrp_sink_0, '0']
 - [uhd_usrp_source_0, '0', blocks_delay_0, '0']
 - [uhd_usrp_source_0, '0', digital_ofdm_sync_sc_cfb_0, '0']
 - [virtual_source_0, '0', fft_vxx_0, '0']
