@@ -280,6 +280,8 @@ class UAV_Node():
                     # Log Data
                     self.writer.writerow([iteration_num]+self.state_buf+[self.layer4.n_ack])
                     print(" - log data")
+                    print(setup)
+                    print("num acks:", self.layer4.n_ack)
 
                     # Reset State Buffer
                     self.state_buf = [None]*(2*self.num_nodes)
