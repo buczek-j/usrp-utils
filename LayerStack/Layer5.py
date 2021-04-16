@@ -24,7 +24,7 @@ class Layer5(Network_Layer):
         self.my_config = my_config
         self.layer4 = layer4
         self.transmit = False
-        self.tspt_rate = 10000000			# Initial tansport layer rate in bps
+        self.tspt_rate = 1000000			# Initial tansport layer rate in bps
 
     def pass_down(self, stop):
         '''
