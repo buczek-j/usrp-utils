@@ -47,7 +47,7 @@ class UAV_Node():
                     wait=True,
                     dqn_config=None, 
                     alt=5, 
-                    num_nodes=3, 
+                    num_nodes=6, 
                     min_iteration_time=5.0, 
                     pow_index=3, 
                     node_index=0, 
