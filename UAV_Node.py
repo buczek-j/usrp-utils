@@ -283,6 +283,7 @@ class UAV_Node():
                     print("num acks:", self.layer4.n_ack)
 
                     # Reset State Buffer
+                    self.layer4.n_ack = 0
                     self.state_buf = [None]*(2*self.num_nodes)
                     
                     iteration_num += 1
