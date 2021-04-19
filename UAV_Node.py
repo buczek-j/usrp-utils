@@ -21,7 +21,6 @@ TODO:
 
 '''
 
-
 # Global Libraries
 from threading import Thread
 from argparse import ArgumentParser
