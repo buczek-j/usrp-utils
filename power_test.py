@@ -164,9 +164,9 @@ class UAV_Node():
             iteration_num = 0
 
             print('~ ~ Beginning ~ ~\n')
-            powers = list(arange(0.1, 1.05, 0.05))
+            powers = arange(90, 46, -2)
             for ii in range(len(powers)):
-                powers[ii] = round(powers[ii], 4)
+                powers[ii] = round(powers[ii]/90, 4)
 
 
             #[l4_timeout, l2_timeout,  l5_rate]
