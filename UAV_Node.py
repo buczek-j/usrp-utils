@@ -330,8 +330,8 @@ class UAV_Node():
                         iteration_num += 1
                         print(" - reset")
 
-                        # if int(Exp_Ind)>30:
-                        #     break
+                        if int(Exp_Ind)>30:
+                            break
                 
             print("~ ~ Finished Successfully ~ ~")
             if self.fly_drone:
@@ -499,7 +499,7 @@ def main():
                                 l2_debug=(options.l2=='y' or options.l2 == 'Y'), 
                                 l3_debug=(options.l3=='y' or options.l3 == 'Y'), 
                                 l4_debug=(options.l4=='y' or options.l4 == 'Y'), 
-                                csv_in=(options.csv=='y' or options,csv=='Y'), 
+                                csv_in=(options.csv=='y' or options.csv=='Y'), 
                                 fly_drone=fly_drone, 
                                 wait=(options.wait=='y' or options.wait=='Y'))
     try:
