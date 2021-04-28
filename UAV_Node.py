@@ -296,7 +296,7 @@ class UAV_Node():
 
             if not self.csv_in: # run NN
                 while not self.stop_threads:
-                    if self.layer4.log and self.use_radio:
+                    if  self.use_radio and self.layer4.log:
                         self.layer4.writer.writerow(["Iteration Number: " +str(iteration_num)])
 
                     # Goto State
@@ -325,7 +325,7 @@ class UAV_Node():
                 for Exp_Ind, Loc_x, Loc_y, Loc_z, TxPower, sessRate, runTime, l2Ack, l2Time, l4Ack, l4Time, rtDelay, l2TxQueue, l4TxQueue, l2Sent in self.state_reader:
                     if Loc_y != 'Loc_y':
                         print('\n~~ Iteration', iteration_num, ' ~~')
-                        if self.layer4.log and self.use_radio:
+                        if self.use_radio and self.layer4.log:
                             self.layer4.writer.writerow(["Iteration Number: " +str(iteration_num)])
 
                         # goto state
