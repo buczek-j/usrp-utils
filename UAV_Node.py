@@ -315,6 +315,7 @@ class UAV_Node():
                     # Log Data
                     if self.use_radio:
                         self.log_data([iteration_num]+self.state_buf+[self.layer4.n_ack])
+                        self.layer4.n_ack = 0
 
                     # Reset State Buffer
                     self.state_buf = [None]*(2*self.num_nodes)
@@ -342,10 +343,9 @@ class UAV_Node():
                         if self.use_radio:
                             self.log_data([iteration_num]+self.state_buf+[self.layer4.n_ack])
                             print(" - log data")
-                            print("num acks:", self.layer4.n_ack, "time:", self.min_time)
+                            print("num acks:", self.layer4.n_ack, "time:", self.min_time) 
+                            self.layer4.n_ack = 0
 
-                        # Reset 
-                        self.layer4.n_ack = 0
                         self.state_buf = [None]*(2*self.num_nodes)
                         
                         iteration_num += 1
