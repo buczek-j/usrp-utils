@@ -475,7 +475,7 @@ def arguement_parser():
     parser.add_argument('--use_radio', type=str, default='y', help='use the usrp radios (y/n)')
     parser.add_argument('--use_tx', type=str, default='y', help='optimize tx (y/n)')
     parser.add_argument('--is_sim', type=str, default='n', help='simulation or real drone (y/n)')
-    parser.add_argument('--global_home', type=str, default='y', help='42.47777625687639,-71.19357940183706,174.0')
+    parser.add_argument('--global_home', type=str, default='42.47777625687639,-71.19357940183706,174.0', help='Global Home Location')
     
 
     parser.add_argument('--l1', type=str, default='n', help='layer 1 debug (y/n)')

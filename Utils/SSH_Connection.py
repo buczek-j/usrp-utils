@@ -43,8 +43,12 @@ class SSH_Connection():
             ssh_stdin, ssh_stdout, ssh_stderr = self.ssh.exec_command(command)
 
             while not stop:
-                for line in ssh_stdout:
-                    print(line)
+                ssh_out = ssh_stdout.read()
+                ssh_err = ssh_stderr.read()
+                if ssh_out:
+                    print(ssh_out)
+                if ssh_err:
+                    print(ssh_err)
 
         except Exception as e:
             # sys.stderr.write("SSH connection error: {0}".format(e))

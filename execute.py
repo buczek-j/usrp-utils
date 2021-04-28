@@ -25,8 +25,8 @@ def main():
     '''
     Main execution method
     '''
-    # CMD = 'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --wait n --fly_drone n --use_radio n --index '
-    CMD = 'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/execute_test.py'
+    CMD = 'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --wait n --fly_drone n --use_radio n --index '
+    # CMD = 'python3 ~/Documents/usrp-utils/execute_test.py'
     ssh_connections = []
     threads = []
     stop_threads=False
@@ -42,8 +42,8 @@ def main():
 
     try:
         for connection in ssh_connections:
-            # threads.append(Thread(target=connection.run_command, args=(CMD + str(connection.index),)))
-            threads.append(Thread(target=connection.run_command, args=(CMD, lambda : stop_threads)))
+            threads.append(Thread(target=connection.run_command, args=(CMD + str(connection.index), lambda : stop_threads,)))
+            # threads.append(Thread(target=connection.run_command, args=(CMD, lambda : stop_threads)))
         
         for thread in threads:
             thread.start()
@@ -63,7 +63,7 @@ def main():
         print('Clossed Threads')
 
         for connection in ssh_connections:
-            connection.run_command('killall python3')
+            connection.run_command('killall python3', lambda : stop_threads)
         sleep(0.5)
         print("Execution Terminated")
         
