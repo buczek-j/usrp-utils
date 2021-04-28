@@ -173,11 +173,12 @@ class UAV_Node():
         print("~ ~ Starting Threads ~ ~", end='\n\n')
 
         # Initialize threads
-        self.threads["L2_ACK_RCV"] = Thread(target=self.control_plane.listen_l2, args=(self.layer2.recv_ack, lambda : self.stop_threads, ))
-        self.threads["L2_ACK_RCV"].start()
+        if self.use_radio:
+            self.threads["L2_ACK_RCV"] = Thread(target=self.control_plane.listen_l2, args=(self.layer2.recv_ack, lambda : self.stop_threads, ))
+            self.threads["L2_ACK_RCV"].start()
 
-        self.threads["L4_ACK_RCV"] = Thread(target=self.control_plane.listen_l4, args=(self.layer4.recv_ack, lambda : self.stop_threads, ))
-        self.threads["L4_ACK_RCV"].start()
+            self.threads["L4_ACK_RCV"] = Thread(target=self.control_plane.listen_l4, args=(self.layer4.recv_ack, lambda : self.stop_threads, ))
+            self.threads["L4_ACK_RCV"].start()
 
         self.threads["STATE_RCV"] = Thread(target=self.control_plane.listen_cc, args=(self.handle_state, self.handle_get_state, lambda : self.stop_threads, ))
         self.threads["STATE_RCV"].start()
