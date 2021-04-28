@@ -42,7 +42,7 @@ class SSH_Connection():
         try:
             ssh_stdin, ssh_stdout, ssh_stderr = self.ssh.exec_command(command)
 
-            for line in ssh_stdout:
+            for line in ssh_stdout, ssh_stderr:
                 print(line)
 
         except Exception as e:
