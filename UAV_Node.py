@@ -456,7 +456,7 @@ class UAV_Node():
         Method to perform a tx gain adjust action
         :param gain: float for the new gain (0.0-1.0)
         '''
-        if self.tx_optimization:
+        if self.use_radio and self.tx_optimization:
             self.layer1.set_tx_gain(gain)
         print('TX Gain:', gain)
 
