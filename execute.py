@@ -29,6 +29,7 @@ def main():
     CMD = 'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/execute_test.py'
     ssh_connections = []
     threads = []
+    stop_threads=False
 
     for ii in range(len(wifi_ip_list)):
         ssh_connections.append(SSH_Connection(username_list[ii], wifi_ip_list[ii], pwrd_list[ii], ii))
@@ -42,7 +43,7 @@ def main():
     try:
         for connection in ssh_connections:
             # threads.append(Thread(target=connection.run_command, args=(CMD + str(connection.index),)))
-            threads.append(Thread(target=connection.run_command, args=(CMD,)))
+            threads.append(Thread(target=connection.run_command, args=(CMD, lambda : stop_threads)))
         
         for thread in threads:
             thread.start()

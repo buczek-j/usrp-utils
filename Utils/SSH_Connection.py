@@ -34,16 +34,17 @@ class SSH_Connection():
         if self.connected:
             print("connected ", self.host)
 
-    def run_command(self, command):
+    def run_command(self, command, stop):
         '''
         Method to run SSH command
         :param command: string of bash command to execute
         '''
         try:
             ssh_stdin, ssh_stdout, ssh_stderr = self.ssh.exec_command(command)
-            
-            for line in ssh_stdout:
-                print(line)
+
+            while not stop:
+                for line in ssh_stdout:
+                    print(line)
 
         except Exception as e:
             # sys.stderr.write("SSH connection error: {0}".format(e))
