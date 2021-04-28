@@ -280,7 +280,7 @@ class UAV_Node():
         '''
         Main Function to run the test
         '''
-        print("STARTING", self.my_config.id)
+        
         try:
             self.start_threads()
             sleep(10)   # wait 10 sec for usrp to init
@@ -503,6 +503,7 @@ def main():
 
     
     options = arguement_parser()
+    print("STARTING", options.index)
 
     # Configure hops for route 1
     dest1.configure_hops(src=src1, dest=dest1, next_hop=None,  prev_hop=rly1)
