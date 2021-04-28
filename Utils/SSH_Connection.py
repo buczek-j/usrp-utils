@@ -8,7 +8,7 @@ import sys
 from paramiko import SSHClient, AutoAddPolicy
 
 class SSH_Connection():
-    def __init__(self, user, host, password, index):
+    def __init__(self, user, host, password, index, cmd=None):
         '''
         Object to facilitate SSH Connections 
         :param user: string for username to connect to via ssh
@@ -22,6 +22,7 @@ class SSH_Connection():
         self.ssh.set_missing_host_key_policy(AutoAddPolicy())
         self.connected = True   # bool for if connection is successful
         self.index = index
+        self.cmd=cmd
 
         try:
             print("trying connect ", self.host, self.user, self.password)
@@ -34,7 +35,7 @@ class SSH_Connection():
         if self.connected:
             print("connected ", self.host)
 
-    def run_command(self, command, stop):
+    def run_command(self, command):
         '''
         Method to run SSH command
         :param command: string of bash command to execute
@@ -44,7 +45,7 @@ class SSH_Connection():
             # https://askubuntu.com/questions/837633/top-not-showing-output-over-ssh
             # https://stackoverflow.com/questions/2909481/paramiko-and-pseudo-tty-allocation
             for line in ssh_stdout:
-                print(line)
+                print(self.host,':' ,line)
 
         except Exception as e:
             # sys.stderr.write("SSH connection error: {0}".format(e))
