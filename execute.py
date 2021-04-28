@@ -3,7 +3,6 @@
 '''
 Program to launch Nodes
 '''
-# git clone -b emane_adaption --recurse-submodules https://github.com/buczek-j/usrp-utils
 
 # global libraries
 
@@ -14,15 +13,19 @@ from threading import Thread
 
 from Utils.SSH_Connection import SSH_Connection
 
-wifi_ip_list = ['192.168.10.101', '192.168.10.102', '192.168.10.103', '192.168.10.104', '192.168.10.105', '192.168.10.106']
-username_list = ['wines-nuc1', 'wines-nuc2', 'wines-nuc3', 'wines-nuc4', 'wines-nuc5', 'wines-nuc6']
-pwrd_list = ['wnesl', 'wnesl', 'wnesl', 'wnesl', 'wnesl', 'wnesl']
+# wifi_ip_list = ['192.168.10.101', '192.168.10.102', '192.168.10.103', '192.168.10.104', '192.168.10.105', '192.168.10.106']
+# username_list = ['wines-nuc1', 'wines-nuc2', 'wines-nuc3', 'wines-nuc4', 'wines-nuc5', 'wines-nuc6']
+# pwrd_list = ['wnesl', 'wnesl', 'wnesl', 'wnesl', 'wnesl', 'wnesl']
+
+wifi_ip_list = ['192.168.10.104',  '192.168.10.106']
+username_list = [ 'wines-nuc4', 'wines-nuc6']
+pwrd_list = ['wnesl', 'wnesl']
 
 def main():
     '''
     Main execution method
     '''
-    CMD = 'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index '
+    CMD = 'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --wait n --fly_drone n --use_radio n --index '
     ssh_connections = []
     threads = []
 
@@ -33,12 +36,12 @@ def main():
         if connection.connected == False:
             print("Error in SSH conneciton")
             exit(0)
-
     sleep(1)
 
     try:
         for connection in ssh_connections:
             threads.append(Thread(target=connection.run_command, args=(CMD + str(connection.index),)))
+            #threads.append(Thread(target=connection.run_command, args=(CMD,)))
         
         for thread in threads:
             thread.start()

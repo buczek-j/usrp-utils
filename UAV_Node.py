@@ -56,6 +56,10 @@ class UAV_Node():
                     model_path='~/Documents/usrp-utils/saved_models/asym_scenarios_50container_loc/', 
                     model_stage=270,
                     fly_drone=True,
+                    use_radio=True,
+                    tx_optimization=True,
+                    is_sim=False,
+                    global_home=None
                     ):
         '''
         Emane Node class for network stack
@@ -80,12 +84,14 @@ class UAV_Node():
         # Setup Log File
         self.csv_name = log_base_name + str(round(time())) + '.csv'
         row_list = ["Iteration Number","Node0 Loc", "Node1 Loc", "Node2 Loc", "Node3 Loc", "Node4 Loc", "Node5 Loc", "Node0 Tx Gain", "Node1 Tx Gain", "Node2 Tx Gain", "Node3 Tx Gain", "Node4 Tx Gain", "Node5 Tx Gain", "Number L4 Acks"]
-        self.file = open(os.path.expanduser(self.csv_name), 'a', newline='')
-        self.writer = csv.writer(self.file)
-        self.writer.writerow(row_list)
+        self.log_data(row_list)
 
+        # Flags
         self.wait = wait
         self.fly_drone = fly_drone
+        self.use_radio=use_radio
+        self.tx_optimization = tx_optimization
+        self.is_sim = is_sim
 
         # csv_input
         if csv_in:
@@ -100,24 +106,27 @@ class UAV_Node():
         # Initalize Network Stack
         self.control_plane = Control_Plane.Control_Plane(my_config.pc_ip)
         
-        self.layer4 = Layer4.Layer4(self.my_config, self.control_plane.send_l4_ack, debug=l4_debug)
-        self.layer3 = Layer3.Layer3(self.my_config, debug=l3_debug)
-        self.layer2 = Layer2.Layer2(self.my_config.usrp_ip, send_ack=self.control_plane.send_l2_ack, debug=l2_debug)
-        self.layer1 = Layer1.Layer1(self.my_config, debug=l1_debug)
-        self.layer5 = Layer5.Layer5(self.my_config, self.layer4, debug=l5_debug)
+        if self.use_radio:
+            self.layer4 = Layer4.Layer4(self.my_config, self.control_plane.send_l4_ack, debug=l4_debug)
+            self.layer3 = Layer3.Layer3(self.my_config, debug=l3_debug)
+            self.layer2 = Layer2.Layer2(self.my_config.usrp_ip, send_ack=self.control_plane.send_l2_ack, debug=l2_debug)
+            self.layer1 = Layer1.Layer1(self.my_config, debug=l1_debug)
+            self.layer5 = Layer5.Layer5(self.my_config, self.layer4, debug=l5_debug)
 
-        # Link layers together
-        self.layer1.init_layers(upper=self.layer2, lower=None)
-        self.layer2.init_layers(upper=self.layer3, lower=self.layer1)
-        self.layer3.init_layers(upper=self.layer4, lower=self.layer2)
-        self.layer4.init_layers(upper=self.layer5, lower=self.layer3)  # link l4 to this class object
-        self.layer5.init_layers(upper=None, lower=self.layer4)
+            # Link layers together
+            self.layer1.init_layers(upper=self.layer2, lower=None)
+            self.layer2.init_layers(upper=self.layer3, lower=self.layer1)
+            self.layer3.init_layers(upper=self.layer4, lower=self.layer2)
+            self.layer4.init_layers(upper=self.layer5, lower=self.layer3)  # link l4 to this class object
+            self.layer5.init_layers(upper=None, lower=self.layer4)
 
         # Drone parameters
         if self.fly_drone:
-            # self.my_drone = BasicArdu(frame=Frames.NED, connection_string='/dev/ttyACM0', global_home=[42.47777625687639,-71.19357940183706,174.0]) 
-            self.my_drone = BasicArdu(frame=Frames.NED, connection_string='tcp:192.168.10.2:'+str(5762+10*node_index), global_home=[42.47777625687639,-71.19357940183706,174.0]) 
-            self.my_location = None
+            if self.is_sim==True:
+                self.my_drone = BasicArdu(frame=Frames.NED, connection_string='tcp:192.168.10.2:'+str(5762+10*node_index), global_home=global_home) 
+            else:
+                self.my_drone = BasicArdu(frame=Frames.NED, connection_string='/dev/ttyACM0', global_home=global_home) 
+
             self.my_alt = alt
 
         # Neural Net params
@@ -145,6 +154,17 @@ class UAV_Node():
 
         print("~ ~ Initialization Complete ~ ~", end='\n\n')
         
+    def log_data(self, data_row):
+        '''
+        Method to open csv file and log data
+        :param data_row: array of data to log 
+        '''
+        file = open(os.path.expanduser(self.csv_name), 'a', newline='')
+        writer = csv.writer(file)
+        writer.writerow(data_row)
+        file.close()
+
+
     def start_threads(self):
         '''
         Method to start all of the threads, passing in a lambda funciton returning the state of self.stop_threads
@@ -162,21 +182,21 @@ class UAV_Node():
         self.threads["STATE_RCV"] = Thread(target=self.control_plane.listen_cc, args=(self.handle_state, self.handle_get_state, lambda : self.stop_threads, ))
         self.threads["STATE_RCV"].start()
 
-        for layer in [self.layer1, self.layer2, self.layer3, self.layer4]:
+        if self.use_radio:
+            for layer in [self.layer1, self.layer2, self.layer3, self.layer4]:
+                self.threads[layer.layer_name + "_pass_up"] = Thread(target=layer.pass_up, args=(lambda : self.stop_threads,))
+                self.threads[layer.layer_name + "_pass_up"].start()
+                for jj in range(layer.window):
+                    self.threads[layer.layer_name + "_pass_down_"+str(jj)] = Thread(target=layer.pass_down, args=(lambda : self.stop_threads,))
+                    self.threads[layer.layer_name + "_pass_down_"+str(jj)].start() 
             
-            self.threads[layer.layer_name + "_pass_up"] = Thread(target=layer.pass_up, args=(lambda : self.stop_threads,))
-            self.threads[layer.layer_name + "_pass_up"].start()
-            for jj in range(layer.window):
-                self.threads[layer.layer_name + "_pass_down_"+str(jj)] = Thread(target=layer.pass_down, args=(lambda : self.stop_threads,))
-                self.threads[layer.layer_name + "_pass_down_"+str(jj)].start() 
-        
-        if self.my_config.role == 'tx':
-            self.threads[self.layer5.layer_name + "_pass_down"] = Thread(target=self.layer5.pass_down, args=(lambda : self.stop_threads,))
-            self.threads[self.layer5.layer_name + "_pass_down"].start()
+            if self.my_config.role == 'tx':
+                self.threads[self.layer5.layer_name + "_pass_down"] = Thread(target=self.layer5.pass_down, args=(lambda : self.stop_threads,))
+                self.threads[self.layer5.layer_name + "_pass_down"].start()
 
-        elif self.my_config.role == 'rx':
-            self.threads[self.layer5.layer_name + "_pass_up"] = Thread(target=self.layer5.pass_up, args=(lambda : self.stop_threads,))
-            self.threads[self.layer5.layer_name + "_pass_up"].start()
+            elif self.my_config.role == 'rx':
+                self.threads[self.layer5.layer_name + "_pass_up"] = Thread(target=self.layer5.pass_up, args=(lambda : self.stop_threads,))
+                self.threads[self.layer5.layer_name + "_pass_up"].start()
 
         print("~ ~ Threads all running ~ ~", end='\n\n')
 
@@ -185,8 +205,8 @@ class UAV_Node():
         Method to close all of the threads and subprocesses
         '''
         self.stop_threads = True
-        self.file.close()           # close node logging file
-        self.layer4.file.close()    # close l4 logging file
+        if self.use_radio:
+            self.layer4.file.close()    # close l4 logging file
 
         print("\n ~ ~ Closing Threads ~ ~", end='\n\n')
         for thread in self.threads:
@@ -244,12 +264,17 @@ class UAV_Node():
         method to test the network throughput
         '''
         print("Testing . . .")
-        self.layer5.transmit=True
+
+        if self.use_radio:
+            self.layer5.transmit=True
+
         start_time = time()
         # Wait for desired min iteration time to pass
         while time()-start_time<self.min_time:
             sleep(0.01)
-        self.layer5.transmit=False
+
+        if self.use_radio:
+            self.layer5.transmit=False
 
     def run(self):
         '''
@@ -269,32 +294,25 @@ class UAV_Node():
 
             if not self.csv_in: # run NN
                 while not self.stop_threads:
-                    if self.layer4.log:
+                    if self.layer4.log and self.use_radio:
                         self.layer4.writer.writerow(["Iteration Number: " +str(iteration_num)])
+
                     # Goto State
                     self.handle_action()
 
                     # Broadcast State
-                    while None in self.state_buf:
-                        self.control_plane.broadcast_state(str(self.node_index) + ',' + str(self.loc_index) + ',' + str(self.pow_index))
-                        sleep(0.5)
-                        self.control_plane.broadcast_state(str(self.node_index) + ',' + str(self.loc_index) + ',' + str(self.pow_index))
-                        print('Waiting for state buffer. . .')
+                    self.state_loop()
 
                     # Begin Test
-                    self.layer5.transmit=True
-                    start_time = time()
-                    # Wait for desired min iteration time to pass
-                    while time()-start_time<self.min_time:
-                        sleep(0.01)
-                    self.layer5.transmit=False
+                    self.test_throughput()
                     
                     # Run Neural Network
                     if 'rly' in self.my_config.id:  # only run NN for relays
                         self.action = self.neural_net.run(self.state_buf)
 
                     # Log Data
-                    self.writer.writerow([iteration_num]+self.state_buf+[self.layer4.n_ack])
+                    if self.use_radio:
+                        self.log_data([iteration_num]+self.state_buf+[self.layer4.n_ack])
 
                     # Reset State Buffer
                     self.state_buf = [None]*(2*self.num_nodes)
@@ -305,7 +323,7 @@ class UAV_Node():
                 for Exp_Ind, Loc_x, Loc_y, Loc_z, TxPower, sessRate, runTime, l2Ack, l2Time, l4Ack, l4Time, rtDelay, l2TxQueue, l4TxQueue, l2Sent in self.state_reader:
                     if Loc_y != 'Loc_y':
                         print('\n~~ Iteration', iteration_num, ' ~~')
-                        if self.layer4.log:
+                        if self.layer4.log and self.use_radio:
                             self.layer4.writer.writerow(["Iteration Number: " +str(iteration_num)])
 
                         # goto state
@@ -319,9 +337,10 @@ class UAV_Node():
                         self.test_throughput()
 
                         # Log Data
-                        self.writer.writerow([iteration_num]+self.state_buf+[self.layer4.n_ack, self.min_time])
-                        print(" - log data")
-                        print("num acks:", self.layer4.n_ack, "time:", self.min_time)
+                        if self.use_radio:
+                            self.log_data([iteration_num]+self.state_buf+[self.layer4.n_ack])
+                            print(" - log data")
+                            print("num acks:", self.layer4.n_ack, "time:", self.min_time)
 
                         # Reset 
                         self.layer4.n_ack = 0
@@ -435,8 +454,34 @@ class UAV_Node():
         Method to perform a tx gain adjust action
         :param gain: float for the new gain (0.0-1.0)
         '''
-        self.layer1.set_tx_gain(gain)
+        if self.tx_optimization:
+            self.layer1.set_tx_gain(gain)
         print('TX Gain:', gain)
+
+
+def arguement_parser():
+    '''
+    Method to parse the input args
+    :return: options
+    '''
+    parser = ArgumentParser()
+    parser.add_argument('--index', type=int, default='', help='node index number')
+    parser.add_argument('--num', type=int, default=6, help='number of nodes')
+    parser.add_argument('--csv', type=str, default='y', help='states from csv (y/n)')
+    parser.add_argument('--fly_drone', type=str, default='y', help='Node UAV takesoff (y/n)')
+    parser.add_argument('--wait', type=str, default='y', help='wait for other states before continuing (y/n)')
+
+    parser.add_argument('--use_radio', type=str, default='y', help='use the usrp radios (y/n)')
+    parser.add_argument('--use_tx', type=str, default='y', help='optimize tx (y/n)')
+    parser.add_argument('--is_sim', type=str, default='n', help='simulation or real drone (y/n)')
+    parser.add_argument('--global_home', type=str, default='y', help='42.47777625687639,-71.19357940183706,174.0')
+    
+
+    parser.add_argument('--l1', type=str, default='n', help='layer 1 debug (y/n)')
+    parser.add_argument('--l2', type=str, default='n', help='layer 2 debug (y/n)')
+    parser.add_argument('--l3', type=str, default='n', help='layer 3 debug (y/n)')
+    parser.add_argument('--l4', type=str, default='n', help='layer 4 debug (y/n)')
+    return parser.parse_args()
 
 
 def main():
@@ -447,7 +492,7 @@ def main():
     freq2 = 2.5e9
     freq3 = 2.6e9
 
-    dest1= Node_Config(pc_ip='192.168.10.101', usrp_ip='192.170.10.101', my_id='dest1', role='rx', tx_freq=freq3, rx_freq=freq2, serial="", location_index=10)
+    dest1= Node_Config(pc_ip='192.168.10.101', usrp_ip='192.170.10.101', my_id='dest1', role='rx', tx_freq=freq3, rx_freq=freq2, serial="", location_index=10) # TODO
     rly1 = Node_Config(pc_ip='192.168.10.102', usrp_ip='192.170.10.102', my_id='rly1', role='rly', tx_freq=freq2, rx_freq=freq1, serial="", location_index=24)
     src1 = Node_Config(pc_ip='192.168.10.103', usrp_ip='192.170.10.103', my_id='src1' , role='tx', tx_freq=freq1, rx_freq=freq3, serial="", location_index=0)
 
@@ -455,16 +500,8 @@ def main():
     rly2 = Node_Config(pc_ip='192.168.10.105', usrp_ip='192.170.10.105', my_id='rly2', role='rly', tx_freq=freq2, rx_freq=freq1, serial="", location_index=70)
     src2 = Node_Config(pc_ip='192.168.10.106', usrp_ip='192.170.10.106', my_id='src2' , role='tx', tx_freq=freq1, rx_freq=freq3, serial="", location_index=55)
 
-    parser = ArgumentParser()
-    parser.add_argument('--index', type=int, default='', help='node index number')
-    parser.add_argument('--csv', type=str, default='y', help='states from csv (y/n)')
-    parser.add_argument('--fly_drone', type=str, default='y', help='Node UAV takesoff (y/n)')
-    parser.add_argument('--wait', type=str, default='y', help='wait for other states before continuing (y/n)')
-    parser.add_argument('--l1', type=str, default='n', help='layer 1 debug (y/n)')
-    parser.add_argument('--l2', type=str, default='n', help='layer 2 debug (y/n)')
-    parser.add_argument('--l3', type=str, default='n', help='layer 3 debug (y/n)')
-    parser.add_argument('--l4', type=str, default='n', help='layer 4 debug (y/n)')
-    options = parser.parse_args()
+    
+    options = arguement_parser()
 
     # Configure hops for route 1
     dest1.configure_hops(src=src1, dest=dest1, next_hop=None,  prev_hop=rly1)
@@ -501,7 +538,12 @@ def main():
                                 l4_debug=(options.l4=='y' or options.l4 == 'Y'), 
                                 csv_in=(options.csv=='y' or options.csv=='Y'), 
                                 fly_drone=fly_drone, 
-                                wait=(options.wait=='y' or options.wait=='Y'))
+                                wait=(options.wait=='y' or options.wait=='Y'),
+                                use_radio=(options.use_radio=='y' or options.use_radio=='Y'),
+                                tx_optimization=(options.use_tx=='y' or options.use_tx=='Y'),
+                                is_sim=(options.is_sim=='y' or options.is_sim=='y'),
+                                global_home=[float(ii) for ii in options.global_home.split(',')]
+                                )
     try:
         uav_node.run()
     except Exception as e:
