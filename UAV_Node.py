@@ -280,6 +280,7 @@ class UAV_Node():
         '''
         Main Function to run the test
         '''
+        print("STARTING", self.my_config.id)
         try:
             self.start_threads()
             sleep(10)   # wait 10 sec for usrp to init
