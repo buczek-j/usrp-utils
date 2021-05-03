@@ -1,3 +1,6 @@
 # ignore python compile files
 *__pycache__ 
 *.pyc
+
+BasicArducopter
+BasicArducopter/*
