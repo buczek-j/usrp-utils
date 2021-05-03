@@ -2,3 +2,7 @@
 	path = BasicArducopter
 	url = https://github.com/buczek-j/BasicArducopter.git
 	branch = emane_tests
+[submodule "dji_onboard_sdk_primitives"]
+	path = dji_onboard_sdk_primitives
+	url = https://github.com/wineslab/dji_onboard_sdk_primitives.git
+	branch = sc-ai
