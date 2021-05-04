@@ -47,7 +47,9 @@ class UAV_Node():
                     tx_optimization=True,
                     is_sim=False,
                     global_home=None,
-                    is_dji=False
+                    is_dji=False,
+                    use_timeout=False,
+                    test_timeout=5
                     ):
         '''
         Emane Node class for network stack
@@ -81,6 +83,8 @@ class UAV_Node():
         self.tx_optimization = tx_optimization
         self.is_sim = is_sim
         self.is_dji = is_dji
+        self.use_timeout = use_timeout
+        self.test_timeout = test_timeout
 
         # csv_input
         if csv_in:
@@ -270,16 +274,16 @@ class UAV_Node():
         '''
         Method to takeoff Dji drone
         '''
-        # TODO
         print("DJI Takeoff")
+        os.system('~/Documents/usrp-utils/dji_onboard_sdk_primitives/build/bin/djiosdk-experiment-takeoff-and-stay ~/Documents/usrp-utils/dji_onboard_sdk_primitives/build/bin/UserConfig.txt --altitude '+str(self.my_alt))
 
     
     def dji_land(self):
         '''
         Method to land Dji drone
         '''
-        # TODO
         print("DJI Landing")
+        os.system('~/Documents/usrp-utils/dji_onboard_sdk_primitives/build/bin/djiosdk-experiment-land ~/Documents/usrp-utils/dji_onboard_sdk_primitives/build/bin/UserConfig.txt --altitude ' + str(self.my_alt))
 
     def run(self):
         '''
@@ -352,18 +356,34 @@ class UAV_Node():
                         # Log Data
                         if self.use_radio:
                             self.log_data([iteration_num]+self.state_buf+[self.layer4.n_ack])
-                            print(" - log data")
-                            print("num acks:", self.layer4.n_ack, "time:", self.min_time) 
+                            if self.my_config.role == 'tx':
+                                print("num acks:", self.layer4.n_ack, "time:", self.min_time) 
                             self.layer4.n_ack = 0
 
                         self.state_buf = [None]*(2*self.num_nodes)
                         
                         iteration_num += 1
-                        print(" - reset")
 
                         if int(Exp_Ind)>30:
                             break
-                
+            
+            if self.use_timeout:
+                while time()-start_time < (60*self.test_timeout):
+                    self.state_loop()
+                    
+                    self.test_throughput()
+
+                    # Log Data
+                    if self.use_radio:
+                        self.log_data([iteration_num]+self.state_buf+[self.layer4.n_ack])
+                        if self.my_config.role == 'tx':
+                                print("num acks:", self.layer4.n_ack, "time:", self.min_time) 
+                        self.layer4.n_ack = 0
+
+                    self.state_buf = [None]*(2*self.num_nodes)
+                    iteration_num += 1
+
+
             print("~ ~ Finished Successfully ~ ~")
             # Land
             if self.fly_drone:
@@ -494,6 +514,8 @@ def arguement_parser():
     parser.add_argument('--wait', type=str, default='y', help='wait for other states before continuing (y/n)')
 
     parser.add_argument('--use_radio', type=str, default='y', help='use the usrp radios (y/n)')
+    parser.add_argument('--use_timeout', type=str, default='n', help='use timeout (y/n)')
+    parser.add_argument('--test_timeout', type=float, default=5.0, help='fixed test length (minutes)')
     parser.add_argument('--use_tx', type=str, default='y', help='optimize tx (y/n)')
     parser.add_argument('--is_sim', type=str, default='n', help='simulation or real drone (y/n)')
     parser.add_argument('--is_dji', type=str, default='n', help='dji drone? (y/n)')
@@ -568,7 +590,9 @@ def main():
                                 tx_optimization=(options.use_tx=='y' or options.use_tx=='Y'),
                                 is_sim=(options.is_sim=='y' or options.is_sim=='y'),
                                 is_dji=is_dji,
-                                global_home=[float(ii) for ii in options.global_home.split(',')]
+                                global_home=[float(ii) for ii in options.global_home.split(',')],
+                                use_timeout=(options.use_timeout=='y' or options.use_timeout=='y'),
+                                test_timeout=float(options.test_timeout)
                                 )
     try:
         uav_node.run()
@@ -577,7 +601,7 @@ def main():
         if fly_drone:
             if is_dji:
                 print("landing Dji")
-                # TODO
+                os.system('~/Documents/usrp-utils/dji_onboard_sdk_primitives/build/bin/djiosdk-experiment-land ~/Documents/usrp-utils/dji_onboard_sdk_primitives/build/bin/UserConfig.txt --altitude ' + str(self.my_alt))
             else:
                 uav_node.my_drone.handle_landing()
         uav_node.close_threads()
