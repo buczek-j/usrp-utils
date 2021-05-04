@@ -7,7 +7,7 @@ Layer 4 object: Transport layer
 from LayerStack.Network_Layer import Network_Layer
 from threading import  Event, Lock, Thread
 from time import time
-import struct, csv, os
+import struct, csv, os, datetime
 
 l4_down_access = Lock()     
 
@@ -54,7 +54,7 @@ class Layer4(Network_Layer):
         # Setup Log File
         self.log = log
         if self.log:
-            self.l4_csv_name = l4_log_base_name + str(round(time())) + '.csv'
+            self.l4_csv_name = l4_log_base_name + datetime.datetime.now().strftime("___%m-%d-%y___%H-%M")+".csv"
             row_list = ["Ack Number", "Time Sent", "Time RCVD", "RTT", "Throughput"]
             self.file = open(os.path.expanduser(self.l4_csv_name), 'a', newline='')
             self.writer = csv.writer(self.file)

@@ -5,19 +5,6 @@ DQN experiment node object
 
 TODO:
 - Debug
-- runtime of 5min once last action, stay until runtime finishes, then land
-
-- power levels
-    - -20dBm to 20dBm
-    - 2 dbm steps (20 total)
-
-- Only specify one or two drones
-
-- convert to state for csv read in
-
-- humanreadable log time
-
-- 
 
 '''
 
@@ -26,7 +13,7 @@ from threading import Thread
 from argparse import ArgumentParser
 from time import time, sleep
 import tensorflow.compat.v1 as tf
-import csv, os
+import csv, os, datetime
 
 # User Libraries
 from LayerStack import Control_Plane, Layer1, Layer2, Layer3, Layer4, Layer5
@@ -59,7 +46,8 @@ class UAV_Node():
                     use_radio=True,
                     tx_optimization=True,
                     is_sim=False,
-                    global_home=None
+                    global_home=None,
+                    is_dji=False
                     ):
         '''
         Emane Node class for network stack
@@ -82,7 +70,7 @@ class UAV_Node():
         '''
         
         # Setup Log File
-        self.csv_name = log_base_name + str(round(time())) + '.csv'
+        self.csv_name = log_base_name + datetime.datetime.now().strftime("___%m-%d-%y___%H-%M")+".csv"
         row_list = ["Iteration Number","Node0 Loc", "Node1 Loc", "Node2 Loc", "Node3 Loc", "Node4 Loc", "Node5 Loc", "Node0 Tx Gain", "Node1 Tx Gain", "Node2 Tx Gain", "Node3 Tx Gain", "Node4 Tx Gain", "Node5 Tx Gain", "Number L4 Acks"]
         self.log_data(row_list)
 
@@ -92,6 +80,7 @@ class UAV_Node():
         self.use_radio=use_radio
         self.tx_optimization = tx_optimization
         self.is_sim = is_sim
+        self.is_dji = is_dji
 
         # csv_input
         if csv_in:
@@ -123,7 +112,7 @@ class UAV_Node():
         # Drone parameters
         if self.fly_drone:
             if self.is_sim==True:
-                self.my_drone = BasicArdu(frame=Frames.NED, connection_string='tcp:192.168.10.2:'+str(5762+10*node_index), global_home=global_home) 
+                self.my_drone = BasicArdu(frame=Frames.NED, connection_string='tcp:192.168.10.185:'+str(5762+10*node_index), global_home=global_home) 
             else:
                 self.my_drone = BasicArdu(frame=Frames.NED, connection_string='/dev/ttyACM0', global_home=global_home) 
 
@@ -277,6 +266,21 @@ class UAV_Node():
         if self.use_radio:
             self.layer5.transmit=False
 
+    def dji_takeoff(self):
+        '''
+        Method to takeoff Dji drone
+        '''
+        # TODO
+        print("DJI Takeoff")
+
+    
+    def dji_land(self):
+        '''
+        Method to land Dji drone
+        '''
+        # TODO
+        print("DJI Landing")
+
     def run(self):
         '''
         Main Function to run the test
@@ -288,11 +292,17 @@ class UAV_Node():
 
             if self.fly_drone:
                 # takeoff 
-                self.my_drone.handle_takeoff(abs(self.my_alt))
-                self.my_drone.wait_for_target()   
+                if self.is_dji:
+                    self.dji_takeoff()
+
+                else:
+                    self.my_drone.handle_takeoff(abs(self.my_alt))
+                    self.my_drone.wait_for_target()
+            
 
             # iterate
             iteration_num = 0
+            start_time = time()
 
             if not self.csv_in: # run NN
                 while not self.stop_threads:
@@ -331,7 +341,7 @@ class UAV_Node():
 
                         # goto state
                         self.action_move([float(Loc_y), float(Loc_x)])
-                        self.action_tx_gain(float(TxPower)/90)     # TODO
+                        self.action_tx_gain(float(TxPower)/90)  
 
                         # Broadcast State
                         self.state_loop()
@@ -355,15 +365,25 @@ class UAV_Node():
                             break
                 
             print("~ ~ Finished Successfully ~ ~")
+            # Land
             if self.fly_drone:
-                self.my_drone.handle_landing()
+                if self.is_dji:
+                    self.dji_land()
+                else:
+                    self.my_drone.handle_landing()
+
             self.close_threads()
                 
                    
         except Exception as e:
             print(e)
+            # Land
             if self.fly_drone:
-                self.my_drone.handle_landing()
+                if self.is_dji:
+                    self.dji_land()
+                else:
+                    self.my_drone.handle_landing()
+
             self.close_threads()
             
             #sleep(5)
@@ -439,7 +459,7 @@ class UAV_Node():
         Method to perform a movement action on the drone
         :param coords: array of floats for the ned NED location [meters north, meters east, meters down]
         '''
-        if self.fly_drone:
+        if self.fly_drone and not self.is_dji:
             self.my_drone.handle_waypoint(Frames.NED, coords[0], coords[1], -1.0*abs(self.my_alt), 0)
             self.my_drone.wait_for_target()
         print('Move:', coords[0], coords[1])
@@ -476,6 +496,7 @@ def arguement_parser():
     parser.add_argument('--use_radio', type=str, default='y', help='use the usrp radios (y/n)')
     parser.add_argument('--use_tx', type=str, default='y', help='optimize tx (y/n)')
     parser.add_argument('--is_sim', type=str, default='n', help='simulation or real drone (y/n)')
+    parser.add_argument('--is_dji', type=str, default='n', help='dji drone? (y/n)')
     parser.add_argument('--global_home', type=str, default='42.47777625687639,-71.19357940183706,174.0', help='Global Home Location')
     
 
@@ -533,6 +554,7 @@ def main():
         print('INVALID INDEX')
         exit(0)
     fly_drone = (options.fly_drone=='y' or options.fly_drone=='Y')
+    is_dji = (options.is_dji=='y' or options.is_dji=='Y')
     
     uav_node = UAV_Node(my_config, node_index=int(options.index), 
                                 l1_debug=(options.l1=='y' or options.l1 == 'Y'), 
@@ -545,6 +567,7 @@ def main():
                                 use_radio=(options.use_radio=='y' or options.use_radio=='Y'),
                                 tx_optimization=(options.use_tx=='y' or options.use_tx=='Y'),
                                 is_sim=(options.is_sim=='y' or options.is_sim=='y'),
+                                is_dji=is_dji,
                                 global_home=[float(ii) for ii in options.global_home.split(',')]
                                 )
     try:
@@ -552,7 +575,11 @@ def main():
     except Exception as e:
         print(e)
         if fly_drone:
-            uav_node.my_drone.handle_landing()
+            if is_dji:
+                print("landing Dji")
+                # TODO
+            else:
+                uav_node.my_drone.handle_landing()
         uav_node.close_threads()
         exit(0)
 
