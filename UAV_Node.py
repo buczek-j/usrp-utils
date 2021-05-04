@@ -126,7 +126,7 @@ class UAV_Node():
             else:
                 self.my_drone = BasicArdu(frame=Frames.NED, connection_string='/dev/ttyACM0', global_home=global_home) 
 
-            self.my_alt = alt
+        self.my_alt = alt
 
         # Neural Net params
         self.node_index = node_index    # 0 to num_nodes-1
