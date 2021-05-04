@@ -112,7 +112,7 @@ class UAV_Node():
         # Drone parameters
         if self.fly_drone:
             if self.is_sim==True:
-                self.my_drone = BasicArdu(frame=Frames.NED, connection_string='tcp:192.168.10.185:'+str(5762+10*node_index), global_home=global_home) 
+                self.my_drone = BasicArdu(frame=Frames.NED, connection_string='tcp:192.168.10.138:'+str(5762+10*node_index), global_home=global_home) 
             else:
                 self.my_drone = BasicArdu(frame=Frames.NED, connection_string='/dev/ttyACM0', global_home=global_home) 
 
