@@ -510,6 +510,8 @@ def arguement_parser():
     parser.add_argument('--index', type=int, default='', help='node index number')
     parser.add_argument('--num', type=int, default=6, help='number of nodes')
     parser.add_argument('--csv', type=str, default='y', help='states from csv (y/n)')
+    parser.add_argument('--csv_path', type=str, default='~/Documents/usrp-utils/FromCsv/performance_data_', help='dir path to import csv')
+
     parser.add_argument('--fly_drone', type=str, default='y', help='Node UAV takesoff (y/n)')
     parser.add_argument('--wait', type=str, default='y', help='wait for other states before continuing (y/n)')
 
