@@ -120,7 +120,7 @@ class UAV_Node():
             self.layer5.init_layers(upper=None, lower=self.layer4)
 
         # Drone parameters
-        if self.fly_drone:
+        if self.fly_drone and not self.is_dji:
             if self.is_sim==True:
                 self.my_drone = BasicArdu(frame=Frames.NED, connection_string='tcp:192.168.10.138:'+str(5762+10*node_index), global_home=global_home) 
             else:
