@@ -1,0 +1,2 @@
+Exp_Ind,Loc_x,Loc_y,Loc_z,TxPower,sessRate,runTime,l2Ack,l2Time,l4Ack,l4Time,rtDelay,l2TxQueue,l4TxQueue,l2Sent
+0,8,10,0,84,100,5,18,4.14,0,0,0,0,0,22
