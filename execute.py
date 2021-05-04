@@ -164,6 +164,7 @@ def main(options):
 def arguments_parser():
     parser = ArgumentParser()
     parser.add_argument('--cmd', type=str, default='', help='cmd to run')
+    parser.add_argument('--name', type=str, default='log_', help='log file name')
     parser.add_argument('--global_home', type=str, default='', help='global lat/lon origin')
     return parser.parse_args()
 

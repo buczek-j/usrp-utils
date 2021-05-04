@@ -6,6 +6,10 @@ DQN experiment node object
 TODO:
 - Debug
 
+Log:
+SRC when receive ack with a timestamp
+RLY everytime forward L4 packet
+string for each experiment used in the log file
 '''
 
 # Global Libraries
@@ -38,6 +42,7 @@ class UAV_Node():
                     pow_index=3, 
                     node_index=0, 
                     log_base_name="~/Documents/usrp-utils/Logs/log_", 
+                    log=True,
                     state_dir='~/Documents/usrp-utils/FromCsv/performance_data_',
                     csv_in=False, 
                     model_path='~/Documents/usrp-utils/saved_models/asym_scenarios_50container_loc/', 
@@ -70,11 +75,12 @@ class UAV_Node():
         :param model_path: string for the directory for the neural network model
         TODO
         '''
-        
+        self.log = log
         # Setup Log File
-        self.csv_name = log_base_name + datetime.datetime.now().strftime("___%m-%d-%y___%H-%M")+".csv"
-        row_list = ["Iteration Number","Node0 Loc", "Node1 Loc", "Node2 Loc", "Node3 Loc", "Node4 Loc", "Node5 Loc", "Node0 Tx Gain", "Node1 Tx Gain", "Node2 Tx Gain", "Node3 Tx Gain", "Node4 Tx Gain", "Node5 Tx Gain", "Number L4 Acks"]
-        self.log_data(row_list)
+        if self.log:
+            self.csv_name = log_base_name + datetime.datetime.now().strftime("___%m-%d-%y___%H-%M")+".csv"
+            row_list = ["Iteration Number","Node0 Loc", "Node1 Loc", "Node2 Loc", "Node3 Loc", "Node4 Loc", "Node5 Loc", "Node0 Tx Gain", "Node1 Tx Gain", "Node2 Tx Gain", "Node3 Tx Gain", "Node4 Tx Gain", "Node5 Tx Gain", "Number L4 Acks"]
+            self.log_data(row_list)
 
         # Flags
         self.wait = wait
@@ -100,7 +106,7 @@ class UAV_Node():
         self.control_plane = Control_Plane.Control_Plane(my_config.pc_ip)
         
         if self.use_radio:
-            self.layer4 = Layer4.Layer4(self.my_config, self.control_plane.send_l4_ack, debug=l4_debug)
+            self.layer4 = Layer4.Layer4(self.my_config, self.control_plane.send_l4_ack, debug=l4_debug, log=self.log, l4_log_base_name=log_base_name+"l4_")
             self.layer3 = Layer3.Layer3(self.my_config, debug=l3_debug)
             self.layer2 = Layer2.Layer2(self.my_config.usrp_ip, send_ack=self.control_plane.send_l2_ack, debug=l2_debug)
             self.layer1 = Layer1.Layer1(self.my_config, debug=l1_debug)
@@ -152,10 +158,11 @@ class UAV_Node():
         Method to open csv file and log data
         :param data_row: array of data to log 
         '''
-        file = open(os.path.expanduser(self.csv_name), 'a', newline='')
-        writer = csv.writer(file)
-        writer.writerow(data_row)
-        file.close()
+        if self.log:
+            file = open(os.path.expanduser(self.csv_name), 'a', newline='')
+            writer = csv.writer(file)
+            writer.writerow(data_row)
+            file.close()
 
 
     def start_threads(self):
@@ -514,10 +521,12 @@ def arguement_parser():
 
     parser.add_argument('--fly_drone', type=str, default='y', help='Node UAV takesoff (y/n)')
     parser.add_argument('--wait', type=str, default='y', help='wait for other states before continuing (y/n)')
+    parser.add_argument('--log', type=str, default='y', help='log data (y/n)')
+    parser.add_argument('--file_name', type=str, default='log_', help='log data file name')
 
     parser.add_argument('--use_radio', type=str, default='y', help='use the usrp radios (y/n)')
-    parser.add_argument('--use_timeout', type=str, default='n', help='use timeout (y/n)')
-    parser.add_argument('--test_timeout', type=float, default=5.0, help='fixed test length (minutes)')
+    parser.add_argument('--use_timeout', type=str, default='y', help='use timeout (y/n)')
+    parser.add_argument('--test_timeout', type=float, default=2.0, help='fixed test length (minutes)')
     parser.add_argument('--use_tx', type=str, default='y', help='optimize tx (y/n)')
     parser.add_argument('--is_sim', type=str, default='n', help='simulation or real drone (y/n)')
     parser.add_argument('--is_dji', type=str, default='n', help='dji drone? (y/n)')
@@ -594,7 +603,9 @@ def main():
                                 is_dji=is_dji,
                                 global_home=[float(ii) for ii in options.global_home.split(',')],
                                 use_timeout=(options.use_timeout=='y' or options.use_timeout=='y'),
-                                test_timeout=float(options.test_timeout)
+                                test_timeout=float(options.test_timeout),
+                                log=(options.log=='y' or options.log=='y'),
+                                log_base_name="~/Documents/usrp-utils/Logs/"+options.file_name
                                 )
     try:
         uav_node.run()
