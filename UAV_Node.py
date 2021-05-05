@@ -2,14 +2,6 @@
 
 '''
 DQN experiment node object
-
-TODO:
-- Debug
-
-Log:
-SRC when receive ack with a timestamp
-RLY everytime forward L4 packet
-string for each experiment used in the log file
 '''
 
 # Global Libraries
@@ -527,6 +519,12 @@ def arguement_parser():
     parser.add_argument('--csv', type=str, default='y', help='states from csv (y/n)')
     parser.add_argument('--csv_path', type=str, default='~/Documents/usrp-utils/FromCsv/performance_data_', help='dir path to import csv')
 
+    parser.add_argument('--f1', type=int, default=2000000000, help='freq 1')
+    parser.add_argument('--f2', type=int, default=2100000000, help='freq 2')
+
+    parser.add_argument('--tx_gain', type=float, default=0.8, help='normalized tx gain percentage')
+    parser.add_argument('--rx_gain', type=float, default=0.95, help='normalized rx gian percentage')
+
     parser.add_argument('--fly_drone', type=str, default='y', help='Node UAV takesoff (y/n)')
     parser.add_argument('--wait', type=str, default='y', help='wait for other states before continuing (y/n)')
     parser.add_argument('--log', type=str, default='y', help='log data (y/n)')
@@ -540,7 +538,6 @@ def arguement_parser():
     parser.add_argument('--is_dji', type=str, default='n', help='dji drone? (y/n)')
     parser.add_argument('--global_home', type=str, default='42.47777625687639,-71.19357940183706,174.0', help='Global Home Location')
     
-
     parser.add_argument('--l1', type=str, default='n', help='layer 1 debug (y/n)')
     parser.add_argument('--l2', type=str, default='n', help='layer 2 debug (y/n)')
     parser.add_argument('--l3', type=str, default='n', help='layer 3 debug (y/n)')
@@ -552,21 +549,24 @@ def main():
     '''
     Main Method
     '''
-    freq1 = 2.4e9
-    freq2 = 2.5e9
-    freq3 = 2.6e9
 
-    dest1= Node_Config(pc_ip='192.168.10.101', usrp_ip='192.170.10.101', my_id='dest1', role='rx', tx_freq=freq3, rx_freq=freq2, serial="", location_index=10) # TODO
-    rly1 = Node_Config(pc_ip='192.168.10.102', usrp_ip='192.170.10.102', my_id='rly1', role='rly', tx_freq=freq2, rx_freq=freq1, serial="", location_index=24)
-    src1 = Node_Config(pc_ip='192.168.10.103', usrp_ip='192.170.10.103', my_id='src1' , role='tx', tx_freq=freq1, rx_freq=freq3, serial="", location_index=0)
-
-    dest2= Node_Config(pc_ip='192.168.10.104', usrp_ip='192.170.10.104', my_id='dest2', role='rx', tx_freq=freq3, rx_freq=freq2, serial="", location_index=120)
-    rly2 = Node_Config(pc_ip='192.168.10.105', usrp_ip='192.170.10.105', my_id='rly2', role='rly', tx_freq=freq2, rx_freq=freq1, serial="", location_index=70)
-    src2 = Node_Config(pc_ip='192.168.10.106', usrp_ip='192.170.10.106', my_id='src2' , role='tx', tx_freq=freq1, rx_freq=freq3, serial="", location_index=55)
-
-    
     options = arguement_parser()
     print("STARTING", options.index)
+
+    tx_gain = float(options.tx_gain)
+    rx_gain = float(options.rx_gain)
+    freq1 = int(options.f1)
+    freq2 = int(options.f2)
+    freq3 = 2.6e9
+
+    dest1= Node_Config(pc_ip='192.168.10.101', usrp_ip='192.170.10.101', my_id='dest1', role='rx', tx_freq=freq3, rx_freq=freq2, serial="", tx_gain=tx_gain, rx_gain=rx_gain , location_index=10) # TODO
+    rly1 = Node_Config(pc_ip='192.168.10.102', usrp_ip='192.170.10.102', my_id='rly1', role='rly', tx_freq=freq2, rx_freq=freq1, serial="", tx_gain=tx_gain, rx_gain=rx_gain ,location_index=24)
+    src1 = Node_Config(pc_ip='192.168.10.103', usrp_ip='192.170.10.103', my_id='src1' , role='tx', tx_freq=freq1, rx_freq=freq3, serial="", tx_gain=tx_gain, rx_gain=rx_gain ,location_index=0)
+
+    dest2= Node_Config(pc_ip='192.168.10.104', usrp_ip='192.170.10.104', my_id='dest2', role='rx', tx_freq=freq3, rx_freq=freq2, serial="", tx_gain=tx_gain, rx_gain=rx_gain ,location_index=120)
+    rly2 = Node_Config(pc_ip='192.168.10.105', usrp_ip='192.170.10.105', my_id='rly2', role='rly', tx_freq=freq2, rx_freq=freq1, serial="", tx_gain=tx_gain, rx_gain=rx_gain ,location_index=70)
+    src2 = Node_Config(pc_ip='192.168.10.106', usrp_ip='192.170.10.106', my_id='src2' , role='tx', tx_freq=freq1, rx_freq=freq3, serial="", tx_gain=tx_gain, rx_gain=rx_gain ,location_index=55)
+
 
     # Configure hops for route 1
     dest1.configure_hops(src=src1, dest=dest1, next_hop=None,  prev_hop=rly1)
