@@ -55,7 +55,10 @@ class Layer4(Network_Layer):
         self.log = log
         if self.log:
             self.l4_csv_name = l4_log_base_name + datetime.datetime.now().strftime("___%m-%d-%y___%H-%M")+".csv"
-            row_list = ["Ack Number", "Time Sent", "Time RCVD", "RTT", "Throughput"]
+            if my_config.role == 'rly' or my_config.role == 'rx':
+                row_list = ["Pkt no", "Source ", "Destination", "Timestamp", "Time Received"]
+            else:
+                row_list = ["Ack Number", "Time Sent", "Time RCVD", "RTT", "Throughput"]
             self.file = open(os.path.expanduser(self.l4_csv_name), 'a', newline='')
             self.writer = csv.writer(self.file)
             self.writer.writerow(row_list)
@@ -117,6 +120,17 @@ class Layer4(Network_Layer):
             self.window_ack_list[self.unacked_packets.index(pktno)]=True
             self.unacked_packets[self.unacked_packets.index(pktno)]=None
     
+    def log_pkt(self, l4_packet):
+        '''
+        Method to log l4 packets in a seperate thread
+        :param pkt: l4 packet to log
+        '''
+        if self.log == True:
+                packet_source = self.unpad(l4_packet[8:28])
+                packet_destination = self.unpad(l4_packet[28:48])
+                pktno = struct.unpack('L', l4_packet[0:8])[0]
+                time_sent = struct.unpack('d', l4_packet[48:56])[0]
+                self.writer.writerow([pktno, packet_source, packet_destination, time_sent, time()])
 
     def pass_up(self, stop):
         '''
@@ -135,12 +149,16 @@ class Layer4(Network_Layer):
             if packet_destination == self.my_pc:    # if this is the destination, then pass payload to the application layer
                 self.up_queue.put(l4_packet[56:], True)
                 a = Thread(target=self.send_ack_wifi, args=(l4_packet[:8], packet_source, l4_packet[48:56],))
-                self.send_ack(l4_packet[:8], packet_source, l4_packet[48:56])  # send l4 ack
+                a.start()
                 l4_packet = b''
 
             else:   # relay/forward message
                 self.prev_down_queue.put(l4_packet, True)
                 l4_packet = b''
+
+            # log the pkt
+            b = Thread(target=self.log_pkt, args=(l4_packet,))
+            b.start()
 
     def pass_down(self, stop, window_index=0):
         '''
