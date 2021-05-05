@@ -350,7 +350,6 @@ class UAV_Node():
                         if self.use_radio and self.layer4.log:
                             self.layer4.writer.writerow(["Iteration Number: " +str(iteration_num)])
 
-                        # Calc indexes from position
                         self.loc_index = 0
                         self.pow_index = TxPower
 
