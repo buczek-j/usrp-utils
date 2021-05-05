@@ -613,7 +613,8 @@ def main():
                                 use_timeout=(options.use_timeout=='y' or options.use_timeout=='y'),
                                 test_timeout=float(options.test_timeout),
                                 log=(options.log=='y' or options.log=='y'),
-                                log_base_name="~/Documents/usrp-utils/Logs/"+options.file_name
+                                log_base_name="~/Documents/usrp-utils/Logs/"+options.file_name,
+                                num_nodes=int(options.num)
                                 )
     try:
         uav_node.run()
