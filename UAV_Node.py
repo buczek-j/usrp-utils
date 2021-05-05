@@ -349,8 +349,10 @@ class UAV_Node():
                         print('\n~~ Iteration', iteration_num, ' ~~')
                         if self.use_radio and self.layer4.log:
                             self.layer4.writer.writerow(["Iteration Number: " +str(iteration_num)])
-                        # self.loc_index = "("+str(Loc_x)+"/"+str(Loc_y)+ "/"+str(Loc_z)+")"
-                        # self.pow_index = str(TxPower)
+
+                        # Calc indexes from position
+                        self.loc_index = 0
+                        self.pow_index = TxPower
 
                         # goto state
                         self.action_move([float(Loc_y), float(Loc_x)])
@@ -364,7 +366,7 @@ class UAV_Node():
 
                         # Log Data
                         if self.use_radio:
-                            self.log_data([iteration_num]+self.state_buf+[self.layer4.n_ack])
+                            self.log_data([iteration_num]+self.state_buf+[self.layer4.n_ack, Loc_x, Loc_y, Loc_z])
                             if self.my_config.role == 'tx':
                                 print("num acks:", self.layer4.n_ack, "time:", self.min_time) 
                             self.layer4.n_ack = 0
