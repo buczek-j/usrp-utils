@@ -349,6 +349,9 @@ class UAV_Node():
                         print('\n~~ Iteration', iteration_num, ' ~~')
                         if self.use_radio and self.layer4.log:
                             self.layer4.writer.writerow(["Iteration Number: " +str(iteration_num)])
+                            # close to save data after each iteration. Reopen for faster writing
+                            self.layer4.file.close()
+                            self.layer4.file = open(os.path.expanduser(self.layer4.l4_csv_name), 'a', newline='')
 
                         self.loc_index = 0
                         self.pow_index = TxPower

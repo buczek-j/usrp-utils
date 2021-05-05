@@ -7,7 +7,7 @@ Method to land the drone
 '''
 
 if __name__ == '__main__':
-    for connection_string in['/dev/ttyACM0', 'tcp:192.168.10.2:5762', 'tcp:192.168.10.2:5772', 'tcp:192.168.10.2:5782', 'tcp:192.168.10.2:5792', 'tcp:192.168.10.2:5802', 'tcp:192.168.10.2:5812']:
+    for connection_string in['/dev/ttyACM0', 'tcp:192.168.10.138:5762', 'tcp:192.168.10.138:5772', 'tcp:192.168.10.138:5782', 'tcp:192.168.10.138:5792', 'tcp:192.168.10.138:5802', 'tcp:192.168.10.138:5812']:
         try:
             print(connection_string)
             v = dronekit.connect(connection_string)
