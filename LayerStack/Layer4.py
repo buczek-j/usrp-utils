@@ -125,12 +125,15 @@ class Layer4(Network_Layer):
         Method to log l4 packets in a seperate thread
         :param pkt: l4 packet to log
         '''
-        if self.log == True and not self.file.closed:
-                packet_source = self.unpad(l4_packet[8:28])
-                packet_destination = self.unpad(l4_packet[28:48])
-                pktno = struct.unpack('L', l4_packet[0:8])[0]
-                time_sent = struct.unpack('d', l4_packet[48:56])[0]
-                self.writer.writerow([pktno, packet_source, packet_destination, time_sent, time()])
+        try:
+            if self.log == True and not self.file.closed:
+                    packet_source = self.unpad(l4_packet[8:28])
+                    packet_destination = self.unpad(l4_packet[28:48])
+                    pktno = struct.unpack('L', l4_packet[0:8])[0]
+                    time_sent = struct.unpack('d', l4_packet[48:56])[0]
+                    self.writer.writerow([pktno, packet_source, packet_destination, time_sent, time()])
+        except:
+            pass
 
     def pass_up(self, stop):
         '''
