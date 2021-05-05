@@ -125,7 +125,7 @@ class Layer4(Network_Layer):
         Method to log l4 packets in a seperate thread
         :param pkt: l4 packet to log
         '''
-        if self.log == True:
+        if self.log == True and not self.file.closed:
                 packet_source = self.unpad(l4_packet[8:28])
                 packet_destination = self.unpad(l4_packet[28:48])
                 pktno = struct.unpack('L', l4_packet[0:8])[0]
