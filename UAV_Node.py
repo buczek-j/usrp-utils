@@ -352,6 +352,7 @@ class UAV_Node():
                             # close to save data after each iteration. Reopen for faster writing
                             self.layer4.file.close()
                             self.layer4.file = open(os.path.expanduser(self.layer4.l4_csv_name), 'a', newline='')
+                            self.layer4.writer = csv.writer(self.layer4.file)
 
                         self.loc_index = 0
                         self.pow_index = TxPower
