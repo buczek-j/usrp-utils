@@ -126,7 +126,7 @@ def main(options):
     stop_threads=False
 
     for ii in range(len(wifi_ip_list)):
-        ssh_connections.append(SSH_Connection(username_list[ii], wifi_ip_list[ii], pwrd_list[ii], ii, CMD[ii]+" --file_name "+str(options.name)))
+        ssh_connections.append(SSH_Connection(username_list[ii], wifi_ip_list[ii], pwrd_list[ii], ii, CMD[ii]+" --file_name "+str(options.name) + "--global_home '42.477681,-71.193708,174.0'"))
     
     for connection in ssh_connections:
         if connection.connected == False:
