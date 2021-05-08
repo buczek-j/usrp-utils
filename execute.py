@@ -82,6 +82,15 @@ nc = [
     'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 5 --fly_drone n --csv_path ~/Documents/usrp-utils/FromCsv_NC/performance_data_',
 ]
 
+Readjustment = [
+    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 0 --is_dji y --csv_path ~/Documents/usrp-utils/FromCsv_readjustment/performance_data_' ,
+    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 1 --csv_path ~/Documents/usrp-utils/FromCsv_readjustment/performance_data_',
+    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 2 --is_dji y --csv_path ~/Documents/usrp-utils/FromCsv_readjustment/performance_data_',
+    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 3 --is_dji y --csv_path ~/Documents/usrp-utils/FromCsv_readjustment/performance_data_',
+    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 4 --csv_path ~/Documents/usrp-utils/FromCsv_readjustment/performance_data_',
+    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 5 --is_dji y --csv_path ~/Documents/usrp-utils/FromCsv_readjustment/performance_data_',
+]
+
 is_sim = [
     'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 0 --is_sim y',
     'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 1 --is_sim y',
