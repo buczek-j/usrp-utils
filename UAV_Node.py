@@ -300,7 +300,7 @@ class UAV_Node():
 
                 else:
                     self.my_drone.handle_takeoff(abs(self.my_alt))
-                    self.my_drone.wait_for_target()
+                    
             
 
             # iterate
