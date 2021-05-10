@@ -38,10 +38,10 @@ no_tx = [
 
 no_radio = [
     'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 0 --use_radio n --is_dji y',
-    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 1 --use_radio n',
+    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 1 --use_radio n --fly_drone n',
     'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 2 --use_radio n --is_dji y',
     'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 3 --use_radio n --is_dji y',
-    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 4 --use_radio n ',
+    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 4 --use_radio n --fly_drone n',
     'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 5 --use_radio n --is_dji y',
 ]
 
@@ -66,10 +66,10 @@ no_fly = [
 
 rly_fly = [
     'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 0 --fly_drone n  ',
-    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 1 --fly_drone n  ',
+    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 1  ',
     'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 2 --fly_drone n  ',
     'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 3 --fly_drone n  ',
-    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 4 --fly_drone n  ',
+    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 4  ',
     'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 5 --fly_drone n  ',
 ]
 
@@ -92,12 +92,12 @@ Readjustment = [
 ]
 
 is_sim = [
-    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 0 --is_sim y',
-    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 1 --is_sim y',
-    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 2 --is_sim y',
-    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 3 --is_sim y',
-    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 4 --is_sim y',
-    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 5 --is_sim y',
+    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 0 --is_dji y --use_radio n',
+    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 1 --use_radio n --fly_drone n',
+    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 2 --is_dji y --use_radio n',
+    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 3 --is_dji y --use_radio n',
+    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 4 --use_radio n --fly_drone n',
+    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 5 --use_radio n --fly_drone n',
 ]
 
 
@@ -135,7 +135,8 @@ def main(options):
     stop_threads=False
 
     for ii in range(len(wifi_ip_list)):
-        ssh_connections.append(SSH_Connection(username_list[ii], wifi_ip_list[ii], pwrd_list[ii], ii, CMD[ii]+" --file_name "+str(options.name) + "--global_home '42.477681,-71.193708,174.0'"))
+        print(CMD[ii])
+        ssh_connections.append(SSH_Connection(username_list[ii], wifi_ip_list[ii], pwrd_list[ii], ii, CMD[ii])) #+" --file_name "+str(options.name) + "--global_home '42.47786331176758,-71.19368743896484,82.87000274658203'"))
     
     for connection in ssh_connections:
         if connection.connected == False:
@@ -174,7 +175,7 @@ def arguments_parser():
     parser = ArgumentParser()
     parser.add_argument('--cmd', type=str, default='', help='cmd to run')
     parser.add_argument('--name', type=str, default='log_', help='log file name')
-    parser.add_argument('--global_home', type=str, default='', help='global lat/lon origin')
+    parser.add_argument('--global_home', type=str, default='"42.477681,-71.193708,92.04"', help='global lat/lon origin')
     return parser.parse_args()
 
 if __name__ == '__main__':
