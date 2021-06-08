@@ -1,0 +1,7 @@
+testresources
+tensorflow
+dronekit
+pymavlink
+mavproxy
+paramiko
+numpy

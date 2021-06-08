@@ -2,5 +2,5 @@
 *__pycache__ 
 *.pyc
 
-# test python programs
-*test.py
+BasicArducopter
+BasicArducopter/*
