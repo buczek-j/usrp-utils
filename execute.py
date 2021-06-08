@@ -15,8 +15,8 @@ from threading import Thread
 from Utils.SSH_Connection import SSH_Connection
 # 110, 4,6,9,8,7
 
-wifi_ip_list = ['192.168.10.104', '192.168.10.109', '192.168.10.106', '192.168.10.107', '192.168.10.108', '192.168.10.110']
-username_list = ['wines-nuc4', 'wines-nuc9', 'wines-nuc6', 'wines-nuc4', 'wines-nuc7', 'wines-nuc10']
+wifi_ip_list = ['192.168.10.104', '192.168.10.109', '192.168.10.106']#, '192.168.10.107', '192.168.10.108', '192.168.10.110']
+username_list = ['wines-nuc4', 'wines-nuc9', 'wines-nuc6', 'wines-nuc7', 'wines-nuc8', 'wines-nuc10']
 pwrd_list = ['wnesl', 'wnesl', 'wnesl', 'wnesl', 'wnesl', 'wnesl']
 
 main_test = [
@@ -93,12 +93,12 @@ Readjustment = [
 ]
 
 is_sim = [
-    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 0 --is_dji y --use_radio n',
-    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 1 --use_radio n --fly_drone n',
-    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 2 --is_dji y --use_radio n',
-    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 3 --is_dji y --use_radio n',
-    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 4 --use_radio n --fly_drone n',
-    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 5 --use_radio n --fly_drone n',
+    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 0  --num 3 --is_sim y --use_radio y --l4 y',
+    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 1  --num 3 --is_sim y --use_radio y --l4 y',
+    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 2  --num 3 --is_sim y --use_radio y --l4 y',
+    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 3 --is_sim y --use_radio y',
+    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 4 --is_sim y --use_radio y',
+    'source ~/prefix-3.8/setup_env.sh; python3 ~/Documents/usrp-utils/UAV_Node.py --index 5 --is_sim y --use_radio y',
 ]
 
 
