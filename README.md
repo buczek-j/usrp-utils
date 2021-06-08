@@ -34,7 +34,7 @@ sudo apt install gnuradio
 ## Clone this Repo/Branch
 Use the following command to clone this repo at this specific branch and setup BasicArducopter as a submodule:
 ```
-git clone -b emane_adaption --recurse-submodules https://github.com/buczek-j/usrp-utils
+git clone -b main --recurse-submodules https://github.com/buczek-j/usrp-utils
 ```
 
 ## Useful commands:
