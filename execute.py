@@ -13,9 +13,10 @@ from threading import Thread
 # local libraries
 
 from Utils.SSH_Connection import SSH_Connection
+# 110, 4,6,9,8,7
 
-wifi_ip_list = ['192.168.10.101', '192.168.10.102', '192.168.10.103', '192.168.10.104', '192.168.10.105', '192.168.10.106']
-username_list = ['wines-nuc1', 'wines-nuc2', 'wines-nuc3', 'wines-nuc4', 'wines-nuc5', 'wines-nuc6']
+wifi_ip_list = ['192.168.10.104', '192.168.10.109', '192.168.10.106', '192.168.10.107', '192.168.10.108', '192.168.10.110']
+username_list = ['wines-nuc4', 'wines-nuc9', 'wines-nuc6', 'wines-nuc4', 'wines-nuc7', 'wines-nuc10']
 pwrd_list = ['wnesl', 'wnesl', 'wnesl', 'wnesl', 'wnesl', 'wnesl']
 
 main_test = [
