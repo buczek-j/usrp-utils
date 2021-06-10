@@ -560,8 +560,8 @@ def main():
     freq3 = 2.6e9
 
     dest1= Node_Config(pc_ip='192.168.10.109', usrp_ip='192.170.10.109', my_id='dest1', role='rx', tx_freq=freq3, rx_freq=freq2, serial="", tx_gain=tx_gain, rx_gain=rx_gain , location_index=10) # TODO
-    rly1 = Node_Config(pc_ip='192.168.10.104', usrp_ip='192.170.10.104', my_id='rly1', role='rly', tx_freq=freq2, rx_freq=freq1, serial="", tx_gain=tx_gain, rx_gain=rx_gain ,location_index=24)
-    src1 = Node_Config(pc_ip='192.168.10.106', usrp_ip='192.170.10.106', my_id='src1' , role='tx', tx_freq=freq1, rx_freq=freq3, serial="", tx_gain=tx_gain, rx_gain=rx_gain ,location_index=0)
+    rly1 = Node_Config(pc_ip='192.168.10.106', usrp_ip='192.170.10.106', my_id='rly1', role='rly', tx_freq=freq2, rx_freq=freq1, serial="", tx_gain=tx_gain, rx_gain=rx_gain ,location_index=24)
+    src1 = Node_Config(pc_ip='192.168.10.104', usrp_ip='192.170.10.104', my_id='src1' , role='tx', tx_freq=freq1, rx_freq=freq3, serial="", tx_gain=tx_gain, rx_gain=rx_gain ,location_index=0)
 
     dest2= Node_Config(pc_ip='192.168.10.107', usrp_ip='192.170.10.107', my_id='dest2', role='rx', tx_freq=freq3, rx_freq=freq2, serial="", tx_gain=tx_gain, rx_gain=rx_gain ,location_index=120)
     rly2 = Node_Config(pc_ip='192.168.10.108', usrp_ip='192.170.10.108', my_id='rly2', role='rly', tx_freq=freq2, rx_freq=freq1, serial="", tx_gain=tx_gain, rx_gain=rx_gain ,location_index=70)
