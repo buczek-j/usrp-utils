@@ -30,7 +30,7 @@ class UAV_Node():
                     dqn_config=None, 
                     alt=6, 
                     num_nodes=6, 
-                    min_iteration_time=5.0, 
+                    min_iteration_time=30.0, 
                     pow_index=3, 
                     node_index=0, 
                     log_base_name="~/Documents/usrp-utils/Logs/log_", 
