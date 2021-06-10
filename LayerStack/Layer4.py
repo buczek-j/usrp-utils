@@ -147,7 +147,7 @@ class Layer4(Network_Layer):
             packet_destination = self.unpad(l4_packet[28:48])
             
             if self.debug:
-                print('L4 RCV', struct.unpack('L', l4_packet[0:8]))
+                print('L4 RCV', struct.unpack('l', l4_packet[0:8]))
 
             if packet_destination == self.my_pc:    # if this is the destination, then pass payload to the application layer
                 self.up_queue.put(l4_packet[56:], True)
