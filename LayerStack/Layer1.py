@@ -100,7 +100,7 @@ class Layer1(Network_Layer):
                 received_pkt = frombuffer(msg, dtype=byte, count=-1)
                 self.up_queue.put(received_pkt.tobytes(), True)
                 received_pkt=None
-                print(len(msg))
+                # print(len(msg))
 
 
     def pass_down(self, stop):
@@ -110,7 +110,7 @@ class Layer1(Network_Layer):
         '''
         while not stop():
             msg = self.prev_down_queue.get(True)    #  get message from previous layer down queue
-            print(len(msg))
+            # print(len(msg))
             self.send_socket.send(msg+msg) # send 2 messages
 
 
