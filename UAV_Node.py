@@ -520,7 +520,7 @@ def arguement_parser():
     parser.add_argument('--csv_path', type=str, default='~/Documents/usrp-utils/FromCsv/performance_data_', help='dir path to import csv')
 
     parser.add_argument('--f1', type=int, default=2000000000, help='freq 1')
-    parser.add_argument('--f2', type=int, default=2100000000, help='freq 2')
+    parser.add_argument('--f2', type=int, default=2200000000, help='freq 2')
 
     parser.add_argument('--tx_gain', type=float, default=0.8, help='normalized tx gain percentage')
     parser.add_argument('--rx_gain', type=float, default=0.95, help='normalized rx gian percentage')
